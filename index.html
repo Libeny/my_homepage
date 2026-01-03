@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUYU | AI Transformation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@300;800&family=Kalam:wght@400;700&family=Orbitron:wght@900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        geek: ['"Orbitron"', 'sans-serif'],
+                        code: ['"JetBrains Mono"', 'monospace'],
+                        cute: ['"ZCOOL KuaiLe"', '"Kalam"', 'cursive'],
+                        loud: ['"Anton"', 'sans-serif'],
+                    },
+                    colors: {
+                        'baidu-blue': '#2932E1',
+                        'nagano-white': '#FFFFFA',
+                        'saul-yellow': '#F5C518',
+                        'saul-red': '#D93025',
+                    },
+                    backgroundImage: {
+                        'grid-tech': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    },
+                    animation: {
+                        'marquee': 'marquee 25s linear infinite',
+                        'marquee-reverse': 'marqueeReverse 25s linear infinite',
+                        'wobble': 'wobble 3s ease-in-out infinite',
+                        'float-up': 'floatUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        },
+                        marqueeReverse: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(0%)' },
+                        },
+                        wobble: {
+                            '0%, 100%': { transform: 'rotate(-1deg)' },
+                            '50%': { transform: 'rotate(1deg)' },
+                        },
+                        floatUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .marquee-strip { display: flex; overflow: hidden; white-space: nowrap; padding: 0.8rem 0; position: relative; z-index: 20; }
+        .manga-panel { background: #FFFFFA; border: 3px solid #000; box-shadow: 6px 6px 0px #000; position: relative; }
+        .tape { background-color: rgba(255, 255, 255, 0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.2); backdrop-filter: blur(5px); position: absolute; height: 30px; width: 100px; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); z-index: 10; }
+        .map-overlay { background: linear-gradient(to top, #09090b 0%, transparent 20%); }
+        
+        /* Auto-scroll Gallery */
+        .gallery-wrapper {
+            display: flex;
+            gap: 1rem;
+            width: max-content;
+            animation: galleryScroll 20s linear infinite;
+        }
+        .gallery-wrapper:hover { animation-play-state: paused; }
+        @keyframes galleryScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Accordion & Console Styles */
+        .project-item {
+            border: 1px solid #333;
+            background: #000;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Project Colors & Glows */
+        .project-blue.active { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        .project-blue .project-header { color: #60a5fa; }
+        .project-red.active { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .project-red .project-header { color: #f87171; }
+        .project-green.active { border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+        .project-green .project-header { color: #4ade80; }
+
+        .project-header {
+            cursor: pointer;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.02);
+        }
+        .project-header:hover { background: rgba(255,255,255,0.05); }
+
+        .project-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            background: #050505;
+        }
+        .project-item.active .project-content {
+            max-height: 800px;
+            opacity: 1;
+        }
+
+        /* Console Editor Look */
+        .console-editor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            background: #0a0a0a;
+            padding: 1.5rem;
+            border-left: 1px solid #333;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .line-num { color: #444; margin-right: 1rem; user-select: none; }
+        .code-key { color: #d19a66; } /* JSON Key Color */
+        .code-str { color: #98c379; } /* String Color */
+        .code-num { color: #e5c07b; } /* Number Color */
+        .code-bool { color: #56b6c2; } /* Boolean Color */
+        
+        /* Visual Demo Area */
+        .visual-demo {
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Scanline Effect */
+        .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .arrow-icon { transition: transform 0.3s; }
+        .project-item.active .arrow-icon { transform: rotate(180deg); }
+        
+        /* Scroll Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden bg-black text-white">
+
+    <!-- SECTION 1: THE GEEK -->
+    <section id="geek-mode" class="relative min-h-[90vh] bg-[#020617] flex flex-col justify-center overflow-hidden pb-20">
+        <div class="absolute inset-0 bg-grid-tech opacity-20 pointer-events-none"></div>
+        <nav class="absolute top-0 w-full p-6 flex justify-between items-center z-20">
+            <div class="font-geek text-baidu-blue tracking-widest text-xl hover:text-white transition cursor-pointer">MUYU<span class="text-white">.DEV</span></div>
+            <div class="font-code text-xs text-gray-500">[ SYSTEM ONLINE ]</div>
+        </nav>
+        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center z-10 pt-20 reveal active">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 px-4 py-2 border border-baidu-blue/50 rounded-full bg-baidu-blue/5 backdrop-blur-sm">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span class="font-code text-xs text-blue-300 tracking-wide">BAT Software Engineer</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight font-sans tracking-tight">
+                    Thinking in <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-baidu-blue to-cyan-400">Code & Agents.</span>
+                </h1>
+                <p class="text-gray-400 text-lg font-light max-w-md leading-relaxed">
+                    负责 Coding Agent Infra + AIQA 代码知识建设。<br>
+                    我不在写代码，就在构建写代码的机器。
+                </p>
+            </div>
+            <div class="relative flex justify-center group">
+                <div class="absolute inset-0 bg-baidu-blue/20 blur-[100px] rounded-full opacity-50 group-hover:opacity-80 transition duration-700"></div>
+                <div class="relative w-72 h-72 md:w-96 md:h-96 border border-white/10 p-2 bg-[#0F172A]/80 backdrop-blur rounded-2xl shadow-2xl transform rotate-3 group-hover:rotate-0 group-hover:scale-105 transition duration-500 ease-out cursor-pointer">
+                    <div class="w-full h-full overflow-hidden rounded-xl relative">
+                        <img src="./my.jpg" alt="Muyu Profile" class="w-full h-full object-cover filter contrast-105 transition duration-500">
+                        <div class="absolute top-4 right-4 flex gap-1">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 font-code text-[10px] text-green-400 bg-black/80 px-2 py-1 rounded border border-green-900/50">
+                            ID: MUYU_001
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARQUEE 1 -->
+    <div class="bg-yellow-300 text-black font-code text-sm py-3 border-y-4 border-black transform -skew-y-1 relative z-30">
+        <div class="marquee-strip">
+            <div class="animate-marquee flex gap-12 font-bold min-w-full">
+                <span>// SYSTEM OVERLOAD</span> <span>( > _ < )</span> <span>// HUMAN FATIGUE DETECTED</span> <span>( ; ´ Д ` )</span> <span>// SWITCHING TO HONEST MODE</span> <span>( ˘_˘ )</span>
+                <span>// SYSTEM OVERLOAD</span> <span>( > _ < )</span> <span>// HUMAN FATIGUE DETECTED</span> <span>( ; ´ Д ` )</span> <span>// SWITCHING TO HONEST MODE</span> <span>( ˘_˘ )</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: THE JOKE BEAR -->
+    <section id="cute-mode" class="relative py-32 bg-nagano-white text-black font-cute overflow-hidden -mt-10 pt-24 reveal">
+        <div class="max-w-5xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-6xl font-bold leading-relaxed animate-wobble">
+                    说实话... <br>
+                    你也觉得 <span class="text-red-600 underline decoration-wavy">"手搓代码"</span> 很累吧？
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-10 items-start">
+                <div class="manga-panel p-8 transform rotate-1">
+                    <div class="absolute -top-4 -left-4 text-4xl">💢</div>
+                    <h3 class="text-2xl mb-4 font-bold border-b-2 border-black pb-2 inline-block">关于教学...</h3>
+                    <p class="text-xl leading-loose text-gray-800">
+                        一对一教人真的太慢了！<br>
+                        感觉自己像个复读机...<br>
+                        <span class="text-sm text-gray-500">(虽然我很喜欢分享，但是...)</span>
+                    </p>
+                </div>
+                <div class="manga-panel p-8 transform -rotate-1 mt-12 md:mt-0">
+                    <div class="absolute -top-6 -right-6 text-5xl">✨</div>
+                    <h3 class="text-2xl mb-4 font-bold border-b-2 border-black pb-2 inline-block">于是我想...</h3>
+                    <p class="text-xl leading-loose text-gray-800">
+                        如果有个 <strong class="bg-yellow-300 px-1">AI Agent 小弟</strong> 呢？<br>
+                        "一次调教，终身干活"<br>
+                        让他去处理那些重复的脏活累活！
+                    </p>
+                </div>
+            </div>
+            <div class="mt-20 text-center">
+                <p class="text-xl text-gray-500 mb-4">⬇️ 于是我造了这些东西 ⬇️</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARQUEE 2 -->
+    <div class="bg-black text-white font-loud text-2xl py-6 border-y-4 border-white/20 transform skew-y-1 relative z-30 -mt-10">
+        <div class="marquee-strip">
+            <div class="animate-marquee-reverse flex gap-16 min-w-full">
+                <span>BETTER CALL MUYU</span> <span>★</span> <span>PROBLEM SOLVED</span> <span>★</span> <span>AI ARSENAL</span> <span>★</span>
+                <span>BETTER CALL MUYU</span> <span>★</span> <span>PROBLEM SOLVED</span> <span>★</span> <span>AI ARSENAL</span> <span>★</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: THE ARSENAL (ACCORDION) -->
+    <section id="saul-mode" class="relative py-32 bg-zinc-900 text-white pt-24 reveal">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="mb-16">
+                <h2 class="text-6xl md:text-8xl font-loud leading-none text-saul-yellow mb-4">
+                    MY SECRET<br>WEAPONS
+                </h2>
+                <div class="w-24 h-2 bg-saul-yellow mb-6"></div>
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                    <p class="font-mono text-gray-400 md:w-1/3">
+                        > CLICK TO DECLASSIFY FILES...
+                    </p>
+                    <p class="text-gray-300 md:w-2/3 leading-relaxed font-light border-l-2 border-zinc-700 pl-6">
+                        这里存放着我的一系列 <strong>"数字军火"</strong>。从底层的 Agent 基础设施，到视觉安全卫士，再到全自动化的数字员工。
+                        每一个项目都是为了解决特定维度的痛点而生。<br>
+                        <span class="text-sm text-gray-500 mt-2 block"> // 点击下方档案条目，查看详细技术蓝图与实时演示。</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-6 font-mono">
+                
+                <!-- Project 01: Blue (React/Infra) -->
+                <div class="project-item project-blue" onclick="toggleProject(this)">
+                    <div class="project-header">
+                        <div class="flex items-center gap-4">
+                            <span class="text-2xl font-bold">[01] CUI-NO-AUTH</span>
+                            <span class="hidden md:inline text-xs opacity-50">// INFRASTRUCTURE_AS_CODE</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs border border-current px-2 py-1 rounded">REACT_CORE</span>
+                            <svg class="w-5 h-5 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <div class="grid md:grid-cols-2 h-full border-t border-gray-800">
+                            <!-- Left: Visual -->
+                            <div class="visual-demo scanlines text-blue-500 flex flex-col items-center justify-center bg-blue-900/10 p-8">
+                                <div class="w-full font-mono text-xs opacity-70 mb-4">
+                                    > INITIATING DEPLOYMENT...<br>
+                                    > LOADING MODULES... [OK]<br>
+                                    > BYPASSING AUTH... [OK]<br>
+                                    > SYSTEM READY.
+                                </div>
+                                <div class="w-20 h-20 border-4 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+                            </div>
+                            <!-- Right: Code -->
+                            <div class="console-editor text-gray-300">
+                                <div class="mb-2"><span class="line-num">01</span><span class="text-gray-500">// Project Configuration</span></div>
+                                <div><span class="line-num">02</span><span class="text-purple-400">const</span> <span class="text-blue-400">projectConfig</span> = {</div>
+                                <div><span class="line-num">03</span>  <span class="code-key">"id"</span>: <span class="code-str">"cui-no-auth"</span>,</div>
+                                <div><span class="line-num">04</span>  <span class="code-key">"type"</span>: <span class="code-str">"infrastructure"</span>,</div>
+                                <div><span class="line-num">05</span>  <span class="code-key">"features"</span>: [</div>
+                                <div><span class="line-num">06</span>    <span class="code-str">"CoT_Visualization"</span>,</div>
+                                <div><span class="line-num">07</span>    <span class="code-str">"Voice_Input_Module"</span></div>
+                                <div><span class="line-num">08</span>  ],</div>
+                                <div><span class="line-num">09</span>  <span class="code-key">"ready_for_prod"</span>: <span class="code-bool">true</span></div>
+                                <div><span class="line-num">10</span>};</div>
+                                <div class="mt-4"><span class="line-num">11</span><span class="text-gray-500">/* Designed for instant access */</span></div>
+                                <div><span class="line-num">12</span><span class="text-gray-500">/* No login required. Pure code. */</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 02: Red (Vision/Security) -->
+                <div class="project-item project-red" onclick="toggleProject(this)">
+                    <div class="project-header">
+                        <div class="flex items-center gap-4">
+                            <span class="text-2xl font-bold">[02] MUTU (牧途)</span>
+                            <span class="hidden md:inline text-xs opacity-50">// VISUAL_SECURITY_PROTOCOL</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs border border-current px-2 py-1 rounded">VISION_AI</span>
+                            <svg class="w-5 h-5 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <div class="grid md:grid-cols-2 h-full border-t border-gray-800">
+                            <!-- Left: Visual -->
+                            <div class="visual-demo scanlines text-red-500 relative bg-red-900/10">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-48 h-48 border border-red-500/30 rounded-full flex items-center justify-center animate-pulse">
+                                        <div class="w-32 h-32 border border-red-500/60 rounded-full flex items-center justify-center">
+                                            <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                                        </div>
+                                    </div>
+                                    <div class="absolute top-1/2 w-full h-[1px] bg-red-500/50 animate-pulse"></div>
+                                    <div class="absolute left-1/2 h-full w-[1px] bg-red-500/50 animate-pulse"></div>
+                                </div>
+                                <div class="absolute bottom-4 left-4 font-mono text-xs">
+                                    > TARGET: OBSTACLE_DETECTED<br>
+                                    > DISTANCE: 1.2M<br>
+                                    > CONFIDENCE: 98.4%
+                                </div>
+                            </div>
+                            <!-- Right: Code -->
+                            <div class="console-editor text-gray-300">
+                                <div class="mb-2"><span class="line-num">01</span><span class="text-gray-500"># Vision Processing Unit</span></div>
+                                <div><span class="line-num">02</span><span class="text-purple-400">class</span> <span class="text-yellow-400">Sentinel</span>:</div>
+                                <div><span class="line-num">03</span>    <span class="text-purple-400">def</span> <span class="text-blue-400">analyze_stream</span>(self, frame):</div>
+                                <div><span class="line-num">04</span>        <span class="text-gray-500">"""Real-time obstacle detection"""</span></div>
+                                <div><span class="line-num">05</span>        objects = model.detect(frame)</div>
+                                <div><span class="line-num">06</span>        <span class="text-purple-400">if</span> objects.danger_level > <span class="code-num">0.8</span>:</div>
+                                <div><span class="line-num">07</span>            <span class="text-purple-400">return</span> <span class="code-str">"WARNING_TRIGGERED"</span></div>
+                                <div><span class="line-num">08</span>        <span class="text-purple-400">return</span> <span class="code-str">"SAFE_PATH"</span></div>
+                                <div class="mt-4"><span class="line-num">09</span><span class="text-gray-500"># Digital Guide Dog Logic</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 03: Green (Matrix/Agent) -->
+                <div class="project-item project-green" onclick="toggleProject(this)">
+                    <div class="project-header">
+                        <div class="flex items-center gap-4">
+                            <span class="text-2xl font-bold">[03] AI AGENT</span>
+                            <span class="hidden md:inline text-xs opacity-50">// AUTONOMOUS_MATRIX_NODE</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs border border-current px-2 py-1 rounded">AUTO_GLM</span>
+                            <svg class="w-5 h-5 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <div class="grid md:grid-cols-2 h-full border-t border-gray-800">
+                            <!-- Left: Visual -->
+                            <div class="visual-demo scanlines text-green-500 bg-green-900/10 overflow-hidden relative">
+                                <div class="absolute inset-0 p-4 font-mono text-[10px] leading-3 opacity-50 break-all">
+                                    010101010010101010101010100101010101
+                                    101010101010010101010101010101010101
+                                    001010101010101010100101010101010101
+                                    101001010101010101010101010100101010
+                                    010101010010101010101010100101010101
+                                    101010101010010101010101010101010101
+                                    001010101010101010100101010101010101
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="bg-black/80 p-4 border border-green-500 rounded backdrop-blur">
+                                        <div class="animate-pulse">> AGENT_ACTIVE</div>
+                                        <div class="text-xs mt-2">Task: "Refactor Codebase"</div>
+                                        <div class="w-full bg-gray-800 h-1 mt-2 rounded overflow-hidden">
+                                            <div class="bg-green-500 h-full w-[70%]"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right: Code -->
+                            <div class="console-editor text-gray-300">
+                                <div class="mb-2"><span class="line-num">01</span><span class="text-gray-500">// Autonomous Worker Configuration</span></div>
+                                <div><span class="line-num">02</span>{</div>
+                                <div><span class="line-num">03</span>  <span class="code-key">"agent_id"</span>: <span class="code-str">"worker_01"</span>,</div>
+                                <div><span class="line-num">04</span>  <span class="code-key">"role"</span>: <span class="code-str">"full_stack_dev"</span>,</div>
+                                <div><span class="line-num">05</span>  <span class="code-key">"capabilities"</span>: {</div>
+                                <div><span class="line-num">06</span>    <span class="code-key">"coding"</span>: <span class="code-num">100</span>,</div>
+                                <div><span class="line-num">07</span>    <span class="code-key">"fatigue"</span>: <span class="code-num">0</span></div>
+                                <div><span class="line-num">08</span>  },</div>
+                                <div><span class="line-num">09</span>  <span class="code-key">"status"</span>: <span class="code-str">"working_24_7"</span></div>
+                                <div><span class="line-num">10</span>}</div>
+                                <div class="mt-4"><span class="line-num">11</span><span class="text-gray-500">// "One-time prompt, lifetime labor"</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: FOOTPRINTS -->
+    <section id="travel-mode" class="py-24 bg-gradient-to-b from-zinc-900 to-black text-white border-t border-zinc-800 reveal">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl font-code mb-12 flex items-center gap-4 text-gray-300">
+                <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
+                个人足迹 (FOOTPRINTS)
+            </h2>
+
+            <div class="flex flex-col lg:flex-row gap-12">
+                <!-- Map Container -->
+                <div id="map-col" class="lg:w-3/4 flex flex-col gap-4 min-w-0">
+                    <div class="h-[450px] border border-zinc-800 rounded-xl overflow-hidden shadow-2xl relative z-10 group">
+                         <div id="travel-map" class="w-full h-full bg-[#020617]"></div>
+                         <div class="absolute inset-0 pointer-events-none map-overlay"></div>
+                         
+                         <!-- Reset View Button -->
+                         <button onclick="resetMap()" class="absolute top-4 right-4 bg-black/80 hover:bg-white hover:text-black text-white border border-white/20 px-3 py-1 font-mono text-xs rounded transition z-[500] cursor-pointer shadow-lg">
+                            ⟲ RESET VIEW
+                         </button>
+                         
+                         <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded text-[10px] font-mono text-gray-400 border border-white/10 pointer-events-none">
+                            > CLICK MARKERS TO DECRYPT MEMORIES
+                         </div>
+                    </div>
+                    
+                    <!-- Gallery with Auto Scroll -->
+                    <div id="gallery-container" class="invisible h-48 w-full overflow-hidden bg-zinc-900/50 border border-white/10 rounded-xl p-3 relative animate-float-up">
+                        <div id="gallery-track" class="gallery-wrapper">
+                             <!-- Photos injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Photos (Fixed Layout) -->
+                <div id="photo-col" class="lg:w-1/4 flex flex-col justify-start pt-0 items-center lg:items-start gap-12 relative">
+                    <div class="relative transform rotate-3 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105">
+                        <div class="tape"></div>
+                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.5)] w-64">
+                            <div class="aspect-[4/3] bg-gray-200 overflow-hidden relative">
+                                <img src="./travel1.jpg" class="w-full h-full object-cover filter contrast-110">
+                            </div>
+                            <div class="font-cute text-black text-center mt-3 text-lg rotate-[-1deg]">
+                                这里的风景超棒! 📸
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative transform -rotate-2 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105 -mt-6 lg:-ml-8">
+                        <div class="tape" style="transform: translateX(-50%) rotate(3deg);"></div>
+                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.5)] w-64">
+                            <div class="aspect-[4/3] bg-gray-200 overflow-hidden relative">
+                                <img src="./travel2.jpg" class="w-full h-full object-cover filter contrast-110">
+                            </div>
+                            <div class="font-cute text-black text-center mt-3 text-lg rotate-[1deg]">
+                                放松一下 ✨
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-white py-24 text-center relative overflow-hidden border-t border-zinc-900">
+        <div class="max-w-4xl mx-auto px-6 relative z-10 reveal">
+            <h2 class="text-7xl md:text-9xl font-loud tracking-tighter mb-12 hover:text-saul-yellow transition cursor-default leading-[0.8]">
+                BETTER CALL <br> MUYU
+            </h2>
+            <div class="flex flex-wrap justify-center gap-6 font-code">
+                <a href="#" class="px-10 py-4 bg-white text-black hover:bg-saul-yellow transition uppercase font-bold text-lg">Email Me</a>
+                <a href="#" class="px-10 py-4 border-2 border-white hover:bg-white hover:text-black transition uppercase font-bold text-lg">WeChat</a>
+            </div>
+            <p class="mt-20 text-gray-600 text-xs font-mono">&copy; 2026 Muyu. BAT Engineer.</p>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        // Project Toggle Logic
+        function toggleProject(element) {
+            // Remove active class from all items
+            const allItems = document.querySelectorAll('.project-item');
+            allItems.forEach(item => {
+                if(item !== element) {
+                    item.classList.remove('active');
+                }
+            });
+            // Toggle clicked item
+            element.classList.toggle('active');
+        }
+
+        // Map Init
+        const map = L.map('travel-map', {
+            zoomControl: false,
+            scrollWheelZoom: false,
+        }).setView([35.0, 105.0], 4);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        const createMarker = (color) => {
+            return L.divIcon({
+                className: 'custom-pin',
+                html: `
+                    <div class="relative flex items-center justify-center w-full h-full">
+                        <span class="absolute inline-flex h-full w-full rounded-full bg-${color}-500 opacity-75 animate-ping"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" style="background-color: ${color}; box-shadow: 0 0 10px ${color};"></span>
+                    </div>
+                `,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+        };
+
+        const memories = {
+            'beijing': [
+                'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1620952086386-d2495d436814?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?auto=format&fit=crop&w=400&q=80'
+            ],
+            'shanghai': [
+                'https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?auto=format&fit=crop&w=400&q=80'
+            ],
+            'chengdu': [
+                'https://images.unsplash.com/photo-1565466472659-548c772cb25d?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1623136275815-56f4d6d45928?auto=format&fit=crop&w=400&q=80'
+            ]
+        };
+
+        const galleryContainer = document.getElementById('gallery-container');
+        const galleryTrack = document.getElementById('gallery-track');
+        // Removed unused mapCol/photoCol
+
+        const addMarker = (coords, color, cityKey) => {
+            const marker = L.marker(coords, {icon: createMarker(color)}).addTo(map);
+            marker.on('click', () => {
+                // Show Gallery
+                galleryContainer.classList.remove('invisible');
+                galleryTrack.innerHTML = '';
+
+                const images = memories[cityKey];
+                const allImages = [...images, ...images, ...images, ...images]; 
+                
+                allImages.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = "h-40 w-56 object-cover rounded-lg border border-white/20 hover:scale-110 transition duration-300 flex-shrink-0 cursor-pointer shadow-lg";
+                    galleryTrack.appendChild(img);
+                });
+                
+                map.flyTo(coords, 6, {duration: 1.5});
+            });
+        };
+
+        addMarker([39.9042, 116.4074], '#F5C518', 'beijing');
+        addMarker([31.2304, 121.4737], '#F5C518', 'shanghai');
+        addMarker([30.5728, 104.0668], '#F5C518', 'chengdu');
+
+        function resetMap() {
+            map.flyTo([35.0, 105.0], 4, {duration: 1.5});
+            galleryContainer.classList.add('invisible');
+        }
+
+        // Scroll Reveal Observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
