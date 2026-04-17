@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NB-Claude — Never Break Your Flow</title>
+  <link rel="icon" href="docs/sailor.png" type="image/png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+    :root {
+      --parchment: #f5f4ed;
+      --cream: #faf9f7;
+      --charcoal: #4d4c48;
+      --charcoal-light: #6b6a66;
+      --terracotta: #c96442;
+      --terracotta-dark: #a8523a;
+      --terracotta-light: #e8a88e;
+      --border: #ddd9d0;
+      --code-bg: #eeece4;
+      --shadow: 0 1px 3px rgba(77, 76, 72, 0.08), 0 4px 12px rgba(77, 76, 72, 0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--parchment);
+      color: var(--charcoal);
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.75;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---- Navigation ---- */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 244, 237, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--charcoal);
+    }
+    nav .logo img { height: 32px; border-radius: 6px; }
+    nav .logo span {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    nav .links { display: flex; gap: 20px; }
+    nav .links a {
+      color: var(--charcoal-light);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav .links a:hover { color: var(--terracotta); }
+
+    /* ---- Hero ---- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 64px;
+    }
+    .hero-image {
+      width: 100%;
+      max-height: 480px;
+      object-fit: cover;
+      border-radius: 0 0 16px 16px;
+      display: block;
+    }
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(245, 244, 237, 0.6) 40%, var(--parchment));
+      padding: 80px 24px 48px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--terracotta);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+    .hero .subtitle {
+      font-size: 18px;
+      color: var(--charcoal-light);
+      font-weight: 300;
+      max-width: 560px;
+    }
+
+    /* ---- Section ---- */
+    section {
+      margin-bottom: 80px;
+    }
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--terracotta-light);
+      display: inline-block;
+    }
+    h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin: 32px 0 12px;
+    }
+    p {
+      margin-bottom: 16px;
+    }
+    a { color: var(--terracotta); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ---- Illustration ---- */
+    .illustration {
+      margin: 40px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .illustration img {
+      width: 100%;
+      display: block;
+    }
+    .illustration figcaption {
+      text-align: center;
+      font-size: 13px;
+      color: var(--charcoal-light);
+      padding: 10px 16px;
+      background: var(--cream);
+    }
+
+    /* ---- Comparison Table ---- */
+    .comparison {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .comparison thead {
+      background: var(--charcoal);
+      color: var(--parchment);
+    }
+    .comparison th, .comparison td {
+      padding: 12px 16px;
+      text-align: left;
+    }
+    .comparison th {
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+    .comparison tbody tr {
+      border-bottom: 1px solid var(--border);
+      background: white;
+    }
+    .comparison tbody tr:nth-child(even) {
+      background: var(--cream);
+    }
+    .comparison .bad { color: #c0392b; }
+    .comparison .good { color: #27ae60; }
+
+    /* ---- Code Block ---- */
+    pre {
+      background: #2d2c29;
+      color: #e8e6df;
+      border-radius: 10px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      box-shadow: var(--shadow);
+    }
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 0.9em;
+    }
+    p code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .comment { color: #8a877f; }
+    .keyword { color: #e8a88e; }
+    .string { color: #a8c7a0; }
+    .command { color: #8ecae6; }
+
+    /* ---- Architecture Diagram ---- */
+    .arch-layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 32px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .arch-layer {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .arch-layer:nth-child(1) {
+      background: var(--terracotta);
+      color: white;
+    }
+    .arch-layer:nth-child(2) {
+      background: var(--terracotta-light);
+      color: var(--charcoal);
+    }
+    .arch-layer:nth-child(3) {
+      background: var(--cream);
+      color: var(--charcoal);
+      border-top: 1px solid var(--border);
+    }
+    .arch-layer .level {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 14px;
+      min-width: 60px;
+    }
+    .arch-layer .desc {
+      font-size: 14px;
+      flex: 1;
+    }
+    .arch-layer .tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ---- Feature Cards ---- */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .feature-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .feature-card .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .feature-card h4 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .feature-card p {
+      font-size: 13px;
+      color: var(--charcoal-light);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* ---- Screenshot ---- */
+    .screenshot {
+      margin: 32px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .screenshot img {
+      width: 100%;
+      display: block;
+    }
+    .screenshot figcaption {
+      text-align: center;
+      font-size: 13px;
+      color: var(--charcoal-light);
+      padding: 10px 16px;
+      background: var(--cream);
+    }
+
+    /* ---- Quick Start ---- */
+    .step {
+      display: flex;
+      gap: 16px;
+      margin: 24px 0;
+      align-items: flex-start;
+    }
+    .step-number {
+      background: var(--terracotta);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    .step-content h4 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .step-content p {
+      font-size: 14px;
+      color: var(--charcoal-light);
+      margin: 0;
+    }
+
+    /* ---- CLI Table ---- */
+    .cli-table {
+      width: 100%;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .cli-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cli-table td:first-child {
+      font-family: 'SF Mono', monospace;
+      color: var(--terracotta);
+      font-weight: 500;
+      white-space: nowrap;
+      width: 200px;
+    }
+
+    /* ---- CTA ---- */
+    .cta {
+      background: var(--charcoal);
+      color: var(--parchment);
+      border-radius: 12px;
+      padding: 48px 40px;
+      text-align: center;
+      margin: 80px 0 0;
+    }
+    .cta h2 {
+      color: var(--parchment);
+      border-bottom-color: var(--terracotta);
+      margin-bottom: 16px;
+    }
+    .cta p {
+      color: rgba(245, 244, 237, 0.7);
+      max-width: 480px;
+      margin: 0 auto 24px;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--terracotta);
+      color: white;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--parchment);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 13px;
+      color: var(--charcoal-light);
+      border-top: 1px solid var(--border);
+      margin-top: 64px;
+    }
+    footer a { margin: 0 8px; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+      .hero .subtitle { font-size: 15px; }
+      .features { grid-template-columns: 1fr; }
+      nav .links { display: none; }
+      .cta { padding: 32px 20px; }
+      .cta-buttons { flex-direction: column; }
+    }
+
+    /* ---- Inline commands ---- */
+    .inline-cmd {
+      display: inline-block;
+      background: var(--charcoal);
+      color: var(--parchment);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="#" class="logo">
+        <img src="docs/sailor.png" alt="NB-Claude">
+        <span>NB-Claude</span>
+      </a>
+      <div class="links">
+        <a href="#why">为什么</a>
+        <a href="#architecture">架构</a>
+        <a href="#routing">路由</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#quickstart">快速开始</a>
+        <a href="https://github.com/Libeny/model-steer-claude" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img src="docs/illust-hero.png" alt="NB-Claude Hero" class="hero-image">
+    <div class="hero-overlay">
+      <div class="container">
+        <div class="hero-badge">OPEN SOURCE</div>
+        <h1>Never Break<br>Your Flow</h1>
+        <p class="subtitle">为 AI 数字员工设计的 Claude Code 高可用模型代理 — 额度耗尽？自动切换，永不停工。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why NB-Claude -->
+  <section id="why">
+    <div class="container">
+      <h2>为什么需要 NB-Claude</h2>
+      <p>Claude Code 是当下最强编程 Agent，但它有一条硬限制：<strong>额度用完就停工</strong>。</p>
+      <p>人在用的时候还好 — 429 了等一会儿，重新来。但对于 <strong>AI 数字员工</strong>来说，这是致命的：429 了整个任务链断了，后面的任务全部卡住，没人手动重启。</p>
+      <p>NB-Claude 解决这个问题。它是一个本地代理，架在 Claude Code 和模型 API 之间，确保<strong>任何情况下都有模型可用</strong>：</p>
+
+      <table class="comparison">
+        <thead>
+          <tr><th>场景</th><th>没有 NB-Claude</th><th>有 NB-Claude</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sonnet 额度耗尽</td>
+            <td class="bad">任务中断，等待重置</td>
+            <td class="good">自动切 GLM，无感继续</td>
+          </tr>
+          <tr>
+            <td>API 返回 500</td>
+            <td class="bad">Claude Code 退出</td>
+            <td class="good">自动重试下一个 provider</td>
+          </tr>
+          <tr>
+            <td>GLM 临时限流</td>
+            <td class="bad">直接报错</td>
+            <td class="good">自动降级到其他可用模型</td>
+          </tr>
+          <tr>
+            <td>主模型持续不可用</td>
+            <td class="bad">人工介入</td>
+            <td class="good">Circuit Breaker 自动熔断恢复</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section id="architecture">
+    <div class="container">
+      <h2>三层架构</h2>
+      <p>NB-Claude 提供三个逐层增强的能力，按需启用：</p>
+
+      <figure class="illustration">
+        <img src="docs/illust-lighthouse.png" alt="三层架构灯塔">
+        <figcaption>三层架构 — 从基石到灯塔，逐层增强</figcaption>
+      </figure>
+
+      <div class="arch-layers">
+        <div class="arch-layer">
+          <span class="level">第三层</span>
+          <span class="desc">Agent 编排 — 多 Agent 协作时，每个 Agent 分配最适配的模型</span>
+          <span class="tag">规划中</span>
+        </div>
+        <div class="arch-layer">
+          <span class="level">第二层</span>
+          <span class="desc">任务路由 — 你定义规则，AI 按规则自动切换模型</span>
+          <span class="tag">cr --route</span>
+        </div>
+        <div class="arch-layer">
+          <span class="level">第一层</span>
+          <span class="desc">Never Fallback — 主模型不可用时，自动降级到下一个可用模型</span>
+          <span class="tag">默认开启</span>
+        </div>
+      </div>
+
+      <h3>第一层：Never Fallback</h3>
+      <p>所有 API 请求经过本地代理。当主模型不可用时，自动按配置的链路降级：</p>
+      <pre><code><span class="comment">## 请求流</span>
+<span class="command">用户</span> → <span class="command">Claude Code</span> → <span class="keyword">代理</span> ─┬─ Sonnet ── <span class="comment">429/500?</span> ──┐
+                                 └─ GLM / DeepSeek ────────┴→ <span class="string">永不中断</span></code></pre>
+
+      <h3>智能错误分类</h3>
+      <p>不只是看 HTTP 状态码，还解析模型厂商的业务错误码，精准判断该不该 fallback：</p>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="icon">&#x1F6E1;</div>
+          <h4>Circuit Breaker</h4>
+          <p>配额耗尽时立即熔断，后续请求零延迟跳过。每 5 分钟探测恢复。</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">&#x1F50D;</div>
+          <h4>错误码优先</h4>
+          <p>per-provider 业务错误码覆盖 HTTP 状态码，GLM 1234 也能正确触发 fallback。</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">&#x26A1;</div>
+          <h4>零重试 Fallback</h4>
+          <p>纯 fail-fast 降级，避免与 Claude Code 内置重试叠加。</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">&#x1F527;</div>
+          <h4>签名修补</h4>
+          <p>跨模型会话时自动修补 thinking-block 签名，无缝切换。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Model Routing -->
+  <section id="routing">
+    <div class="container">
+      <h2>任务路由</h2>
+
+      <figure class="illustration">
+        <img src="docs/illust-switchyard.png" alt="模型切换">
+        <figcaption>动态模型切换 — 像铁轨调度一样精准路由每一个任务</figcaption>
+      </figure>
+
+      <p>默认 <span class="inline-cmd">cr</span> 只做 fallback 保障。加 <span class="inline-cmd">cr --route</span> 后，代理将路由规则注入 system prompt，AI 在每次回复前根据任务类型<strong>自动选择最合适的模型</strong>。</p>
+
+      <p>在 Dashboard 上为每个模型等级写<strong>路由场景描述</strong>，AI 根据这些描述做决策：</p>
+
+      <table class="comparison">
+        <thead>
+          <tr><th>等级</th><th>模型</th><th>路由场景</th><th>示例</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>GLM-5.1</td>
+            <td>闲聊、简单 Q&A、文件查找</td>
+            <td style="color:var(--charcoal-light)">"这个文件在哪？"</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Sonnet</td>
+            <td>代码开发、测试、调试、重构</td>
+            <td style="color:var(--charcoal-light)">"帮我写个单元测试"</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Opus</td>
+            <td>架构设计、深度审计、系统决策</td>
+            <td style="color:var(--charcoal-light)">"设计微服务架构"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>等级数量不限，模型不限 — 想加 DeepSeek、Moonshot、Qwen 随时加。每个等级的<strong>路由场景</strong>自由填写。拖拽排序调整优先级，保存后下次 session 立即生效。</p>
+
+      <p>也支持手动切换：<span class="inline-cmd">/smoke</span>（最便宜）、<span class="inline-cmd">/redbull</span>（最强）、<span class="inline-cmd">/think-level N</span></p>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dashboard">
+    <div class="container">
+      <h2>Dashboard</h2>
+      <p>运行 <span class="inline-cmd">crd</span> 打开本地 Dashboard <code>http://localhost:3457/ui</code>，所有配置通过界面完成，无需手编 JSON。</p>
+
+      <figure class="screenshot">
+        <img src="docs/screenshot-models.png" alt="模型配置">
+        <figcaption>模型配置 — 管理等级、排序和路由场景</figcaption>
+      </figure>
+
+      <figure class="screenshot">
+        <img src="docs/screenshot-cost.png" alt="开销面板">
+        <figcaption>开销面板 — 实时费用追踪与节省统计</figcaption>
+      </figure>
+
+      <h3>额度查看</h3>
+      <p>一键查看所有模型的额度状态和重置时间：</p>
+      <pre><code><span class="command">$ crq</span>
+
+  Claude Subscription: pro
+
+  5h         [<span class="string">█████████░░░░░░░░░░░</span>]  45%  55% left    resets in 2h30m
+  7d         [<span class="string">██████████████░░░░░░</span>]  72%  28% left    resets in 6d12h
+  7d Sonnet  [<span class="string">█████████████████░░░</span>]  88%  12% left    resets in 6d12h
+
+  <span class="good">✓</span> glm: glm-5.1 (ok)</code></pre>
+    </div>
+  </section>
+
+  <!-- Quick Start -->
+  <section id="quickstart">
+    <div class="container">
+      <h2>快速开始</h2>
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>安装</h4>
+          <pre><code><span class="command">git clone</span> https://github.com/Libeny/model-steer-claude.git
+<span class="command">cd</span> model-steer-claude
+<span class="command">bash</span> install.sh</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>配置 API Key</h4>
+          <pre><code><span class="command">vim</span> ~/.msc/config.json  <span class="comment"># 填入 API Key</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>启动</h4>
+          <pre><code><span class="command">source</span> ~/.zshrc
+<span class="command">cr</span>                <span class="comment"># 启动 Claude Code（自动 fallback）</span>
+<span class="command">cr --route</span>        <span class="comment"># 启动 + AI 按规则路由</span></code></pre>
+        </div>
+      </div>
+
+      <h3>CLI 命令速查</h3>
+      <table class="cli-table">
+        <tr><td>cr</td><td>交互式会话（仅 fallback 保障）</td></tr>
+        <tr><td>cr --route</td><td>交互式会话（fallback + AI 按规则路由）</td></tr>
+        <tr><td>cr -p "..."</td><td>单次输出</td></tr>
+        <tr><td>cr --resume &lt;id&gt;</td><td>恢复会话</td></tr>
+        <tr><td>crd</td><td>打开 Dashboard</td></tr>
+        <tr><td>crq</td><td>查看额度状态</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="container">
+    <div class="cta">
+      <h2>开始使用</h2>
+      <p>让你的 AI 数字员工永不中断，自由切换模型，降低成本。</p>
+      <div class="cta-buttons">
+        <a href="https://github.com/Libeny/model-steer-claude" target="_blank" class="btn btn-primary">
+          GitHub
+        </a>
+        <a href="https://github.com/Libeny/model-steer-claude/blob/main/README.md" target="_blank" class="btn btn-secondary">
+          阅读文档
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        NB-Claude &mdash; Never Break Your Flow
+        <br>
+        <a href="https://github.com/Libeny/model-steer-claude" target="_blank">GitHub</a>
+        <a href="mailto:libeny0526@gmail.com">Email</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
