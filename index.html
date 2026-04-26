@@ -271,6 +271,9 @@
             padding-top: 1.5rem;
             margin-top: 1.5rem;
         }
+        @media (max-width: 640px) {
+            .travel-grid { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden bg-black text-white">
@@ -526,63 +529,39 @@
         </div>
     </section>
 
-    <!-- SECTION 5: FOOTPRINTS -->
-    <section id="travel-mode" class="py-24 bg-gradient-to-b from-zinc-900 to-black text-white border-t border-zinc-800 reveal">
+    <!-- SECTION 5: 个人足迹 -->
+    <section id="travel-mode" class="warm-section py-24 reveal" style="border-top:1px solid var(--warm-border);">
         <div class="max-w-6xl mx-auto px-6">
-            <h2 class="text-3xl font-code mb-12 flex items-center gap-4 text-gray-300">
-                <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
-                个人足迹 (FOOTPRINTS)
-            </h2>
+            <h2>个人足迹</h2>
+            <p style="color:var(--charcoal-light); margin-top:-2rem; margin-bottom:2rem; font-size:0.95rem;">
+                常驻北京。点击一座城市，出发。
+            </p>
 
-            <div class="flex flex-col lg:flex-row gap-12">
-                <!-- Map Container -->
-                <div id="map-col" class="lg:w-3/4 flex flex-col gap-4 min-w-0">
-                    <div class="h-[450px] border border-zinc-800 rounded-xl overflow-hidden shadow-2xl relative z-10 group">
-                         <div id="travel-map" class="w-full h-full bg-[#020617]"></div>
-                         <div class="absolute inset-0 pointer-events-none map-overlay"></div>
-                         
-                         <!-- Reset View Button -->
-                         <button onclick="resetMap()" class="absolute top-4 right-4 bg-black/80 hover:bg-white hover:text-black text-white border border-white/20 px-3 py-1 font-mono text-xs rounded transition z-[500] cursor-pointer shadow-lg">
-                            ⟲ RESET VIEW
-                         </button>
-                         
-                         <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded text-[10px] font-mono text-gray-400 border border-white/10 pointer-events-none">
-                            > CLICK MARKERS TO DECRYPT MEMORIES
-                         </div>
-                    </div>
-                    
-                    <!-- Gallery with Auto Scroll -->
-                    <div id="gallery-container" class="invisible h-48 w-full overflow-hidden bg-zinc-900/50 border border-white/10 rounded-xl p-3 relative animate-float-up">
-                        <div id="gallery-track" class="gallery-wrapper">
-                             <!-- Photos injected here via JS -->
-                        </div>
-                    </div>
-                </div>
+            <!-- 地图 -->
+            <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08); margin-bottom:1.5rem;">
+                <div id="travel-map" style="height:420px; width:100%;"></div>
+                <button onclick="returnToBeijing()" id="return-btn" style="display:none; position:absolute; top:1rem; right:1rem; z-index:500; background:#fff; border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.4rem 1rem; border-radius:99px; font-size:0.8rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s;">
+                    ← 返回北京
+                </button>
+            </div>
 
-                <!-- Static Photos (Fixed Layout) -->
-                <div id="photo-col" class="lg:w-1/4 flex flex-col justify-start pt-0 items-center lg:items-start gap-12 relative">
-                    <div class="relative transform rotate-3 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105">
-                        <div class="tape"></div>
-                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.5)] w-64">
-                            <div class="aspect-[4/3] bg-gray-200 overflow-hidden relative">
-                                <img src="./travel1.jpg" class="w-full h-full object-cover filter contrast-110">
-                            </div>
-                            <div class="font-cute text-black text-center mt-3 text-lg rotate-[-1deg]">
-                                这里的风景超棒! 📸
-                            </div>
-                        </div>
+            <!-- 站点标签 -->
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;" id="station-tabs">
+                <button class="station-tab" onclick="flyTo('shanghai')">上海</button>
+                <button class="station-tab" onclick="flyTo('chengdu')">成都</button>
+                <button class="station-tab" onclick="flyTo('nagano')">长野</button>
+            </div>
+
+            <!-- 游记内容（点击后展示）-->
+            <div id="travel-content" class="travel-content" style="display:none;">
+                <div class="travel-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start;">
+                    <!-- 文字 -->
+                    <div>
+                        <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.5rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
+                        <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.95rem;"></p>
                     </div>
-                    <div class="relative transform -rotate-2 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105 -mt-6 lg:-ml-8">
-                        <div class="tape" style="transform: translateX(-50%) rotate(3deg);"></div>
-                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.5)] w-64">
-                            <div class="aspect-[4/3] bg-gray-200 overflow-hidden relative">
-                                <img src="./travel2.jpg" class="w-full h-full object-cover filter contrast-110">
-                            </div>
-                            <div class="font-cute text-black text-center mt-3 text-lg rotate-[1deg]">
-                                放松一下 ✨
-                            </div>
-                        </div>
-                    </div>
+                    <!-- 照片 -->
+                    <div style="display:flex; flex-direction:column; gap:0.75rem;" id="travel-photos"></div>
                 </div>
             </div>
         </div>
