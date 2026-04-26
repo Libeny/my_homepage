@@ -6,7 +6,7 @@
     <title>MUYU | AI Transformation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@300;800&family=Kalam:wght@400;700&family=Orbitron:wght@900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@300;800&family=Kalam:wght@400;700&family=Orbitron:wght@900&family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -17,6 +17,8 @@
                         code: ['"JetBrains Mono"', 'monospace'],
                         cute: ['"ZCOOL KuaiLe"', '"Kalam"', 'cursive'],
                         loud: ['"Anton"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'Georgia', 'serif'],
+                        warm: ['"Noto Sans SC"', 'sans-serif'],
                     },
                     colors: {
                         'baidu-blue': '#2932E1',
@@ -162,6 +164,198 @@
         /* Scroll Reveal Animation */
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* ===== Anthropic Warm System ===== */
+        :root {
+            --parchment: #f5f4ed;
+            --cream: #faf9f7;
+            --charcoal: #4d4c48;
+            --charcoal-light: #6b6a66;
+            --terracotta: #c96442;
+            --terracotta-dark: #a8523a;
+            --terracotta-light: #e8a88e;
+            --warm-border: #ddd9d0;
+        }
+
+        .warm-section {
+            background: var(--parchment);
+            color: var(--charcoal);
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+        }
+
+        .warm-section h2 {
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--charcoal);
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: inline-block;
+            border-bottom: 3px solid var(--terracotta);
+            padding-bottom: 0.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .warm-section h3 {
+            font-family: 'Noto Serif SC', Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Forge Accordion */
+        .forge-item {
+            background: #fff;
+            border: 1px solid var(--warm-border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 0.75rem;
+        }
+        .forge-item.active {
+            border-left: 4px solid var(--terracotta);
+            box-shadow: 0 4px 16px rgba(201, 100, 66, 0.08);
+        }
+        .forge-header {
+            cursor: pointer;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            transition: background 0.2s;
+        }
+        .forge-header:hover { background: var(--cream); }
+        .forge-header .num {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--terracotta);
+            font-weight: 700;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+        .forge-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 1.5rem;
+            background: var(--cream);
+        }
+        .forge-item.active .forge-content {
+            max-height: 600px;
+            padding: 1.5rem;
+        }
+        .forge-arrow { transition: transform 0.3s; color: var(--charcoal-light); }
+        .forge-item.active .forge-arrow { transform: rotate(180deg); }
+
+        /* Terracotta Button */
+        .btn-terra {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--terracotta);
+            color: #fff;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-terra:hover { background: var(--terracotta-dark); }
+        .btn-terra-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1.5px solid var(--terracotta);
+            color: var(--terracotta);
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-terra-outline:hover { background: var(--terracotta); color: #fff; }
+
+        /* Project Cards */
+        .project-card {
+            background: #fff;
+            border: 1px solid var(--warm-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(77,76,72,0.08);
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(77,76,72,0.12);
+        }
+        .project-card .card-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--charcoal-light);
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--warm-border);
+            overflow: hidden;
+        }
+        .project-card .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .project-card .card-body { padding: 1.25rem; }
+        .project-card .card-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+        .project-card .card-desc {
+            color: var(--charcoal-light);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        .status-live { background: #d1fae5; color: #065f46; }
+        .status-wip { background: #fef3c7; color: #92400e; }
+
+        /* Station Tabs */
+        .station-tab {
+            padding: 0.5rem 1.25rem;
+            border: 1.5px solid var(--warm-border);
+            border-radius: 99px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: var(--charcoal-light);
+            background: #fff;
+        }
+        .station-tab.active, .station-tab:hover {
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+            background: rgba(201,100,66,0.05);
+        }
+
+        /* Plane icon on map */
+        .plane-marker {
+            font-size: 18px;
+            line-height: 1;
+            transform-origin: center;
+        }
+
+        /* Travel content */
+        .travel-content {
+            border-top: 1px solid var(--warm-border);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden bg-black text-white">
