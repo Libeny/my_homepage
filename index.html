@@ -592,80 +592,177 @@
             element.classList.toggle('active');
         }
 
-        // Map Init
+        // ===== FOOTPRINTS MAP =====
+        const BEIJING = [39.9042, 116.4074];
+
         const map = L.map('travel-map', {
             zoomControl: false,
             scrollWheelZoom: false,
-        }).setView([35.0, 105.0], 4);
+            dragging: false,
+            attributionControl: false,
+        }).setView(BEIJING, 5);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '',
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(map);
 
-        const createMarker = (color) => {
-            return L.divIcon({
-                className: 'custom-pin',
-                html: `
-                    <div class="relative flex items-center justify-center w-full h-full">
-                        <span class="absolute inline-flex h-full w-full rounded-full bg-${color}-500 opacity-75 animate-ping"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3" style="background-color: ${color}; box-shadow: 0 0 10px ${color};"></span>
-                    </div>
-                `,
+        const beijingIcon = L.divIcon({
+            className: '',
+            html: '<div style="width:10px;height:10px;background:#c96442;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 3px rgba(201,100,66,0.3);"></div>',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
+        });
+        L.marker(BEIJING, { icon: beijingIcon }).addTo(map);
+
+        const stations = {
+            shanghai: {
+                coords: [31.2304, 121.4737],
+                name: '上海',
+                desc: '魔都的节奏和北京完全不同。外滩的夜景、弄堂里的早点，还有那种天生的国际感。',
+                photos: ['./travel1.jpg', './travel2.jpg']
+            },
+            chengdu: {
+                coords: [30.5728, 104.0668],
+                name: '成都',
+                desc: '慢下来的城市。熊猫、火锅、和那些在茶馆里发呆一整个下午的人们。',
+                photos: ['./travel1.jpg']
+            },
+            nagano: {
+                coords: [36.6513, 138.1810],
+                name: '长野',
+                desc: '日本阿尔卑斯的入口。雪山、温泉、和静到能听见自己心跳的夜晚。',
+                photos: ['./travel2.jpg']
+            }
+        };
+
+        let currentArcLayer = null;
+        let planeMarker = null;
+        let currentStation = null;
+        let isAnimating = false;
+
+        function getArcPoints(from, to, numPoints) {
+            numPoints = numPoints || 60;
+            const midLat = (from[0] + to[0]) / 2 + Math.abs(to[1] - from[1]) * 0.25;
+            const midLng = (from[1] + to[1]) / 2;
+            const points = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const lat = (1-t)*(1-t)*from[0] + 2*(1-t)*t*midLat + t*t*to[0];
+                const lng = (1-t)*(1-t)*from[1] + 2*(1-t)*t*midLng + t*t*to[1];
+                points.push([lat, lng]);
+            }
+            return points;
+        }
+
+        function getBearing(from, to) {
+            const dLng = (to[1] - from[1]) * Math.PI / 180;
+            const lat1 = from[0] * Math.PI / 180;
+            const lat2 = to[0] * Math.PI / 180;
+            const y = Math.sin(dLng) * Math.cos(lat2);
+            const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
+            return Math.atan2(y, x) * 180 / Math.PI;
+        }
+
+        function clearFlight() {
+            if (currentArcLayer) { map.removeLayer(currentArcLayer); currentArcLayer = null; }
+            if (planeMarker) { map.removeLayer(planeMarker); planeMarker = null; }
+        }
+
+        function animateFlight(fromCoords, toCoords, onComplete) {
+            if (isAnimating) return;
+            isAnimating = true;
+            clearFlight();
+
+            const points = getArcPoints(fromCoords, toCoords);
+            currentArcLayer = L.polyline([], {
+                color: '#c96442',
+                weight: 2,
+                dashArray: '6, 4',
+                opacity: 0.7
+            }).addTo(map);
+
+            const planeIcon = L.divIcon({
+                className: '',
+                html: '<div class="plane-marker">✈</div>',
                 iconSize: [20, 20],
                 iconAnchor: [10, 10]
             });
-        };
+            planeMarker = L.marker(points[0], { icon: planeIcon, zIndexOffset: 1000 }).addTo(map);
 
-        const memories = {
-            'beijing': [
-                'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=400&q=80',
-                'https://images.unsplash.com/photo-1620952086386-d2495d436814?auto=format&fit=crop&w=400&q=80',
-                'https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?auto=format&fit=crop&w=400&q=80'
-            ],
-            'shanghai': [
-                'https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?auto=format&fit=crop&w=400&q=80',
-                'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?auto=format&fit=crop&w=400&q=80'
-            ],
-            'chengdu': [
-                'https://images.unsplash.com/photo-1565466472659-548c772cb25d?auto=format&fit=crop&w=400&q=80',
-                'https://images.unsplash.com/photo-1623136275815-56f4d6d45928?auto=format&fit=crop&w=400&q=80'
-            ]
-        };
+            let step = 0;
+            function stepAnim() {
+                if (step < points.length) {
+                    currentArcLayer.addLatLng(points[step]);
+                    planeMarker.setLatLng(points[step]);
+                    if (step < points.length - 1) {
+                        const bearing = getBearing(points[step], points[step+1]);
+                        const el = planeMarker.getElement();
+                        if (el) el.style.transform = 'rotate(' + bearing + 'deg)';
+                    }
+                    step++;
+                    setTimeout(stepAnim, 25);
+                } else {
+                    isAnimating = false;
+                    if (onComplete) onComplete();
+                }
+            }
+            stepAnim();
+        }
 
-        const galleryContainer = document.getElementById('gallery-container');
-        const galleryTrack = document.getElementById('gallery-track');
-        // Removed unused mapCol/photoCol
+        function flyTo(stationKey) {
+            if (isAnimating) return;
+            const station = stations[stationKey];
+            if (!station) return;
 
-        const addMarker = (coords, color, cityKey) => {
-            const marker = L.marker(coords, {icon: createMarker(color)}).addTo(map);
-            marker.on('click', () => {
-                // Show Gallery
-                galleryContainer.classList.remove('invisible');
-                galleryTrack.innerHTML = '';
+            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
+            const activeTab = document.querySelector('[onclick="flyTo(\'' + stationKey + '\')"]');
+            if (activeTab) activeTab.classList.add('active');
 
-                const images = memories[cityKey];
-                const allImages = [...images, ...images, ...images, ...images]; 
-                
-                allImages.forEach(url => {
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.className = "h-40 w-56 object-cover rounded-lg border border-white/20 hover:scale-110 transition duration-300 flex-shrink-0 cursor-pointer shadow-lg";
-                    galleryTrack.appendChild(img);
+            const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
+            map.fitBounds(bounds, { animate: true, duration: 0.5 });
+
+            currentStation = stationKey;
+            document.getElementById('return-btn').style.display = 'block';
+
+            setTimeout(function() {
+                animateFlight(BEIJING, station.coords, function() {
+                    showTravelContent(station);
                 });
-                
-                map.flyTo(coords, 6, {duration: 1.5});
+            }, 600);
+        }
+
+        function returnToBeijing() {
+            if (isAnimating || !currentStation) return;
+            const station = stations[currentStation];
+
+            document.getElementById('travel-content').style.display = 'none';
+            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
+
+            animateFlight(station.coords, BEIJING, function() {
+                clearFlight();
+                map.flyTo(BEIJING, 5, { duration: 1 });
+                document.getElementById('return-btn').style.display = 'none';
+                currentStation = null;
             });
-        };
+        }
 
-        addMarker([39.9042, 116.4074], '#F5C518', 'beijing');
-        addMarker([31.2304, 121.4737], '#F5C518', 'shanghai');
-        addMarker([30.5728, 104.0668], '#F5C518', 'chengdu');
+        function showTravelContent(station) {
+            document.getElementById('travel-city-name').textContent = station.name;
+            document.getElementById('travel-city-desc').textContent = station.desc;
 
-        function resetMap() {
-            map.flyTo([35.0, 105.0], 4, {duration: 1.5});
-            galleryContainer.classList.add('invisible');
+            const photosEl = document.getElementById('travel-photos');
+            photosEl.innerHTML = '';
+            station.photos.forEach(function(src) {
+                const img = document.createElement('img');
+                img.src = src;
+                img.style.cssText = 'width:100%; border-radius:8px; border:1px solid var(--warm-border);';
+                photosEl.appendChild(img);
+            });
+
+            const content = document.getElementById('travel-content');
+            content.style.display = 'block';
+            content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         // Scroll Reveal Observer
