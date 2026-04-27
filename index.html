@@ -261,6 +261,27 @@
         @media (max-width: 640px) {
             .travel-grid { grid-template-columns: 1fr !important; }
         }
+
+        /* Travel Gallery Strip */
+        .travel-gallery-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            width: max-content;
+            animation: travelGalleryScroll 40s linear infinite;
+        }
+        .travel-gallery-wrapper:hover { animation-play-state: paused; }
+        .travel-gallery-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--warm-border);
+            flex-shrink: 0;
+        }
+        @keyframes travelGalleryScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden bg-black text-white">
@@ -524,53 +545,41 @@
                 常驻北京。点击一座城市，出发。
             </p>
 
-            <div class="flex flex-col lg:flex-row gap-8 items-start">
-                <!-- 左侧：地图 + 站点标签 + 游记 -->
-                <div style="flex:1; min-width:0;">
-                    <!-- 地图 -->
-                    <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08); margin-bottom:1.5rem;">
-                        <div id="travel-map" style="height:420px; width:100%;"></div>
-                        <button onclick="returnToBeijing()" id="return-btn" style="display:none; position:absolute; top:1rem; right:1rem; z-index:500; background:#fff; border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.4rem 1rem; border-radius:99px; font-size:0.8rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s;">
-                            ← 返回北京
-                        </button>
-                    </div>
+            <!-- 地图（全宽） -->
+            <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08); margin-bottom:1rem;">
+                <div id="travel-map" style="height:420px; width:100%;"></div>
+                <button onclick="returnToBeijing()" id="return-btn" style="display:none; position:absolute; top:1rem; right:1rem; z-index:500; background:#fff; border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.4rem 1rem; border-radius:99px; font-size:0.8rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s;">
+                    ← 返回北京
+                </button>
+            </div>
 
-                    <!-- 站点标签 -->
-                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;" id="station-tabs">
-                        <button class="station-tab" onclick="flyTo('shanghai')">上海</button>
-                        <button class="station-tab" onclick="flyTo('chengdu')">成都</button>
-                        <button class="station-tab" onclick="flyTo('nagano')">长野</button>
-                    </div>
-
-                    <!-- 游记内容（点击后展示）-->
-                    <div id="travel-content" class="travel-content" style="display:none;">
-                        <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.5rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
-                        <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.95rem;"></p>
-                    </div>
-                </div>
-
-                <!-- 右侧：常驻照片 -->
-                <div class="hidden lg:flex flex-col gap-12 items-center" style="width:240px; flex-shrink:0; padding-top:0.5rem;">
-                    <div class="relative transform rotate-3 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105">
-                        <div class="tape"></div>
-                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] w-56">
-                            <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                                <img src="./travel1.jpg" class="w-full h-full object-cover">
-                            </div>
-                            <div class="font-cute text-black text-center mt-3 text-base rotate-[-1deg]">这里的风景超棒! 📸</div>
-                        </div>
-                    </div>
-                    <div class="relative transform -rotate-2 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105 -mt-4">
-                        <div class="tape" style="transform: translateX(-50%) rotate(3deg);"></div>
-                        <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] w-56">
-                            <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                                <img src="./travel2.jpg" class="w-full h-full object-cover">
-                            </div>
-                            <div class="font-cute text-black text-center mt-3 text-base rotate-[1deg]">放松一下 ✨</div>
-                        </div>
-                    </div>
+            <!-- 方块图片慢速轮播 -->
+            <div style="overflow:hidden; margin-bottom:1.5rem; border-radius:12px;">
+                <div class="travel-gallery-wrapper">
+                    <img src="./travel1.jpg" class="travel-gallery-img">
+                    <img src="./travel2.jpg" class="travel-gallery-img">
+                    <img src="./travel1.jpg" class="travel-gallery-img">
+                    <img src="./travel2.jpg" class="travel-gallery-img">
+                    <img src="./travel1.jpg" class="travel-gallery-img">
+                    <img src="./travel2.jpg" class="travel-gallery-img">
+                    <img src="./travel1.jpg" class="travel-gallery-img">
+                    <img src="./travel2.jpg" class="travel-gallery-img">
                 </div>
             </div>
+
+            <!-- 站点标签 -->
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;" id="station-tabs">
+                <button class="station-tab" onclick="flyTo('shanghai')">上海</button>
+                <button class="station-tab" onclick="flyTo('chengdu')">成都</button>
+                <button class="station-tab" onclick="flyTo('nagano')">长野</button>
+            </div>
+
+            <!-- 游记内容（点击后展示）-->
+            <div id="travel-content" class="travel-content" style="display:none;">
+                <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.5rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
+                <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.95rem;"></p>
+            </div>
+
         </div>
     </section>
 
@@ -647,6 +656,9 @@
         let planeMarker = null;
         let currentStation = null;
         let isAnimating = false;
+        let isManualMode = false;
+        let autoTourIndex = 0;
+        const autoTourKeys = ['shanghai', 'chengdu', 'nagano'];
 
         function getArcPoints(from, to, numPoints) {
             numPoints = numPoints || 60;
@@ -717,7 +729,32 @@
             stepAnim();
         }
 
+        function autoTour() {
+            if (isManualMode || isAnimating) return;
+            const key = autoTourKeys[autoTourIndex];
+            const station = stations[key];
+            const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
+            map.fitBounds(bounds, { animate: true, duration: 1 });
+            setTimeout(function() {
+                if (isManualMode) return;
+                animateFlight(BEIJING, station.coords, function() {
+                    if (isManualMode) return;
+                    setTimeout(function() {
+                        if (isManualMode) return;
+                        animateFlight(station.coords, BEIJING, function() {
+                            if (isManualMode) return;
+                            clearFlight();
+                            map.flyTo(BEIJING, 5, { duration: 1 });
+                            autoTourIndex = (autoTourIndex + 1) % autoTourKeys.length;
+                            setTimeout(autoTour, 2000);
+                        });
+                    }, 2500);
+                });
+            }, 1200);
+        }
+
         function flyTo(stationKey) {
+            isManualMode = true;
             if (isAnimating) return;
             const station = stations[stationKey];
             if (!station) return;
@@ -726,6 +763,7 @@
             const activeTab = document.querySelector('[onclick="flyTo(\'' + stationKey + '\')"]');
             if (activeTab) activeTab.classList.add('active');
 
+            clearFlight();
             const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
             map.fitBounds(bounds, { animate: true, duration: 0.5 });
 
@@ -751,26 +789,20 @@
                 map.flyTo(BEIJING, 5, { duration: 1 });
                 document.getElementById('return-btn').style.display = 'none';
                 currentStation = null;
+                isManualMode = false;
+                setTimeout(autoTour, 2000);
             });
         }
 
         function showTravelContent(station) {
             document.getElementById('travel-city-name').textContent = station.name;
             document.getElementById('travel-city-desc').textContent = station.desc;
-
-            const photosEl = document.getElementById('travel-photos');
-            photosEl.innerHTML = '';
-            station.photos.forEach(function(src) {
-                const img = document.createElement('img');
-                img.src = src;
-                img.style.cssText = 'width:100%; border-radius:8px; border:1px solid var(--warm-border);';
-                photosEl.appendChild(img);
-            });
-
             const content = document.getElementById('travel-content');
             content.style.display = 'block';
             content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+
+        setTimeout(autoTour, 1500);
 
         // Scroll Reveal Observer
         const observerOptions = {
