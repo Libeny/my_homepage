@@ -63,19 +63,6 @@
         .tape { background-color: rgba(255, 255, 255, 0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.2); backdrop-filter: blur(5px); position: absolute; height: 30px; width: 100px; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); z-index: 10; }
         .map-overlay { background: linear-gradient(to top, #09090b 0%, transparent 20%); }
         
-        /* Auto-scroll Gallery */
-        .gallery-wrapper {
-            display: flex;
-            gap: 1rem;
-            width: max-content;
-            animation: galleryScroll 20s linear infinite;
-        }
-        .gallery-wrapper:hover { animation-play-state: paused; }
-        @keyframes galleryScroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
         /* Scroll Reveal Animation */
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
@@ -576,6 +563,29 @@
             <div class="flex flex-wrap justify-center gap-6 font-code">
                 <a href="#" class="px-10 py-4 bg-white text-black hover:bg-saul-yellow transition uppercase font-bold text-lg">Email Me</a>
                 <a href="#" class="px-10 py-4 border-2 border-white hover:bg-white hover:text-black transition uppercase font-bold text-lg">WeChat</a>
+            </div>
+            <!-- 百度经历折叠 -->
+            <div style="margin-top:3rem;">
+                <button onclick="toggleBaidu(this)"
+                    style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:#555; background:transparent; border:1px solid #333; padding:0.4rem 1rem; border-radius:99px; cursor:pointer; transition:all 0.2s;"
+                    onmouseover="this.style.borderColor='#888'" onmouseout="this.style.borderColor='#333'">
+                    查看百度内项目经历 ▾
+                </button>
+                <div id="baidu-panel" style="max-height:0; overflow:hidden; transition:max-height 0.4s ease;">
+                    <div style="margin-top:1.5rem; padding:1.5rem; border:1px solid #222; border-radius:8px; text-align:left; max-width:500px; margin-left:auto; margin-right:auto;">
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:#555; margin-bottom:0.75rem;">BAIDU · 2023 — 2025</div>
+                        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <div style="border-left:2px solid #2932E1; padding-left:1rem;">
+                                <div style="color:#93c5fd; font-size:0.875rem; font-weight:600; margin-bottom:0.25rem;">Coding Agent Infra</div>
+                                <div style="color:#666; font-size:0.8rem; line-height:1.6;">负责公司内部 AI Coding Agent 基础设施建设，包括 CoT 可视化与 Agent 调度体系。</div>
+                            </div>
+                            <div style="border-left:2px solid #2932E1; padding-left:1rem;">
+                                <div style="color:#93c5fd; font-size:0.875rem; font-weight:600; margin-bottom:0.25rem;">AIQA 代码知识建设</div>
+                                <div style="color:#666; font-size:0.8rem; line-height:1.6;">推动 AI 驱动的质量保障体系，建立代码知识图谱与自动化测试覆盖。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <p class="mt-20 text-gray-600 text-xs font-mono">&copy; 2026 Muyu. BAT Engineer.</p>
         </div>
