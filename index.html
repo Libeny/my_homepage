@@ -577,22 +577,26 @@
                     </div>
                 </div>
 
-                <!-- 站点轮播（橱窗效果） -->
-                <div style="grid-column:1; grid-row:2; overflow:hidden; position:relative; mask-image:linear-gradient(to right,transparent 0%,#000 10%,#000 90%,transparent 100%); -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 10%,#000 90%,transparent 100%);" id="carousel-viewport">
-                    <div id="cards-track" style="display:flex; gap:1rem; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
-                        <button class="station-card" onclick="flyTo('shanghai')" style="min-width:200px; flex-shrink:0;">
-                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
-                            <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
-                        </button>
-                        <button class="station-card" onclick="flyTo('chengdu')" style="min-width:200px; flex-shrink:0;">
-                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
-                            <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
-                        </button>
-                        <button class="station-card" onclick="flyTo('nagano')" style="min-width:200px; flex-shrink:0;">
-                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
-                            <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
-                        </button>
+                <!-- 站点橱窗轮播 -->
+                <div style="grid-column:1; grid-row:2; display:flex; align-items:center; gap:0.75rem;">
+                    <button onclick="carouselPrev()" style="flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--warm-border); background:var(--cream); cursor:pointer; font-size:1.3rem; color:var(--charcoal); display:flex; align-items:center; justify-content:center; transition:all 0.2s; line-height:1;" onmouseover="this.style.borderColor='var(--terracotta)';this.style.color='var(--terracotta)'" onmouseout="this.style.borderColor='var(--warm-border)';this.style.color='var(--charcoal)'">‹</button>
+                    <div id="carousel-viewport" style="flex:1; overflow:hidden; position:relative;">
+                        <div id="cards-track" style="display:flex; gap:1rem; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
+                            <button class="station-card" onclick="flyTo('shanghai')" style="flex-shrink:0;">
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
+                            </button>
+                            <button class="station-card" onclick="flyTo('chengdu')" style="flex-shrink:0;">
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
+                            </button>
+                            <button class="station-card" onclick="flyTo('nagano')" style="flex-shrink:0;">
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
+                            </button>
+                        </div>
                     </div>
+                    <button onclick="carouselNext()" style="flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--warm-border); background:var(--cream); cursor:pointer; font-size:1.3rem; color:var(--charcoal); display:flex; align-items:center; justify-content:center; transition:all 0.2s; line-height:1;" onmouseover="this.style.borderColor='var(--terracotta)';this.style.color='var(--terracotta)'" onmouseout="this.style.borderColor='var(--warm-border)';this.style.color='var(--charcoal)'">›</button>
                 </div>
 
             </div>
@@ -760,6 +764,32 @@
             document.getElementById('journal-content').style.display = 'none';
         }
 
+        function initCarousel() {
+            var viewport = document.getElementById('carousel-viewport');
+            var track = document.getElementById('cards-track');
+            var cards = document.querySelectorAll('.station-card');
+            if (!viewport || !track || !cards.length) return;
+            var vpW = viewport.offsetWidth;
+            var cardW = Math.round(vpW * 0.62);
+            var gap = 16;
+            var pad = (vpW - cardW) / 2;
+            cards.forEach(function(c) { c.style.width = cardW + 'px'; });
+            track.style.paddingLeft = pad + 'px';
+            track.style.paddingRight = pad + 'px';
+        }
+
+        function centerCarouselOn(key) {
+            var cards = Array.from(document.querySelectorAll('.station-card'));
+            var track = document.getElementById('cards-track');
+            if (!track || !key) return;
+            var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
+            if (!tab) return;
+            var idx = cards.indexOf(tab);
+            var cardW = tab.offsetWidth;
+            var gap = 16;
+            track.style.transform = 'translateX(-' + (idx * (cardW + gap)) + 'px)';
+        }
+
         function setActiveTab(key) {
             var cards = Array.from(document.querySelectorAll('.station-card'));
             cards.forEach(function(t) { t.classList.remove('active'); });
@@ -767,20 +797,26 @@
                 var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
                 if (tab) {
                     tab.classList.add('active');
-                    var track = document.getElementById('cards-track');
-                    var viewport = document.getElementById('carousel-viewport');
-                    if (track && viewport) {
-                        var idx = cards.indexOf(tab);
-                        var cardW = tab.offsetWidth;
-                        var gap = 16;
-                        var vpW = viewport.offsetWidth;
-                        var offset = idx * (cardW + gap) - (vpW - cardW) / 2;
-                        offset = Math.max(0, offset);
-                        track.style.transform = 'translateX(-' + offset + 'px)';
-                    }
+                    centerCarouselOn(key);
                 }
             }
         }
+
+        function carouselPrev() {
+            isManualMode = true;
+            var cur = autoTourKeys.indexOf(currentStation);
+            var prev = (cur <= 0 ? autoTourKeys.length : cur) - 1;
+            flyTo(autoTourKeys[prev]);
+        }
+
+        function carouselNext() {
+            isManualMode = true;
+            var cur = autoTourKeys.indexOf(currentStation);
+            var next = (cur + 1) % autoTourKeys.length;
+            flyTo(autoTourKeys[next]);
+        }
+
+        setTimeout(initCarousel, 200);
 
         function autoTour() {
             if (isManualMode || isAnimating) return;
