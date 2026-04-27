@@ -228,21 +228,27 @@
         .status-wip { background: #fef3c7; color: #92400e; }
 
         /* Station Tabs */
-        .station-tab {
-            padding: 0.5rem 1.25rem;
+        /* Station cards */
+        .station-card {
+            background: var(--cream);
             border: 1.5px solid var(--warm-border);
-            border-radius: 99px;
-            font-size: 0.875rem;
+            border-left: 3px solid transparent;
+            border-radius: 12px;
+            padding: 1.25rem 1.1rem;
             cursor: pointer;
             transition: all 0.2s;
-            white-space: nowrap;
-            color: var(--charcoal-light);
-            background: #fff;
+            text-align: left;
+            font-family: 'Noto Sans SC', sans-serif;
+            width: 100%;
         }
-        .station-tab.active, .station-tab:hover {
-            border-color: var(--terracotta);
-            color: var(--terracotta);
-            background: rgba(201,100,66,0.05);
+        .station-card:hover {
+            border-left-color: var(--terracotta);
+            box-shadow: 0 4px 16px rgba(77,76,72,0.1);
+            transform: translateY(-2px);
+        }
+        .station-card.active {
+            border-left-color: var(--terracotta);
+            background: #fff;
         }
 
         /* Plane icon on map */
@@ -252,35 +258,8 @@
             transform-origin: center;
         }
 
-        /* Travel content */
-        .travel-content {
-            border-top: 1px solid var(--warm-border);
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        @media (max-width: 640px) {
-            .travel-grid { grid-template-columns: 1fr !important; }
-        }
-
-        /* Travel Gallery Strip */
-        .travel-gallery-wrapper {
-            display: flex;
-            gap: 0.5rem;
-            width: max-content;
-            animation: travelGalleryScroll 40s linear infinite;
-        }
-        .travel-gallery-wrapper:hover { animation-play-state: paused; }
-        .travel-gallery-img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--warm-border);
-            flex-shrink: 0;
-        }
-        @keyframes travelGalleryScroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        @media (max-width: 768px) {
+            .footprints-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
@@ -545,39 +524,57 @@
                 常驻北京。点击一座城市，出发。
             </p>
 
-            <!-- 地图 + 游记区 两列 -->
-            <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:1.5rem; margin-bottom:1.5rem; align-items:stretch;">
-                <!-- 左：地图 -->
+            <!-- 网格：左列（地图+站点卡片）右列（游记区跨两行） -->
+            <div class="footprints-grid" style="display:grid; grid-template-columns:1.2fr 0.8fr; grid-template-rows:auto auto; gap:1.5rem;">
+
+                <!-- 地图 (row 1, col 1) -->
                 <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08);">
-                    <div id="travel-map" style="height:460px; width:100%;"></div>
+                    <div id="travel-map" style="height:400px; width:100%;"></div>
                     <button onclick="returnToGlobal()" id="global-btn" style="position:absolute; top:1rem; left:1rem; z-index:500; background:rgba(255,255,255,0.92); border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.35rem 0.9rem; border-radius:99px; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s; backdrop-filter:blur(4px);">
                         ⊙ 全局视角
                     </button>
                 </div>
 
-                <!-- 右：游记区 -->
-                <div style="border-radius:16px; border:1px solid var(--warm-border); background:var(--cream); padding:2rem; display:flex; flex-direction:column; justify-content:center; min-height:460px; box-sizing:border-box;">
-                    <div id="journal-placeholder" style="text-align:center; color:var(--charcoal-light);">
-                        <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--terracotta); opacity:0.5;">✦</div>
-                        <p style="font-size:0.88rem; line-height:1.9; opacity:0.7;">点击一座城市<br>探索游记</p>
+                <!-- 右：游记区 (row 1/3, col 2) — 跨两行，高度 = 地图 + 卡片 -->
+                <div style="grid-row:1/3; border-radius:16px; border:1px solid var(--warm-border); background:var(--cream); padding:1.5rem; display:flex; flex-direction:column; gap:1rem; box-sizing:border-box;">
+                    <!-- 默认：两张照片 -->
+                    <div id="journal-placeholder" style="flex:1; display:flex; flex-direction:column; gap:0.75rem; min-height:0;">
+                        <div style="flex:1; border-radius:10px; overflow:hidden; background:var(--parchment); border:1px solid var(--warm-border); min-height:0; display:flex; align-items:center; justify-content:center;">
+                            <img src="./travel1.jpg" alt="旅行照片" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<span style=\'color:var(--charcoal-light);font-size:0.78rem;opacity:0.5;\'>照片即将上线</span>'">
+                        </div>
+                        <div style="flex:1; border-radius:10px; overflow:hidden; background:var(--parchment); border:1px solid var(--warm-border); min-height:0; display:flex; align-items:center; justify-content:center;">
+                            <img src="./travel2.jpg" alt="旅行照片" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<span style=\'color:var(--charcoal-light);font-size:0.78rem;opacity:0.5;\'>照片即将上线</span>'">
+                        </div>
                     </div>
-                    <div id="journal-content" style="display:none;">
-                        <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.4rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
-                        <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.9rem; margin-bottom:1.5rem;"></p>
-                        <div style="border-radius:10px; overflow:hidden; aspect-ratio:4/3; background:var(--parchment); border:1px solid var(--warm-border); display:flex; align-items:center; justify-content:center;">
+                    <!-- 游记内容（城市选中时） -->
+                    <div id="journal-content" style="flex:1; flex-direction:column; gap:1rem; display:none; min-height:0;">
+                        <div>
+                            <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.3rem; color:var(--charcoal); margin-bottom:0.5rem;"></h3>
+                            <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.88rem;"></p>
+                        </div>
+                        <div style="flex:1; border-radius:10px; overflow:hidden; background:var(--parchment); border:1px solid var(--warm-border); display:flex; align-items:center; justify-content:center; min-height:120px;">
                             <span style="color:var(--charcoal-light); font-size:0.78rem; opacity:0.6;">照片即将上线</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 站点标签轮播 -->
-            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;" id="station-tabs">
-                <button class="station-tab" onclick="flyTo('shanghai')">上海</button>
-                <button class="station-tab" onclick="flyTo('chengdu')">成都</button>
-                <button class="station-tab" onclick="flyTo('nagano')">长野</button>
-            </div>
+                <!-- 站点卡片 (row 2, col 1) -->
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;" id="station-tabs">
+                    <button class="station-card" onclick="flyTo('shanghai')">
+                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
+                        <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
+                    </button>
+                    <button class="station-card" onclick="flyTo('chengdu')">
+                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
+                        <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
+                    </button>
+                    <button class="station-card" onclick="flyTo('nagano')">
+                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
+                        <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
+                    </button>
+                </div>
 
+            </div>
         </div>
     </section>
 
@@ -729,20 +726,21 @@
 
         function showJournal(station) {
             document.getElementById('journal-placeholder').style.display = 'none';
-            document.getElementById('journal-content').style.display = 'block';
+            var jc = document.getElementById('journal-content');
+            jc.style.display = 'flex';
             document.getElementById('travel-city-name').textContent = station.name;
             document.getElementById('travel-city-desc').textContent = station.desc;
         }
 
         function hideJournal() {
-            document.getElementById('journal-placeholder').style.display = 'block';
+            document.getElementById('journal-placeholder').style.display = 'flex';
             document.getElementById('journal-content').style.display = 'none';
         }
 
         function setActiveTab(key) {
-            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.station-card').forEach(function(t) { t.classList.remove('active'); });
             if (key) {
-                const tab = document.querySelector('[onclick="flyTo(\'' + key + '\')"]');
+                var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
                 if (tab) tab.classList.add('active');
             }
         }
