@@ -545,39 +545,37 @@
                 常驻北京。点击一座城市，出发。
             </p>
 
-            <!-- 地图（全宽） -->
-            <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08); margin-bottom:1rem;">
-                <div id="travel-map" style="height:420px; width:100%;"></div>
-                <button onclick="returnToBeijing()" id="return-btn" style="display:none; position:absolute; top:1rem; right:1rem; z-index:500; background:#fff; border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.4rem 1rem; border-radius:99px; font-size:0.8rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s;">
-                    ← 返回北京
-                </button>
-            </div>
+            <!-- 地图 + 游记区 两列 -->
+            <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:1.5rem; margin-bottom:1.5rem; align-items:stretch;">
+                <!-- 左：地图 -->
+                <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08);">
+                    <div id="travel-map" style="height:460px; width:100%;"></div>
+                    <button onclick="returnToGlobal()" id="global-btn" style="position:absolute; top:1rem; left:1rem; z-index:500; background:rgba(255,255,255,0.92); border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.35rem 0.9rem; border-radius:99px; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s; backdrop-filter:blur(4px);">
+                        ⊙ 全局视角
+                    </button>
+                </div>
 
-            <!-- 方块图片慢速轮播 -->
-            <div style="overflow:hidden; margin-bottom:1.5rem; border-radius:12px;">
-                <div class="travel-gallery-wrapper">
-                    <img src="./travel1.jpg" class="travel-gallery-img">
-                    <img src="./travel2.jpg" class="travel-gallery-img">
-                    <img src="./travel1.jpg" class="travel-gallery-img">
-                    <img src="./travel2.jpg" class="travel-gallery-img">
-                    <img src="./travel1.jpg" class="travel-gallery-img">
-                    <img src="./travel2.jpg" class="travel-gallery-img">
-                    <img src="./travel1.jpg" class="travel-gallery-img">
-                    <img src="./travel2.jpg" class="travel-gallery-img">
+                <!-- 右：游记区 -->
+                <div style="border-radius:16px; border:1px solid var(--warm-border); background:var(--cream); padding:2rem; display:flex; flex-direction:column; justify-content:center; min-height:460px; box-sizing:border-box;">
+                    <div id="journal-placeholder" style="text-align:center; color:var(--charcoal-light);">
+                        <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--terracotta); opacity:0.5;">✦</div>
+                        <p style="font-size:0.88rem; line-height:1.9; opacity:0.7;">点击一座城市<br>探索游记</p>
+                    </div>
+                    <div id="journal-content" style="display:none;">
+                        <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.4rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
+                        <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.9rem; margin-bottom:1.5rem;"></p>
+                        <div style="border-radius:10px; overflow:hidden; aspect-ratio:4/3; background:var(--parchment); border:1px solid var(--warm-border); display:flex; align-items:center; justify-content:center;">
+                            <span style="color:var(--charcoal-light); font-size:0.78rem; opacity:0.6;">照片即将上线</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 站点标签 -->
-            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;" id="station-tabs">
+            <!-- 站点标签轮播 -->
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;" id="station-tabs">
                 <button class="station-tab" onclick="flyTo('shanghai')">上海</button>
                 <button class="station-tab" onclick="flyTo('chengdu')">成都</button>
                 <button class="station-tab" onclick="flyTo('nagano')">长野</button>
-            </div>
-
-            <!-- 游记内容（点击后展示）-->
-            <div id="travel-content" class="travel-content" style="display:none;">
-                <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.5rem; color:var(--charcoal); margin-bottom:0.75rem;"></h3>
-                <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.95rem;"></p>
             </div>
 
         </div>
@@ -729,6 +727,26 @@
             stepAnim();
         }
 
+        function showJournal(station) {
+            document.getElementById('journal-placeholder').style.display = 'none';
+            document.getElementById('journal-content').style.display = 'block';
+            document.getElementById('travel-city-name').textContent = station.name;
+            document.getElementById('travel-city-desc').textContent = station.desc;
+        }
+
+        function hideJournal() {
+            document.getElementById('journal-placeholder').style.display = 'block';
+            document.getElementById('journal-content').style.display = 'none';
+        }
+
+        function setActiveTab(key) {
+            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
+            if (key) {
+                const tab = document.querySelector('[onclick="flyTo(\'' + key + '\')"]');
+                if (tab) tab.classList.add('active');
+            }
+        }
+
         function autoTour() {
             if (isManualMode || isAnimating) return;
             const key = autoTourKeys[autoTourIndex];
@@ -739,16 +757,23 @@
                 if (isManualMode) return;
                 animateFlight(BEIJING, station.coords, function() {
                     if (isManualMode) return;
+                    // 到站：放大追踪
+                    map.flyTo(station.coords, 9, { duration: 1.2 });
+                    showJournal(station);
+                    setActiveTab(key);
                     setTimeout(function() {
                         if (isManualMode) return;
+                        // 返程弧线
                         animateFlight(station.coords, BEIJING, function() {
                             if (isManualMode) return;
                             clearFlight();
+                            hideJournal();
+                            setActiveTab(null);
                             map.flyTo(BEIJING, 5, { duration: 1 });
                             autoTourIndex = (autoTourIndex + 1) % autoTourKeys.length;
                             setTimeout(autoTour, 2000);
                         });
-                    }, 2500);
+                    }, 3000);
                 });
             }, 1200);
         }
@@ -759,47 +784,31 @@
             const station = stations[stationKey];
             if (!station) return;
 
-            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
-            const activeTab = document.querySelector('[onclick="flyTo(\'' + stationKey + '\')"]');
-            if (activeTab) activeTab.classList.add('active');
-
+            setActiveTab(stationKey);
             clearFlight();
+            currentStation = stationKey;
+
             const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
             map.fitBounds(bounds, { animate: true, duration: 0.5 });
 
-            currentStation = stationKey;
-            document.getElementById('return-btn').style.display = 'block';
-
             setTimeout(function() {
                 animateFlight(BEIJING, station.coords, function() {
-                    showTravelContent(station);
+                    // 到站：放大追踪，固定视角
+                    map.flyTo(station.coords, 9, { duration: 1.2 });
+                    showJournal(station);
                 });
             }, 600);
         }
 
-        function returnToBeijing() {
-            if (isAnimating || !currentStation) return;
-            const station = stations[currentStation];
-
-            document.getElementById('travel-content').style.display = 'none';
-            document.querySelectorAll('.station-tab').forEach(function(t) { t.classList.remove('active'); });
-
-            animateFlight(station.coords, BEIJING, function() {
-                clearFlight();
-                map.flyTo(BEIJING, 5, { duration: 1 });
-                document.getElementById('return-btn').style.display = 'none';
-                currentStation = null;
-                isManualMode = false;
-                setTimeout(autoTour, 2000);
-            });
-        }
-
-        function showTravelContent(station) {
-            document.getElementById('travel-city-name').textContent = station.name;
-            document.getElementById('travel-city-desc').textContent = station.desc;
-            const content = document.getElementById('travel-content');
-            content.style.display = 'block';
-            content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        function returnToGlobal() {
+            if (isAnimating) return;
+            clearFlight();
+            hideJournal();
+            setActiveTab(null);
+            map.flyTo(BEIJING, 5, { duration: 1.5 });
+            currentStation = null;
+            isManualMode = false;
+            setTimeout(autoTour, 2000);
         }
 
         setTimeout(autoTour, 1500);
