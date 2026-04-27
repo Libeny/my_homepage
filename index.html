@@ -228,10 +228,7 @@
         .status-wip { background: #fef3c7; color: #92400e; }
 
         /* Station Tabs */
-        /* Hide scrollbar on carousel */
-        #station-tabs::-webkit-scrollbar { display: none; }
-
-        /* Station cards */
+        /* Station cards — cinema carousel */
         .station-card {
             background: var(--cream);
             border: 1.5px solid var(--warm-border);
@@ -239,19 +236,20 @@
             border-radius: 12px;
             padding: 1.25rem 1.1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
             text-align: left;
             font-family: 'Noto Sans SC', sans-serif;
             width: 100%;
+            opacity: 0.5;
+            transform: scale(0.93);
         }
-        .station-card:hover {
-            border-left-color: var(--terracotta);
-            box-shadow: 0 4px 16px rgba(77,76,72,0.1);
-            transform: translateY(-2px);
-        }
+        .station-card:hover { opacity: 0.75; }
         .station-card.active {
             border-left-color: var(--terracotta);
             background: #fff;
+            opacity: 1;
+            transform: scale(1);
+            box-shadow: 0 4px 16px rgba(77,76,72,0.12);
         }
 
         /* Plane icon on map */
@@ -579,19 +577,18 @@
                     </div>
                 </div>
 
-                <!-- 站点卡片 (row 2, col 1) -->
-                <!-- 站点轮播 -->
-                <div style="grid-column:1; grid-row:2; position:relative;">
-                    <div id="station-tabs" style="display:flex; gap:1rem; overflow-x:auto; scroll-behavior:smooth; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; padding-bottom:4px; scrollbar-width:none;">
-                        <button class="station-card" onclick="flyTo('shanghai')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                <!-- 站点轮播（放映厅居中效果） -->
+                <div style="grid-column:1; grid-row:2; overflow:hidden; position:relative;" id="carousel-viewport">
+                    <div id="cards-track" style="display:flex; gap:1rem; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
+                        <button class="station-card" onclick="flyTo('shanghai')" style="min-width:200px; flex-shrink:0;">
                             <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
                             <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
                         </button>
-                        <button class="station-card" onclick="flyTo('chengdu')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                        <button class="station-card" onclick="flyTo('chengdu')" style="min-width:200px; flex-shrink:0;">
                             <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
                             <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
                         </button>
-                        <button class="station-card" onclick="flyTo('nagano')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                        <button class="station-card" onclick="flyTo('nagano')" style="min-width:200px; flex-shrink:0;">
                             <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
                             <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
                         </button>
@@ -764,12 +761,23 @@
         }
 
         function setActiveTab(key) {
-            document.querySelectorAll('.station-card').forEach(function(t) { t.classList.remove('active'); });
+            var cards = Array.from(document.querySelectorAll('.station-card'));
+            cards.forEach(function(t) { t.classList.remove('active'); });
             if (key) {
                 var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
                 if (tab) {
                     tab.classList.add('active');
-                    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    var track = document.getElementById('cards-track');
+                    var viewport = document.getElementById('carousel-viewport');
+                    if (track && viewport) {
+                        var idx = cards.indexOf(tab);
+                        var cardW = tab.offsetWidth;
+                        var gap = 16;
+                        var vpW = viewport.offsetWidth;
+                        var offset = idx * (cardW + gap) - (vpW - cardW) / 2;
+                        offset = Math.max(0, offset);
+                        track.style.transform = 'translateX(-' + offset + 'px)';
+                    }
                 }
             }
         }
