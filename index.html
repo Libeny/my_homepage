@@ -583,16 +583,19 @@
                     <div id="carousel-viewport" style="flex:1; overflow:hidden; position:relative;">
                         <div id="cards-track" style="display:flex; gap:1rem; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
                             <button class="station-card" onclick="flyTo('shanghai')" style="flex-shrink:0;">
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
+                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">上海市</div>
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">外滩</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">远东第一都市的霓虹。</div>
                             </button>
                             <button class="station-card" onclick="flyTo('chengdu')" style="flex-shrink:0;">
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
+                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">四川省</div>
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">一座来了就不想走的城市。</div>
                             </button>
                             <button class="station-card" onclick="flyTo('nagano')" style="flex-shrink:0;">
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
+                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">长野县</div>
+                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
+                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">日本阿尔卑斯，静到能听见心跳。</div>
                             </button>
                         </div>
                     </div>
@@ -654,19 +657,25 @@
         const stations = {
             shanghai: {
                 coords: [31.2304, 121.4737],
-                name: '上海',
+                province: '上海市',
+                name: '外滩',
+                quote: '远东第一都市的霓虹。',
                 desc: '魔都的节奏和北京完全不同。外滩的夜景、弄堂里的早点，还有那种天生的国际感。',
                 photos: ['./travel1.jpg', './travel2.jpg']
             },
             chengdu: {
                 coords: [30.5728, 104.0668],
+                province: '四川省',
                 name: '成都',
+                quote: '一座来了就不想走的城市。',
                 desc: '慢下来的城市。熊猫、火锅、和那些在茶馆里发呆一整个下午的人们。',
                 photos: ['./travel1.jpg']
             },
             nagano: {
                 coords: [36.6513, 138.1810],
+                province: '长野县',
                 name: '长野',
+                quote: '日本阿尔卑斯，静到能听见心跳。',
                 desc: '日本阿尔卑斯的入口。雪山、温泉、和静到能听见自己心跳的夜晚。',
                 photos: ['./travel2.jpg']
             }
@@ -829,7 +838,7 @@
                 animateFlight(BEIJING, station.coords, function() {
                     if (isManualMode) return;
                     // 到站：放大追踪
-                    map.flyTo(station.coords, 9, { duration: 1.2 });
+                    map.flyTo(station.coords, 6, { duration: 1.2 });
                     showJournal(station);
                     setActiveTab(key);
                     setTimeout(function() {
@@ -865,7 +874,7 @@
             setTimeout(function() {
                 animateFlight(BEIJING, station.coords, function() {
                     // 到站：放大追踪，固定视角
-                    map.flyTo(station.coords, 9, { duration: 1.2 });
+                    map.flyTo(station.coords, 6, { duration: 1.2 });
                     showJournal(station);
                 });
             }, 600);
