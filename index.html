@@ -228,6 +228,9 @@
         .status-wip { background: #fef3c7; color: #92400e; }
 
         /* Station Tabs */
+        /* Hide scrollbar on carousel */
+        #station-tabs::-webkit-scrollbar { display: none; }
+
         /* Station cards */
         .station-card {
             background: var(--cream);
@@ -529,7 +532,7 @@
 
                 <!-- 地图 (row 1, col 1) -->
                 <div style="grid-column:1; grid-row:1; position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08);">
-                    <div id="travel-map" style="height:400px; width:100%;"></div>
+                    <div id="travel-map" style="height:520px; width:100%;"></div>
                     <button onclick="returnToGlobal()" id="global-btn" style="position:absolute; top:1rem; left:1rem; z-index:500; background:rgba(255,255,255,0.92); border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.35rem 0.9rem; border-radius:99px; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s; backdrop-filter:blur(4px);">
                         ⊙ 全局视角
                     </button>
@@ -577,19 +580,22 @@
                 </div>
 
                 <!-- 站点卡片 (row 2, col 1) -->
-                <div style="grid-column:1; grid-row:2; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;" id="station-tabs">
-                    <button class="station-card" onclick="flyTo('shanghai')">
-                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
-                        <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
-                    </button>
-                    <button class="station-card" onclick="flyTo('chengdu')">
-                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
-                        <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
-                    </button>
-                    <button class="station-card" onclick="flyTo('nagano')">
-                        <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
-                        <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
-                    </button>
+                <!-- 站点轮播 -->
+                <div style="grid-column:1; grid-row:2; position:relative;">
+                    <div id="station-tabs" style="display:flex; gap:1rem; overflow-x:auto; scroll-behavior:smooth; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; padding-bottom:4px; scrollbar-width:none;">
+                        <button class="station-card" onclick="flyTo('shanghai')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">上海</div>
+                            <div style="font-size:0.78rem; color:var(--charcoal-light);">魔都 · 外滩</div>
+                        </button>
+                        <button class="station-card" onclick="flyTo('chengdu')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
+                            <div style="font-size:0.78rem; color:var(--charcoal-light);">天府之国</div>
+                        </button>
+                        <button class="station-card" onclick="flyTo('nagano')" style="scroll-snap-align:start; min-width:200px; flex-shrink:0;">
+                            <div style="font-family:'Noto Serif SC',serif; font-size:1.05rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
+                            <div style="font-size:0.78rem; color:var(--charcoal-light);">日本阿尔卑斯</div>
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -761,7 +767,10 @@
             document.querySelectorAll('.station-card').forEach(function(t) { t.classList.remove('active'); });
             if (key) {
                 var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
-                if (tab) tab.classList.add('active');
+                if (tab) {
+                    tab.classList.add('active');
+                    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
             }
         }
 
