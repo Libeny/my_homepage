@@ -728,9 +728,11 @@
             border-radius: 30px;
             background: var(--cream);
             box-shadow: 0 24px 80px rgba(78,66,50,0.12);
+            display: flex;
+            flex-direction: column;
         }
         .forge-diagram {
-            height: 100%;
+            flex: 1;
             display: grid;
             grid-template-rows: repeat(3, 1fr);
             gap: 18px;
@@ -768,6 +770,24 @@
             color: #4d4c48;
             font-weight: 700;
             text-align: center;
+        }
+        .forge-link-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .forge-link-row a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 36px;
+            border: 1px solid rgba(201,100,66,0.28);
+            border-radius: 999px;
+            padding: 8px 12px;
+            color: var(--terra);
+            background: rgba(255,248,236,0.58);
+            text-decoration: none;
+            font: 700 11px var(--font-mono);
         }
 
         .ship-board {
@@ -1190,6 +1210,10 @@
         .project-link.primary:hover {
             color: #101010;
         }
+        .project-links[hidden],
+        .project-link[hidden] {
+            display: none;
+        }
 
         .mobile-projects {
             display: none;
@@ -1556,6 +1580,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="forge-link-row" aria-label="forge architecture links">
+                                <a href="./agent-delivery-system.html">Architecture note</a>
+                                <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">Team GitHub</a>
+                                <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">CUI GitHub</a>
+                                <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">NB-Claude GitHub</a>
+                            </div>
                         </div>
                     </div>
 
@@ -1575,7 +1605,7 @@
                                     <span class="mini-marker"></span>
                                     <span class="mini-marker"></span>
                                 </div>
-                                <div class="ship-caption">系统区每次聚焦一个底座：Team、可观测性、模型续航。点进去能看架构笔记和源码。</div>
+                                <div class="ship-caption">作品区回到真正产出：先讲卜灵，再讲其他已经成形的产品和原型。</div>
                             </div>
                         </div>
                     </div>
@@ -1589,27 +1619,39 @@
         <div class="project-stage">
             <div class="project-shell">
                 <div class="project-visual">
-                    <div class="project-art art-team active" data-project-art="0"></div>
-                    <div class="project-art art-cui" data-project-art="1"></div>
-                    <div class="project-art art-msc" data-project-art="2"></div>
+                    <div class="project-art art-buling active" data-project-art="0"></div>
+                    <div class="project-art art-mutu" data-project-art="1">
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <div class="vision-box one">obstacle: 2.4m</div>
+                        <div class="vision-box two">clear path: right side</div>
+                    </div>
+                    <div class="project-art art-kingdom" data-project-art="2">
+                        <div class="game-path"></div>
+                        <span class="tower"></span>
+                        <span class="tower"></span>
+                        <span class="tower"></span>
+                    </div>
                 </div>
 
                 <div class="project-info">
-                    <div class="project-index" id="projectIndex">04 / SYSTEM · 01</div>
-                    <h2 class="project-title" id="projectTitle">muyu-claw-team</h2>
-                    <p class="project-summary" id="projectSummary">一个 bot 对应一个 agent 的多 Bot Agent 团队系统：dev、ops、design 分工，私聊、群聊、定时会话进入同一条队列，再由 Claude/Codex runtime 和沙箱执行。</p>
+                    <div class="project-index" id="projectIndex">04 / OUTPUT · 01</div>
+                    <h2 class="project-title" id="projectTitle">卜灵</h2>
+                    <p class="project-summary" id="projectSummary">卜灵是第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，用 CLAUDE.md 的交付流程把计划、设计、开发、验证和 TestFlight 串起来。</p>
                     <div class="project-meta">
-                        <div class="meta-box"><span>Status</span><strong id="projectStatus">Team system</strong></div>
-                        <div class="meta-box"><span>Role</span><strong id="projectRole">Bridge / Queue / Runtime</strong></div>
+                        <div class="meta-box"><span>Status</span><strong id="projectStatus">Product app</strong></div>
+                        <div class="meta-box"><span>Role</span><strong id="projectRole">PM / 架构 / Flutter</strong></div>
                     </div>
                     <div class="project-tabs">
-                        <button class="project-tab active" data-project-jump="0">01 Team</button>
-                        <button class="project-tab" data-project-jump="1">02 CUI</button>
-                        <button class="project-tab" data-project-jump="2">03 NB-Claude</button>
+                        <button class="project-tab active" data-project-jump="0">01 卜灵</button>
+                        <button class="project-tab" data-project-jump="1">02 牧途</button>
+                        <button class="project-tab" data-project-jump="2">03 三国</button>
                     </div>
-                    <div class="project-links">
-                        <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#team">读架构笔记</a>
-                        <a class="project-link" id="projectGithubLink" href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <div class="project-links" id="projectLinks">
+                        <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#buling">看卜灵交付笔记</a>
+                        <a class="project-link" id="projectGithubLink" href="./agent-delivery-system.html#workflow">交付流程</a>
                     </div>
                 </div>
             </div>
@@ -1620,36 +1662,32 @@
         <h2>作品展示</h2>
         <div class="mobile-track" aria-label="mobile project carousel">
             <article class="mobile-card">
-                <div class="mobile-art art-team"></div>
+                <div class="mobile-art art-buling"></div>
                 <div class="mobile-card-body">
-                    <h3>muyu-claw-team</h3>
-                    <p>多 Bot Agent 团队系统：角色、会话、队列、runtime、沙箱和交付出口串在一起。</p>
+                    <h3>卜灵</h3>
+                    <p>第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，按交付协议推进到测试和发布。</p>
                     <div class="mobile-card-actions">
-                        <a href="./agent-delivery-system.html#team">架构笔记</a>
-                        <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
+                        <a href="./agent-delivery-system.html#buling">交付笔记</a>
+                        <a href="./agent-delivery-system.html#workflow">流程</a>
                     </div>
                 </div>
             </article>
             <article class="mobile-card">
-                <div class="mobile-art art-cui"></div>
+                <div class="mobile-art art-mutu">
+                    <div class="vision-box one">obstacle: 2.4m</div>
+                </div>
                 <div class="mobile-card-body">
-                    <h3>cui-no-auth</h3>
-                    <p>Claude Code 实时监控面板：扫描 JSONL 会话、轮询变化，并通过 SSE 推送给浏览器。</p>
-                    <div class="mobile-card-actions">
-                        <a href="./agent-delivery-system.html#infra-cui">监控架构</a>
-                        <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    </div>
+                    <h3>牧途</h3>
+                    <p>视觉辅助方向的产品原型，重点是检测框、距离判断和语音提示能不能真的帮助用户走路。</p>
                 </div>
             </article>
             <article class="mobile-card">
-                <div class="mobile-art art-msc"></div>
+                <div class="mobile-art art-kingdom">
+                    <div class="game-path"></div>
+                </div>
                 <div class="mobile-card-body">
-                    <h3>model-steer-claude</h3>
-                    <p>Claude Code 高可用模型代理：fallback、circuit breaker、任务路由，保证长任务不中断。</p>
-                    <div class="mobile-card-actions">
-                        <a href="./agent-delivery-system.html#infra-msc">模型基建</a>
-                        <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    </div>
+                    <h3>三国塔防</h3>
+                    <p>玩法原型用地图、单位、波次和策略冲突说明，而不是把游戏当普通技术卡片展示。</p>
                 </div>
             </article>
         </div>
@@ -1735,41 +1773,37 @@
                 state: "shipped",
                 accent: "#f5d53f",
                 kicker: "04 / SHIPPED",
-                title: "最后展示系统，而不是摆样子。",
-                copy: "Team、可观测性、模型续航是交付底座。每个展示项都能点进架构笔记和 GitHub，接受检查。"
+                title: "最后展示真正产出。",
+                copy: "Forge 讲底座，Outputs 讲作品。第一个产出是卜灵：能从产品目标、技术栈、交付流程一直追到验证和发版。"
             }
         ];
 
         const projectData = [
             {
-                index: "04 / SYSTEM · 01",
-                title: "muyu-claw-team",
-                summary: "一个 bot 对应一个 agent 的多 Bot Agent 团队系统：dev、ops、design 分工，私聊、群聊、定时会话进入同一条队列，再由 Claude/Codex runtime 和沙箱执行。",
-                status: "Team system",
-                role: "Bridge / Queue / Runtime",
-                primaryLabel: "读架构笔记",
-                primaryHref: "./agent-delivery-system.html#team",
-                github: "https://github.com/Libeny/muyu-claw-team"
+                index: "04 / OUTPUT · 01",
+                title: "卜灵",
+                summary: "卜灵是第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，用 CLAUDE.md 的交付流程把计划、设计、开发、验证和 TestFlight 串起来。",
+                status: "Product app",
+                role: "PM / 架构 / Flutter",
+                primaryLabel: "看卜灵交付笔记",
+                primaryHref: "./agent-delivery-system.html#buling",
+                secondaryLabel: "交付流程",
+                secondaryHref: "./agent-delivery-system.html#workflow",
+                secondaryExternal: false
             },
             {
-                index: "04 / SYSTEM · 02",
-                title: "cui-no-auth",
-                summary: "Claude Code 实时监控平台：每 15 秒发现新会话、轮询文件变化，通过 SSE 推送列表和内容更新，支持多人一起看任务进度和 sub-agent 明细。",
-                status: "Observability",
-                role: "Discovery / Polling / SSE",
-                primaryLabel: "看监控架构",
-                primaryHref: "./agent-delivery-system.html#infra-cui",
-                github: "https://github.com/Libeny/cui-no-auth"
+                index: "04 / OUTPUT · 02",
+                title: "牧途",
+                summary: "视觉辅助方向的产品原型，核心不是炫技，而是把检测框、距离判断、可走方向和语音提示放进一个真实可理解的辅助场景。",
+                status: "Prototype",
+                role: "视觉辅助 / 交互"
             },
             {
-                index: "04 / SYSTEM · 03",
-                title: "model-steer-claude",
-                summary: "给 Claude Code 长任务准备的模型高可用代理：主模型不可用时自动 fallback，配合 circuit breaker、错误分类和任务路由，让 AI 数字员工不中断。",
-                status: "Model continuity",
-                role: "Fallback / Routing / Breaker",
-                primaryLabel: "看模型基建",
-                primaryHref: "./agent-delivery-system.html#infra-msc",
-                github: "https://github.com/Libeny/model-steer-claude"
+                index: "04 / OUTPUT · 03",
+                title: "三国塔防",
+                summary: "游戏玩法原型，展示重点放在地图、单位、波次和策略冲突上：它需要看起来像一套能继续打磨的玩法，而不是一张技术标签。",
+                status: "Prototype",
+                role: "玩法 / 关卡 / 前端"
             }
         ];
 
@@ -1788,6 +1822,7 @@
         const projectSummary = document.getElementById("projectSummary");
         const projectStatus = document.getElementById("projectStatus");
         const projectRole = document.getElementById("projectRole");
+        const projectLinks = document.getElementById("projectLinks");
         const projectPrimaryLink = document.getElementById("projectPrimaryLink");
         const projectGithubLink = document.getElementById("projectGithubLink");
         const projectTabs = Array.from(document.querySelectorAll("[data-project-jump]"));
@@ -1828,12 +1863,24 @@
             projectSummary.textContent = item.summary;
             projectStatus.textContent = item.status;
             projectRole.textContent = item.role;
+            if (projectLinks) {
+                projectLinks.hidden = !item.primaryHref && !item.secondaryHref;
+            }
             if (projectPrimaryLink) {
-                projectPrimaryLink.textContent = item.primaryLabel;
-                projectPrimaryLink.href = item.primaryHref;
+                projectPrimaryLink.hidden = !item.primaryHref;
+                if (item.primaryHref) {
+                    projectPrimaryLink.textContent = item.primaryLabel;
+                    projectPrimaryLink.href = item.primaryHref;
+                }
             }
             if (projectGithubLink) {
-                projectGithubLink.href = item.github;
+                projectGithubLink.hidden = !item.secondaryHref;
+                if (item.secondaryHref) {
+                    projectGithubLink.textContent = item.secondaryLabel;
+                    projectGithubLink.href = item.secondaryHref;
+                    projectGithubLink.target = item.secondaryExternal ? "_blank" : "_self";
+                    projectGithubLink.rel = item.secondaryExternal ? "noopener noreferrer" : "";
+                }
             }
             projectTabs.forEach((tab, i) => tab.classList.toggle("active", i === index));
             projectArts.forEach((art, i) => art.classList.toggle("active", i === index));
