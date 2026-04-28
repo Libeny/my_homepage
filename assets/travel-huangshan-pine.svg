@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#fffdf5"/>
+  <path d="M51 402l103-175 81 131 73-156 153 200z" fill="#d7d2c4" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M156 229l35 55 31-61M310 206l54 70 24-39" fill="#f9f8f1" stroke="#111" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M80 357c64-23 122-20 174 9 47 27 106 25 178-8" fill="none" stroke="#fffdf5" stroke-width="38" stroke-linecap="round"/>
+  <path d="M76 359c66-25 126-22 180 8 49 27 108 25 180-10" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round"/>
+  <path d="M333 369c4-76 10-135 20-178" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round"/>
+  <path d="M338 363c3-64 9-115 17-154" fill="none" stroke="#8d6b4e" stroke-width="9" stroke-linecap="round"/>
+  <path d="M356 210c-53-21-88-5-106 47 39-13 74-12 105 4" fill="#5a9e69" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M356 230c48-25 84-17 108 26-40-7-74-2-102 17" fill="#66ad75" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M355 193c19-51 53-68 101-51-37 16-63 42-78 78" fill="#74bc7e" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+</svg>

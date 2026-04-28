@@ -94,6 +94,48 @@
             border-bottom: 3px solid var(--terracotta);
             padding-bottom: 0.5rem;
             margin-bottom: 3rem;
+            line-height: 1.2;
+        }
+
+        .heading-en {
+            display: inline-block;
+            margin-left: 0.45rem;
+            color: var(--terracotta);
+            font-family: 'Kalam', 'Noto Sans SC', cursive;
+            font-size: 0.52em;
+            font-weight: 400;
+            letter-spacing: 0;
+            transform: rotate(-1deg) translateY(-0.08em);
+            opacity: 0.86;
+        }
+
+        .warm-section h2.handwritten-title {
+            position: relative;
+            border-bottom: 0;
+            padding-bottom: 0.75rem;
+            font-family: 'Kalam', 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+            font-weight: 700;
+            letter-spacing: 0;
+            transform: rotate(-0.35deg);
+        }
+        .warm-section h2.handwritten-title::after {
+            content: "";
+            position: absolute;
+            left: 0.05rem;
+            right: 0.2rem;
+            bottom: 0.05rem;
+            height: 4px;
+            border-radius: 999px;
+            background: var(--terracotta);
+            transform: rotate(-1.2deg);
+            opacity: 0.9;
+        }
+        .warm-section h2.handwritten-title .heading-en {
+            margin-left: 0.55rem;
+            font-size: 0.58em;
+            font-weight: 700;
+            transform: rotate(1.2deg) translateY(-0.06em);
+            opacity: 0.9;
         }
 
         .warm-section h3 {
@@ -230,26 +272,214 @@
         /* Station Tabs */
         /* Station cards — cinema carousel */
         .station-card {
-            background: var(--cream);
-            border: 1.5px solid var(--warm-border);
-            border-left: 3px solid transparent;
-            border-radius: 12px;
-            padding: 1.25rem 1.1rem;
+            background: rgba(255,255,255,0.52);
+            border: 1.5px solid transparent;
+            border-radius: 10px;
+            padding: 0.95rem 1rem;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
             text-align: left;
             font-family: 'Noto Sans SC', sans-serif;
             width: 100%;
-            opacity: 0.5;
-            transform: scale(0.93);
+            flex: 0 0 172px;
+            max-width: 172px;
+            min-height: 108px;
+            opacity: 0.74;
+            transform: translateY(0);
+            position: relative;
+            scroll-snap-align: start;
         }
-        .station-card:hover { opacity: 0.75; }
+        .station-card:hover {
+            opacity: 1;
+            background: rgba(255,255,255,0.78);
+        }
         .station-card.active {
-            border-left-color: var(--terracotta);
+            border-color: rgba(201,100,66,0.38);
             background: #fff;
             opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 4px 16px rgba(77,76,72,0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(77,76,72,0.11);
+        }
+        .station-card::after {
+            content: "";
+            position: absolute;
+            left: 1rem;
+            bottom: 0.8rem;
+            width: 42px;
+            height: 2px;
+            background: var(--terracotta);
+            border-radius: 99px;
+            opacity: 0;
+            transform: rotate(-2deg);
+            transition: opacity 0.25s ease;
+        }
+        .station-card.active::after {
+            opacity: 1;
+        }
+        .station-meta {
+            font-size: 0.72rem;
+            color: var(--charcoal-light);
+            margin-bottom: 0.2rem;
+            letter-spacing: 0.05em;
+        }
+        .station-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .station-mode-icon {
+            width: auto;
+            height: auto;
+            padding: 0.18rem 0.42rem;
+            border: 1px solid rgba(201,100,66,0.28);
+            border-radius: 999px;
+            background: rgba(201,100,66,0.06);
+            color: var(--terracotta);
+            font-family: 'Kalam', 'Noto Sans SC', sans-serif;
+            font-size: 0.72rem;
+            line-height: 1;
+            opacity: 0.72;
+            flex: 0 0 auto;
+        }
+        .station-card.active .station-mode-icon,
+        .station-card:hover .station-mode-icon {
+            opacity: 1;
+        }
+        .station-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.35rem;
+        }
+        .station-quote {
+            font-family: 'Kalam', 'ZCOOL KuaiLe', cursive;
+            font-size: 0.88rem;
+            line-height: 1.35;
+            color: var(--charcoal-light);
+            max-width: 9.5rem;
+        }
+
+        /* Footprints layout */
+        .footprints-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(220px, 0.4fr);
+            grid-template-rows: 520px auto;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .footprints-grid > * { min-width: 0; }
+        .travel-map-frame {
+            grid-column: 1;
+            grid-row: 1;
+            position: relative;
+            height: 520px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--warm-border);
+            box-shadow: 0 4px 24px rgba(77,76,72,0.08);
+        }
+        #travel-map { height: 100%; width: 100%; }
+        .travel-journal {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            align-self: stretch;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .travel-journal-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            gap: 1.2rem;
+            background: var(--cream);
+            border: 1px solid var(--warm-border);
+            border-radius: 16px;
+            padding: 1rem 1.1rem;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .travel-polaroid-card {
+            background: #fff;
+            padding: 0.45rem 0.45rem 1.1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            width: 11rem;
+        }
+        .travel-photo {
+            aspect-ratio: 1 / 1;
+            background: #f3f0e8;
+            overflow: hidden;
+        }
+        .travel-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .travel-caption {
+            min-height: 3.15rem;
+            margin-top: 0.55rem;
+            color: #111;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.1rem;
+            font-family: 'Kalam', 'ZCOOL KuaiLe', cursive;
+            line-height: 1.15;
+        }
+        .travel-caption strong {
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+        .travel-caption span {
+            font-size: 0.78rem;
+        }
+        .station-carousel {
+            grid-column: 1;
+            grid-row: 2;
+            display: block;
+            background: rgba(255,255,255,0.3);
+            border: 1px solid var(--warm-border);
+            border-radius: 16px;
+            padding: 0.75rem;
+            min-width: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .station-carousel::after {
+            content: "";
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            bottom: 1.05rem;
+            width: 3rem;
+            pointer-events: none;
+            background: linear-gradient(to right, rgba(250,249,247,0), rgba(250,249,247,0.92));
+        }
+        .station-track {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 0.75rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x proximity;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(201,100,66,0.45) transparent;
+            padding: 0.1rem 0.15rem 0.45rem;
+        }
+        .station-track::-webkit-scrollbar { height: 6px; }
+        .station-track::-webkit-scrollbar-track { background: transparent; }
+        .station-track::-webkit-scrollbar-thumb {
+            background: rgba(201,100,66,0.42);
+            border-radius: 99px;
         }
 
         /* Plane icon on map */
@@ -258,13 +488,796 @@
             line-height: 1;
             transform-origin: center;
         }
+        .route-marker {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--terracotta);
+            border: 3px solid #fffdf5;
+            box-shadow: 0 0 0 2px rgba(201,100,66,0.24), 0 4px 10px rgba(77,76,72,0.2);
+            transform-origin: center;
+        }
+        .section-endnote {
+            max-width: 44rem;
+            margin: 3.25rem auto 0;
+            padding-top: 1.4rem;
+            border-top: 1px solid rgba(221,217,208,0.82);
+            color: var(--charcoal-light);
+            font-family: 'Kalam', 'Noto Serif SC', Georgia, serif;
+            font-size: 1rem;
+            line-height: 1.9;
+            text-align: center;
+        }
+
+        /* ===== Narrative Homepage System ===== */
+        :root {
+            --ink: #171716;
+            --muted: #73706a;
+            --paper: #f4f1e8;
+            --line: #ded8cb;
+            --terra: var(--terracotta);
+            --blue: #2932e1;
+            --cyan: #19c7df;
+            --yellow: #f5d53f;
+            --night: #050816;
+            --font-sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-serif: "Noto Serif SC", Georgia, serif;
+            --font-mono: "JetBrains Mono", monospace;
+        }
+
+        .story-shell {
+            height: 420vh;
+            position: relative;
+            background: var(--paper);
+        }
+        .story-stage {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--night);
+            transition: color 320ms ease;
+        }
+        .story-stage[data-state="engineer"] { color: white; }
+        .story-stage[data-state="friction"] { color: #0d0d0c; }
+        .story-stage[data-state="forge"] { color: var(--ink); }
+        .story-stage[data-state="shipped"] { color: white; }
+        .material-stack,
+        .material-layer {
+            position: absolute;
+            inset: 0;
+        }
+        .material-stack {
+            z-index: 0;
+            pointer-events: none;
+        }
+        .material-layer {
+            opacity: 0;
+            will-change: opacity, transform;
+        }
+        .material-layer.is-engineer {
+            opacity: 1;
+            background:
+                linear-gradient(rgba(30,41,59,0.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,41,59,0.18) 1px, transparent 1px),
+                radial-gradient(circle at 77% 30%, rgba(41,50,225,0.24), transparent 32%),
+                #050816;
+            background-size: 44px 44px, 44px 44px, auto, auto;
+        }
+        .material-layer.is-friction {
+            background:
+                linear-gradient(-3deg, transparent 0 52%, var(--yellow) 52% 61%, transparent 61%),
+                #fffefa;
+        }
+        .material-layer.is-forge {
+            background:
+                radial-gradient(circle at 22% 18%, rgba(201,100,66,0.11), transparent 30%),
+                var(--paper);
+        }
+        .material-layer.is-shipped {
+            background:
+                radial-gradient(circle at 70% 40%, rgba(201,100,66,0.16), transparent 34%),
+                linear-gradient(135deg, #15110f 0%, #241b17 58%, #080707 100%);
+        }
+        .story-content {
+            position: relative;
+            z-index: 1;
+            width: min(1160px, calc(100% - 48px));
+            height: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 0.88fr) minmax(360px, 1.12fr);
+            gap: 64px;
+            align-items: center;
+        }
+        .story-kicker {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent, var(--terra));
+            margin-bottom: 22px;
+        }
+        .story-title {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: clamp(40px, 6vw, 72px);
+            line-height: 1.08;
+            letter-spacing: -0.04em;
+            max-width: 560px;
+        }
+        .story-copy {
+            margin: 24px 0 0;
+            max-width: 530px;
+            font-size: 17px;
+            line-height: 1.9;
+            color: currentColor;
+            opacity: 0.68;
+        }
+        .story-progress {
+            margin-top: 44px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 440px;
+        }
+        .story-step {
+            height: 3px;
+            border: 0;
+            border-radius: 999px;
+            background: currentColor;
+            opacity: 0.22;
+            cursor: pointer;
+        }
+        .story-step.active {
+            opacity: 1;
+            background: var(--accent, var(--terra));
+        }
+        .visual-stack {
+            position: relative;
+            height: min(590px, 70vh);
+            perspective: 1600px;
+            transform-style: preserve-3d;
+        }
+        .visual-card {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: translateY(34px) scale(0.97);
+            transition: none;
+            pointer-events: none;
+            will-change: opacity, transform;
+            filter: blur(var(--depth-blur, 0px));
+        }
+        .visual-card.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .code-board {
+            height: 100%;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 28px;
+            background: rgba(6,11,25,0.76);
+            box-shadow: 0 30px 100px rgba(0,0,0,0.35);
+            overflow: hidden;
+        }
+        .code-board-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+        .code-lines {
+            padding: 28px;
+            font-family: var(--font-mono);
+            font-size: clamp(13px, 1.15vw, 16px);
+            line-height: 2.1;
+            color: rgba(222,232,255,0.78);
+        }
+        .code-lines b { color: #45d4ff; }
+        .code-lines em { color: #f2cc60; font-style: normal; }
+
+        .comic-board {
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            align-items: center;
+            transform: rotate(-1.2deg);
+        }
+        .comic-panel {
+            min-height: 300px;
+            padding: 34px;
+            border: 4px solid #111;
+            background: #fffefa;
+            box-shadow: 9px 9px 0 #111;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .comic-panel:nth-child(2) { transform: rotate(2.2deg) translateY(28px); }
+        .comic-panel h3 {
+            margin: 0 0 20px;
+            font-size: 28px;
+            line-height: 1.2;
+            text-decoration: underline;
+            text-decoration-thickness: 3px;
+            text-underline-offset: 8px;
+        }
+        .comic-panel p {
+            margin: 0;
+            color: #252525;
+            font-size: 18px;
+            line-height: 1.9;
+            font-weight: 700;
+        }
+        .highlight {
+            padding: 0 5px;
+            background: var(--yellow);
+        }
+
+        .forge-board {
+            height: 100%;
+            padding: 42px;
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            background: var(--cream);
+            box-shadow: 0 24px 80px rgba(78,66,50,0.12);
+        }
+        .forge-diagram {
+            height: 100%;
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .forge-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+        .forge-label {
+            border-right: 2px solid rgba(201,100,66,0.28);
+            padding-right: 18px;
+            color: var(--terra);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        .forge-nodes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            color: #4d4c48;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .ship-board {
+            height: 100%;
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 24px;
+            align-items: stretch;
+        }
+        .ship-phone,
+        .ship-map {
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 24px 90px rgba(0,0,0,0.22);
+            overflow: hidden;
+        }
+        .ship-phone {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .phone-ui {
+            min-height: 420px;
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(201,100,66,0.28), transparent 34%),
+                #f8f1e8;
+            color: #181716;
+            padding: 26px 22px;
+        }
+        .phone-pill {
+            width: 88px;
+            height: 8px;
+            margin: 0 auto 28px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.14);
+        }
+        .phone-ui h3 {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: 28px;
+            line-height: 1.25;
+        }
+        .oracle-ring {
+            width: 190px;
+            height: 190px;
+            margin: 38px auto;
+            border-radius: 50%;
+            border: 1px solid rgba(201,100,66,0.32);
+            background:
+                conic-gradient(from 70deg, rgba(201,100,66,0), rgba(201,100,66,0.64), rgba(201,100,66,0)),
+                radial-gradient(circle, #f8f1e8 0 56%, transparent 57%);
+        }
+        .ship-map {
+            padding: 28px;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            gap: 22px;
+        }
+        .mini-grid {
+            border-radius: 24px;
+            background:
+                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+                rgba(255,255,255,0.05);
+            background-size: 42px 42px;
+            position: relative;
+            min-height: 300px;
+        }
+        .mini-marker {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 99px;
+            background: var(--terra);
+            box-shadow: 0 0 0 8px rgba(201,100,66,0.16);
+        }
+        .mini-marker:nth-child(1) { left: 18%; top: 28%; }
+        .mini-marker:nth-child(2) { right: 24%; top: 45%; }
+        .mini-marker:nth-child(3) { left: 48%; bottom: 22%; }
+        .ship-caption {
+            color: rgba(255,255,255,0.72);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .projects-scroll {
+            position: relative;
+            height: 360vh;
+            background: #101010;
+            color: white;
+        }
+        .project-stage {
+            position: sticky;
+            top: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 80% 30%, rgba(201,100,66,0.16), transparent 30%),
+                #101010;
+        }
+        .project-shell {
+            width: min(1180px, calc(100% - 48px));
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+            gap: 58px;
+            align-items: center;
+        }
+        .project-visual {
+            position: relative;
+            min-height: 560px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 32px;
+            background: rgba(255,255,255,0.05);
+            overflow: hidden;
+            box-shadow: 0 32px 100px rgba(0,0,0,0.34);
+            perspective: 1800px;
+            transform-style: preserve-3d;
+        }
+        .project-art {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: none;
+            will-change: opacity, transform;
+            transform-origin: center center;
+            filter: blur(var(--depth-blur, 0px));
+        }
+        .project-art.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .art-buling {
+            background:
+                radial-gradient(circle at 52% 42%, rgba(201,100,66,0.34), transparent 24%),
+                linear-gradient(145deg, #f5f0e8, #d8c4ad);
+        }
+        .art-buling::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 250px;
+            height: 250px;
+            border: 1px solid rgba(113,72,47,0.26);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow:
+                0 0 0 46px rgba(255,255,255,0.28),
+                0 0 0 86px rgba(201,100,66,0.12);
+        }
+        .art-buling::after {
+            content: "卜灵";
+            position: absolute;
+            left: 48px;
+            bottom: 42px;
+            color: rgba(23,23,22,0.84);
+            font-family: var(--font-serif);
+            font-size: 88px;
+            letter-spacing: -0.08em;
+        }
+        .art-mutu {
+            background:
+                linear-gradient(120deg, rgba(13,19,33,0.92), rgba(26,35,43,0.9)),
+                #111;
+        }
+        .camera-line {
+            position: absolute;
+            left: 50%;
+            bottom: -15%;
+            width: 2px;
+            height: 80%;
+            background: linear-gradient(to top, rgba(57,225,174,0), rgba(57,225,174,0.75));
+            transform-origin: bottom;
+        }
+        .camera-line:nth-child(1) { transform: rotate(-26deg); }
+        .camera-line:nth-child(2) { transform: rotate(-10deg); }
+        .camera-line:nth-child(3) { transform: rotate(10deg); }
+        .camera-line:nth-child(4) { transform: rotate(26deg); }
+        .vision-box {
+            position: absolute;
+            border: 1px solid rgba(57,225,174,0.64);
+            border-radius: 18px;
+            color: rgba(255,255,255,0.72);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 10px 12px;
+        }
+        .vision-box.one { left: 15%; top: 24%; width: 180px; height: 110px; }
+        .vision-box.two { right: 14%; top: 42%; width: 210px; height: 130px; }
+        .art-kingdom {
+            background:
+                linear-gradient(rgba(48,34,24,0.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(48,34,24,0.18) 1px, transparent 1px),
+                #e5d2a3;
+            background-size: 72px 72px;
+        }
+        .game-path {
+            position: absolute;
+            left: 7%;
+            right: 7%;
+            top: 45%;
+            height: 72px;
+            border-radius: 999px;
+            background: rgba(116,80,45,0.28);
+            transform: rotate(-7deg);
+        }
+        .tower {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-radius: 18px 18px 12px 12px;
+            background: #6e2f24;
+            box-shadow: 0 12px 0 #432018;
+        }
+        .tower:nth-child(2) { left: 22%; top: 26%; }
+        .tower:nth-child(3) { left: 58%; top: 24%; }
+        .tower:nth-child(4) { left: 42%; bottom: 26%; }
+        .project-info {
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .project-index {
+            color: var(--terra);
+            font-family: var(--font-mono);
+            letter-spacing: 0.14em;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .project-title {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: clamp(42px, 5vw, 74px);
+            line-height: 1.04;
+            letter-spacing: -0.06em;
+        }
+        .project-summary {
+            margin: 24px 0 0;
+            color: rgba(255,255,255,0.68);
+            font-size: 17px;
+            line-height: 1.9;
+        }
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin: 34px 0;
+        }
+        .meta-box {
+            border-top: 1px solid rgba(255,255,255,0.16);
+            padding-top: 14px;
+        }
+        .meta-box span {
+            display: block;
+            color: rgba(255,255,255,0.42);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+        .meta-box strong { font-size: 15px; }
+        .project-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .project-tab {
+            border: 1px solid rgba(255,255,255,0.18);
+            background: transparent;
+            color: rgba(255,255,255,0.58);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font: 700 12px var(--font-mono);
+            cursor: pointer;
+        }
+        .project-tab.active {
+            color: #101010;
+            background: white;
+            border-color: white;
+        }
+
+        .mobile-projects {
+            display: none;
+            background: #101010;
+            color: white;
+            padding: 80px 0;
+        }
+        .mobile-projects h2 {
+            margin: 0 24px 24px;
+            font-family: var(--font-serif);
+            font-size: 38px;
+            line-height: 1.1;
+        }
+        .mobile-track {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 0 24px 18px;
+        }
+        .mobile-card {
+            flex: 0 0 82%;
+            min-height: 580px;
+            scroll-snap-align: center;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 26px;
+            background: rgba(255,255,255,0.06);
+            overflow: hidden;
+        }
+        .mobile-art {
+            height: 280px;
+            position: relative;
+        }
+        .mobile-card-body { padding: 24px; }
+        .mobile-card-body h3 {
+            margin: 0 0 14px;
+            font-family: var(--font-serif);
+            font-size: 32px;
+        }
+        .mobile-card-body p {
+            color: rgba(255,255,255,0.68);
+            line-height: 1.8;
+        }
+
+        .life-entry {
+            padding: 110px 0;
+            background:
+                linear-gradient(rgba(91,73,46,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(91,73,46,0.025) 1px, transparent 1px),
+                var(--paper);
+            background-size: 32px 32px;
+            color: var(--ink);
+        }
+        .life-entry-inner {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+            gap: 58px;
+            align-items: center;
+        }
+        .life-kicker {
+            color: var(--terra);
+            font-family: "Kalam", var(--font-serif);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .life-entry h2 {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: clamp(42px, 6vw, 76px);
+            line-height: 1.05;
+            letter-spacing: -0.05em;
+        }
+        .life-entry p {
+            margin: 24px 0 0;
+            max-width: 520px;
+            color: var(--muted);
+            line-height: 1.9;
+        }
+        .life-link {
+            display: inline-flex;
+            margin-top: 32px;
+            border: 1px solid rgba(201,100,66,0.3);
+            border-radius: 999px;
+            padding: 12px 18px;
+            background: var(--cream);
+            color: var(--terra);
+            text-decoration: none;
+            font-size: 14px;
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+        .life-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(92,73,46,0.12);
+        }
+        .life-postcards {
+            min-height: 430px;
+            position: relative;
+        }
+        .life-postcard {
+            position: absolute;
+            width: 230px;
+            padding: 12px 12px 42px;
+            border: 1px solid rgba(216,205,187,0.72);
+            background: #fffefa;
+            box-shadow: 0 18px 42px rgba(92,73,46,0.14);
+        }
+        .life-postcard img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            background: var(--paper);
+        }
+        .life-postcard figcaption {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 12px;
+            color: rgba(45,42,38,0.62);
+            font-family: "Kalam", var(--font-serif);
+            font-size: 15px;
+        }
+        .life-postcard.one { left: 6%; top: 20px; transform: rotate(-5deg); }
+        .life-postcard.two { left: 38%; top: 92px; transform: rotate(4deg); }
+        .life-postcard.three { right: 2%; bottom: 28px; transform: rotate(-2deg); }
+
+        @media (max-width: 820px) {
+            .story-shell { height: auto; }
+            .story-stage {
+                position: relative;
+                height: auto;
+                min-height: 100vh;
+                padding: 92px 0;
+            }
+            .story-content {
+                grid-template-columns: 1fr;
+                gap: 42px;
+                height: auto;
+            }
+            .material-stack {
+                display: none;
+            }
+            .story-stage[data-state] {
+                background: var(--night);
+                color: white;
+            }
+            .story-copy {
+                color: rgba(255,255,255,0.68);
+                opacity: 1;
+            }
+            .visual-stack { height: auto; min-height: 620px; }
+            .visual-card {
+                position: relative;
+                inset: auto;
+                opacity: 1;
+                transform: none;
+                display: none;
+            }
+            .visual-card.active { display: block; }
+            .comic-board { grid-template-columns: 1fr; }
+            .comic-panel:nth-child(2) { transform: rotate(1deg); }
+            .forge-board { padding: 24px; }
+            .forge-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .forge-label { border-right: 0; border-bottom: 1px solid rgba(201,100,66,0.28); padding: 0 0 10px; }
+            .forge-nodes { grid-template-columns: 1fr; }
+            .ship-board { grid-template-columns: 1fr; }
+            .projects-scroll { display: none; }
+            .mobile-projects { display: block; }
+            .life-entry-inner {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+            .life-postcards {
+                min-height: 360px;
+            }
+            .life-postcard {
+                width: 180px;
+            }
+            .life-postcard.one { left: 0; top: 0; }
+            .life-postcard.two { left: 36%; top: 54px; }
+            .life-postcard.three { right: 0; bottom: 8px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
 
         @media (max-width: 768px) {
-            .footprints-grid { grid-template-columns: 1fr !important; }
+            .footprints-grid {
+                grid-template-columns: 1fr !important;
+                grid-template-rows: auto !important;
+            }
+            .travel-map-frame,
+            .travel-journal,
+            .station-carousel {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+            }
+            .travel-map-frame { height: 420px; }
+            .travel-journal { min-height: 620px; }
+            .station-card {
+                flex-basis: 154px;
+                max-width: 154px;
+                min-height: 106px;
+                padding: 0.9rem;
+            }
+            .section-endnote { margin-top: 2.4rem; font-size: 0.95rem; }
         }
     </style>
 </head>
-<body class="antialiased overflow-x-hidden bg-black text-white">
+<body class="antialiased overflow-x-hidden text-white" style="background:var(--parchment);">
 
     <!-- SECTION 1: THE GEEK -->
     <section id="geek-mode" class="relative min-h-[90vh] bg-[#020617] flex flex-col justify-center overflow-hidden pb-20">
@@ -307,301 +1320,209 @@
         </div>
     </section>
 
-    <!-- MARQUEE 1 -->
-    <div class="bg-yellow-300 text-black font-code text-sm py-3 border-y-4 border-black transform -skew-y-1 relative z-30">
-        <div class="marquee-strip">
-            <div class="animate-marquee flex gap-12 font-bold min-w-full">
-                <span>// SYSTEM OVERLOAD</span> <span>( > _ < )</span> <span>// HUMAN FATIGUE DETECTED</span> <span>( ; ´ Д ` )</span> <span>// SWITCHING TO HONEST MODE</span> <span>( ˘_˘ )</span>
-                <span>// SYSTEM OVERLOAD</span> <span>( > _ < )</span> <span>// HUMAN FATIGUE DETECTED</span> <span>( ; ´ Д ` )</span> <span>// SWITCHING TO HONEST MODE</span> <span>( ˘_˘ )</span>
+    <!-- SECTION 2: SCROLL NARRATIVE -->
+    <section class="story-shell" id="story">
+        <div class="story-stage" id="storyStage" data-state="engineer">
+            <div class="material-stack" aria-hidden="true">
+                <div class="material-layer is-engineer" data-material-layer="0"></div>
+                <div class="material-layer is-friction" data-material-layer="1"></div>
+                <div class="material-layer is-forge" data-material-layer="2"></div>
+                <div class="material-layer is-shipped" data-material-layer="3"></div>
             </div>
-        </div>
-    </div>
+            <div class="story-content">
+                <div>
+                    <div class="story-kicker" id="storyKicker">01 / ENGINEER</div>
+                    <h2 class="story-title" id="storyTitle">先建立工程师身份。</h2>
+                    <p class="story-copy" id="storyCopy">暗色、网格、代码感不是一个独立人格，而是起点。它回答“你是谁”：一个在做 Coding Agent Infra 和 AIQA 的 builder。</p>
+                    <div class="story-progress" aria-label="story progress">
+                        <button class="story-step active" data-story-jump="0" aria-label="ENGINEER"></button>
+                        <button class="story-step" data-story-jump="1" aria-label="FRICTION"></button>
+                        <button class="story-step" data-story-jump="2" aria-label="FORGE"></button>
+                        <button class="story-step" data-story-jump="3" aria-label="SHIPPED"></button>
+                    </div>
+                </div>
 
-    <!-- SECTION 2: THE JOKE BEAR -->
-    <section id="cute-mode" class="relative py-32 bg-nagano-white text-black font-cute overflow-hidden -mt-10 pt-24 reveal">
-        <div class="max-w-5xl mx-auto px-6 relative z-10">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-6xl font-bold leading-relaxed animate-wobble">
-                    说实话... <br>
-                    你也觉得 <span class="text-red-600 underline decoration-wavy">"手搓代码"</span> 很累吧？
-                </h2>
-            </div>
-            <div class="grid md:grid-cols-2 gap-10 items-start">
-                <div class="manga-panel p-8 transform rotate-1">
-                    <div class="absolute -top-4 -left-4 text-4xl">💢</div>
-                    <h3 class="text-2xl mb-4 font-bold border-b-2 border-black pb-2 inline-block">关于教学...</h3>
-                    <p class="text-xl leading-loose text-gray-800">
-                        一对一教人真的太慢了！<br>
-                        感觉自己像个复读机...<br>
-                        <span class="text-sm text-gray-500">(虽然我很喜欢分享，但是...)</span>
-                    </p>
+                <div class="visual-stack">
+                    <div class="visual-card active" data-story-visual="0">
+                        <div class="code-board">
+                            <div class="code-board-header">
+                                <span>agent-runtime.log</span>
+                                <span>[ SYSTEM ONLINE ]</span>
+                            </div>
+                            <div class="code-lines">
+                                <div><em>01</em> const role = <b>"AI Builder"</b>;</div>
+                                <div><em>02</em> observe(repository.context);</div>
+                                <div><em>03</em> route(task, agent_team);</div>
+                                <div><em>04</em> verify(output.screenshot);</div>
+                                <div><em>05</em> ship(product, not_demo);</div>
+                                <br>
+                                <div>&gt; build systems that build software</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visual-card" data-story-visual="1">
+                        <div class="comic-board">
+                            <div class="comic-panel">
+                                <h3>问题不是“不会写”。</h3>
+                                <p>问题是重复劳动、口头教学、上下文丢失，把人的注意力磨掉。</p>
+                            </div>
+                            <div class="comic-panel">
+                                <h3>所以需要一个转向。</h3>
+                                <p>把摩擦变成系统：<span class="highlight">流程、角色、验证、交付</span>。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visual-card" data-story-visual="2">
+                        <div class="forge-board">
+                            <div class="forge-diagram">
+                                <div class="forge-row">
+                                    <div class="forge-label">Team</div>
+                                    <div class="forge-nodes">
+                                        <div class="node">Designer</div>
+                                        <div class="node">Coder</div>
+                                        <div class="node">Reviewer</div>
+                                    </div>
+                                </div>
+                                <div class="forge-row">
+                                    <div class="forge-label">Harness</div>
+                                    <div class="forge-nodes">
+                                        <div class="node">Plan</div>
+                                        <div class="node">Implement</div>
+                                        <div class="node">Verify</div>
+                                    </div>
+                                </div>
+                                <div class="forge-row">
+                                    <div class="forge-label">Infra</div>
+                                    <div class="forge-nodes">
+                                        <div class="node">CoT View</div>
+                                        <div class="node">Account Pool</div>
+                                        <div class="node">Model API</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visual-card" data-story-visual="3">
+                        <div class="ship-board">
+                            <div class="ship-phone">
+                                <div class="phone-ui">
+                                    <div class="phone-pill"></div>
+                                    <h3>卜灵 App</h3>
+                                    <div class="oracle-ring"></div>
+                                    <p>从功能想法到上线交付，不展示“我会写代码”，而展示“我能把事做完”。</p>
+                                </div>
+                            </div>
+                            <div class="ship-map">
+                                <div class="mini-grid">
+                                    <span class="mini-marker"></span>
+                                    <span class="mini-marker"></span>
+                                    <span class="mini-marker"></span>
+                                </div>
+                                <div class="ship-caption">作品区不再用三张均分小卡，而是每次聚焦一个项目：看截图、看问题、看交付状态。</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="manga-panel p-8 transform -rotate-1 mt-12 md:mt-0">
-                    <div class="absolute -top-6 -right-6 text-5xl">✨</div>
-                    <h3 class="text-2xl mb-4 font-bold border-b-2 border-black pb-2 inline-block">于是我想...</h3>
-                    <p class="text-xl leading-loose text-gray-800">
-                        如果有个 <strong class="bg-yellow-300 px-1">AI Agent 小弟</strong> 呢？<br>
-                        "一次调教，终身干活"<br>
-                        让他去处理那些重复的脏活累活！
-                    </p>
-                </div>
-            </div>
-            <div class="mt-20 text-center">
-                <p class="text-xl text-gray-500 mb-4">⬇️ 于是我造了这些东西 ⬇️</p>
             </div>
         </div>
     </section>
 
-    <!-- MARQUEE 2 -->
-    <div class="bg-black text-white font-loud text-2xl py-6 border-y-4 border-white/20 transform skew-y-1 relative z-30 -mt-10">
-        <div class="marquee-strip">
-            <div class="animate-marquee-reverse flex gap-16 min-w-full">
-                <span>BETTER CALL MUYU</span> <span>★</span> <span>PROBLEM SOLVED</span> <span>★</span> <span>AI ARSENAL</span> <span>★</span>
-                <span>BETTER CALL MUYU</span> <span>★</span> <span>PROBLEM SOLVED</span> <span>★</span> <span>AI ARSENAL</span> <span>★</span>
+    <!-- SECTION 3: OUTPUTS -->
+    <section class="projects-scroll" id="projects">
+        <div class="project-stage">
+            <div class="project-shell">
+                <div class="project-visual">
+                    <div class="project-art art-buling active" data-project-art="0"></div>
+                    <div class="project-art art-mutu" data-project-art="1">
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <span class="camera-line"></span>
+                        <div class="vision-box one">obstacle: 2.4m</div>
+                        <div class="vision-box two">clear path: right side</div>
+                    </div>
+                    <div class="project-art art-kingdom" data-project-art="2">
+                        <div class="game-path"></div>
+                        <span class="tower"></span>
+                        <span class="tower"></span>
+                        <span class="tower"></span>
+                    </div>
+                </div>
+
+                <div class="project-info">
+                    <div class="project-index" id="projectIndex">04 / SHIPPED · 01</div>
+                    <h2 class="project-title" id="projectTitle">卜灵</h2>
+                    <p class="project-summary" id="projectSummary">第一个项目占满舞台。这里应该放真实 App Store 截图或产品录屏，而不是小图标。作品区的任务是证明“做出来了”。</p>
+                    <div class="project-meta">
+                        <div class="meta-box"><span>Status</span><strong id="projectStatus">上架中</strong></div>
+                        <div class="meta-box"><span>Role</span><strong id="projectRole">设计 / 开发 / 上架</strong></div>
+                    </div>
+                    <div class="project-tabs">
+                        <button class="project-tab active" data-project-jump="0">01 卜灵</button>
+                        <button class="project-tab" data-project-jump="1">02 牧途</button>
+                        <button class="project-tab" data-project-jump="2">03 三国</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- SECTION 3: THE FORGE -->
-    <section id="forge" class="warm-section py-24 reveal">
-        <div class="max-w-6xl mx-auto px-6">
-            <h2>THE FORGE</h2>
-            <p style="color:var(--charcoal-light); margin-top:-2rem; margin-bottom:2.5rem; font-size:0.95rem; line-height:1.8;">
-                这里是我构建 AI 系统的方式——从团队设计到交付工作流，再到底层数字基建。
-            </p>
+    <section class="mobile-projects" id="projectsMobile">
+        <h2>作品展示</h2>
+        <div class="mobile-track" aria-label="mobile project carousel">
+            <article class="mobile-card">
+                <div class="mobile-art art-buling"></div>
+                <div class="mobile-card-body">
+                    <h3>卜灵</h3>
+                    <p>AI 驱动的 App，用 Agent 工作流从零完成设计、开发、上架全流程。</p>
+                </div>
+            </article>
+            <article class="mobile-card">
+                <div class="mobile-art art-mutu">
+                    <div class="vision-box one">obstacle: 2.4m</div>
+                </div>
+                <div class="mobile-card-body">
+                    <h3>牧途</h3>
+                    <p>视觉辅助项目需要用真实画面建立信任：检测框、语音提示、距离判断。</p>
+                </div>
+            </article>
+            <article class="mobile-card">
+                <div class="mobile-art art-kingdom">
+                    <div class="game-path"></div>
+                </div>
+                <div class="mobile-card-body">
+                    <h3>三国塔防</h3>
+                    <p>展示地图、单位、波次、策略冲突，让它看起来像可玩的东西。</p>
+                </div>
+            </article>
+        </div>
+    </section>
 
+    <!-- SECTION 4: LIFE LOG ENTRY -->
+    <section id="life-entry" class="life-entry reveal">
+        <div class="life-entry-inner">
             <div>
-                <!-- [01] TEAM DESIGN -->
-                <div class="forge-item" onclick="toggleForge(this)">
-                    <div class="forge-header">
-                        <div style="display:flex; align-items:center;">
-                            <span class="num">01</span>
-                            <div>
-                                <div style="font-weight:600; color:var(--charcoal); font-size:1rem;">TEAM DESIGN</div>
-                                <div style="font-size:0.8rem; color:var(--charcoal-light);">Agent Team 构建与角色设计</div>
-                            </div>
-                        </div>
-                        <svg class="forge-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                    <div class="forge-content">
-                        <p style="color:var(--charcoal-light); line-height:1.8; margin-bottom:1.25rem;">
-                            如何设计一个能持续交付的 AI Agent 团队。包括角色分工、上下文管理、任务路由策略，
-                            以及如何让 Agent 之间高效协作而不互相干扰。
-                        </p>
-                        <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer" class="btn-terra">
-                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                            muyu-claw-team
-                        </a>
-                    </div>
-                </div>
-
-                <!-- [02] HARNESS -->
-                <div class="forge-item" onclick="toggleForge(this)">
-                    <div class="forge-header">
-                        <div style="display:flex; align-items:center;">
-                            <span class="num">02</span>
-                            <div>
-                                <div style="font-weight:600; color:var(--charcoal); font-size:1rem;">HARNESS</div>
-                                <div style="font-size:0.8rem; color:var(--charcoal-light);">从设计到交付的全链路工作流</div>
-                            </div>
-                        </div>
-                        <svg class="forge-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                    <div class="forge-content">
-                        <p style="color:var(--charcoal-light); line-height:1.8; margin-bottom:1rem;">
-                            一套完整的 AI 辅助交付流程：需求设计 → 前端开发 → 后端开发 → 自动化测试。
-                            每个环节都有对应的 Agent 介入点，减少重复劳动，保持交付节奏。
-                        </p>
-                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem;">
-                            <span style="padding:0.25rem 0.75rem; background:var(--parchment); border:1px solid var(--warm-border); border-radius:99px; font-size:0.8rem; color:var(--charcoal-light);">设计</span>
-                            <span style="padding:0.25rem 0.75rem; background:var(--parchment); border:1px solid var(--warm-border); border-radius:99px; font-size:0.8rem; color:var(--charcoal-light);">前端</span>
-                            <span style="padding:0.25rem 0.75rem; background:var(--parchment); border:1px solid var(--warm-border); border-radius:99px; font-size:0.8rem; color:var(--charcoal-light);">后端</span>
-                            <span style="padding:0.25rem 0.75rem; background:var(--parchment); border:1px solid var(--warm-border); border-radius:99px; font-size:0.8rem; color:var(--charcoal-light);">测试</span>
-                        </div>
-                        <a href="#" class="btn-terra-outline">阅读完整工作流文章 →</a>
-                    </div>
-                </div>
-
-                <!-- [03] 数字基建 -->
-                <div class="forge-item" onclick="toggleForge(this)">
-                    <div class="forge-header">
-                        <div style="display:flex; align-items:center;">
-                            <span class="num">03</span>
-                            <div>
-                                <div style="font-weight:600; color:var(--charcoal); font-size:1rem;">数字基建</div>
-                                <div style="font-size:0.8rem; color:var(--charcoal-light);">CoT 系统 · 账号池 · 模型 API 服务</div>
-                            </div>
-                        </div>
-                        <svg class="forge-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                    <div class="forge-content">
-                        <p style="color:var(--charcoal-light); line-height:1.8; margin-bottom:1rem;">
-                            支撑整个 Agent 体系运转的底层服务。CoT 可视化系统让推理过程可观测；
-                            账号池与模型换 API 服务解决多账号管理和模型切换的工程问题。
-                        </p>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-                            <div style="background:var(--parchment); padding:1rem; border-radius:8px; border:1px solid var(--warm-border);">
-                                <div style="font-weight:600; color:var(--charcoal); font-size:0.875rem; margin-bottom:0.25rem;">CoT 可视化</div>
-                                <div style="color:var(--charcoal-light); font-size:0.8rem;">让 Agent 的推理链路可视、可调试</div>
-                            </div>
-                            <div style="background:var(--parchment); padding:1rem; border-radius:8px; border:1px solid var(--warm-border);">
-                                <div style="font-weight:600; color:var(--charcoal); font-size:0.875rem; margin-bottom:0.25rem;">账号池 & API</div>
-                                <div style="color:var(--charcoal-light); font-size:0.8rem;">多模型统一接入，按需切换</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="life-kicker">LIFE LOG</div>
+                <h2>屏幕外的观察记录。</h2>
+                <p>旅行和生活轨迹不再挤进主页当地图展示。主页只留一个轻入口，把城市手账、待打卡便签和走过的地方放到独立页面慢慢长。</p>
+                <a class="life-link" href="./life.html">Open Life Log</a>
             </div>
-        </div>
-    </section>
-
-    <!-- SECTION 4: AGENT 产出 -->
-    <section id="projects" class="warm-section py-24 reveal" style="background:var(--cream); border-top:1px solid var(--warm-border);">
-        <div class="max-w-6xl mx-auto px-6">
-            <h2>用这套体系，我们造了这些</h2>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
-
-                <!-- 卜灵 -->
-                <div class="project-card">
-                    <div class="card-img">
-                        <span style="font-size:2rem;">✦</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="status-badge status-live">上架中</span>
-                        <div class="card-title">卜灵</div>
-                        <div class="card-desc">AI 驱动的 App，用 Agent 工作流从零完成设计、开发、上架全流程。</div>
-                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                            <a href="#" class="btn-terra" style="font-size:0.8rem; padding:0.4rem 1rem;">App Store</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 牧途 -->
-                <div class="project-card">
-                    <div class="card-img">
-                        <span style="font-size:2rem;">✦</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="status-badge status-wip">开发中</span>
-                        <div class="card-title">牧途</div>
-                        <div class="card-desc">视觉辅助 AI，基于实时画面检测障碍物，为视障用户提供语音导航。</div>
-                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                            <a href="#" class="btn-terra-outline" style="font-size:0.8rem; padding:0.4rem 1rem;">GitHub</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 三国游戏 -->
-                <div class="project-card">
-                    <div class="card-img">
-                        <span style="font-size:2rem;">✦</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="status-badge status-wip">开发中</span>
-                        <div class="card-title">三国版王国保卫战</div>
-                        <div class="card-desc">用 Agent 工作流开发的策略塔防游戏，三国题材 × 现代游戏设计。</div>
-                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                            <a href="#" class="btn-terra-outline" style="font-size:0.8rem; padding:0.4rem 1rem;">GitHub</a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 5: 个人足迹 -->
-    <section id="travel-mode" class="warm-section py-24 reveal" style="border-top:1px solid var(--warm-border);">
-        <div class="max-w-6xl mx-auto px-6">
-            <h2>个人足迹</h2>
-            <p style="color:var(--charcoal-light); margin-top:-2rem; margin-bottom:2rem; font-size:0.95rem;">
-                常驻北京。点击一座城市，出发。
-            </p>
-
-            <!-- 网格：左列（地图+站点卡片）右列（游记区跨两行） -->
-            <div class="footprints-grid" style="display:grid; grid-template-columns:1.6fr 0.4fr; grid-template-rows:auto auto; gap:1.5rem;">
-
-                <!-- 地图 (row 1, col 1) -->
-                <div style="grid-column:1; grid-row:1; position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--warm-border); box-shadow:0 4px 24px rgba(77,76,72,0.08);">
-                    <div id="travel-map" style="height:520px; width:100%;"></div>
-                    <button onclick="returnToGlobal()" id="global-btn" style="position:absolute; top:1rem; left:1rem; z-index:500; background:rgba(255,255,255,0.92); border:1.5px solid var(--warm-border); color:var(--charcoal); padding:0.35rem 0.9rem; border-radius:99px; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans SC',sans-serif; transition:all 0.2s; backdrop-filter:blur(4px);">
-                        ⊙ 全局视角
-                    </button>
-                </div>
-
-                <!-- 右：游记区 (col 2, row 1/3) — 无背景框，照片自由浮动 -->
-                <div style="grid-column:2; grid-row:1/3; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2rem; padding:0.5rem;">
-                    <!-- 默认：两张正方形拍立得，带外框 -->
-                    <div id="journal-placeholder" style="display:flex; flex-direction:column; align-items:center; gap:2rem; background:var(--cream); border:1px solid var(--warm-border); border-radius:16px; padding:1.75rem 1.25rem; width:100%; box-sizing:border-box;">
-                        <div class="relative transform rotate-3 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105">
-                            <div class="tape"></div>
-                            <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] w-44">
-                                <div class="aspect-square bg-gray-100 overflow-hidden">
-                                    <img src="./travel1.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <div class="font-cute text-black text-center mt-3 text-base rotate-[-1deg]">这里的风景超棒! 📸</div>
-                            </div>
-                        </div>
-                        <div class="relative transform -rotate-2 hover:rotate-0 transition duration-500 hover:z-20 cursor-pointer hover:scale-105 -mt-4">
-                            <div class="tape" style="transform: translateX(-50%) rotate(3deg);"></div>
-                            <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] w-44">
-                                <div class="aspect-square bg-gray-100 overflow-hidden">
-                                    <img src="./travel2.jpg" class="w-full h-full object-cover">
-                                </div>
-                                <div class="font-cute text-black text-center mt-3 text-base rotate-[1deg]">放松一下 ✨</div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 游记内容（城市选中时） -->
-                    <div id="journal-content" style="display:none; flex-direction:column; align-items:center; gap:1.5rem; width:100%;">
-                        <div style="text-align:center;">
-                            <h3 id="travel-city-name" style="font-family:'Noto Serif SC',serif; font-size:1.3rem; color:var(--charcoal); margin-bottom:0.4rem;"></h3>
-                            <p id="travel-city-desc" style="color:var(--charcoal-light); line-height:1.8; font-size:0.88rem; margin:0;"></p>
-                        </div>
-                        <div style="position:relative; transform:rotate(2deg);">
-                            <div class="tape"></div>
-                            <div class="bg-white p-2 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] w-44">
-                                <div class="aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
-                                    <span style="color:#aaa; font-size:0.75rem;">照片即将上线</span>
-                                </div>
-                                <div id="travel-city-name-photo" class="font-cute text-black text-center mt-3 text-base" style="transform:rotate(-1deg);"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 站点橱窗轮播 -->
-                <div style="grid-column:1; grid-row:2; display:flex; align-items:center; gap:0.75rem;">
-                    <button onclick="carouselPrev()" style="flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--warm-border); background:var(--cream); cursor:pointer; font-size:1.3rem; color:var(--charcoal); display:flex; align-items:center; justify-content:center; transition:all 0.2s; line-height:1;" onmouseover="this.style.borderColor='var(--terracotta)';this.style.color='var(--terracotta)'" onmouseout="this.style.borderColor='var(--warm-border)';this.style.color='var(--charcoal)'">‹</button>
-                    <div id="carousel-viewport" style="flex:1; overflow:hidden; position:relative;">
-                        <div id="cards-track" style="display:flex; gap:1rem; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
-                            <button class="station-card" onclick="flyTo('shanghai')" style="flex-shrink:0;">
-                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">上海市</div>
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">外滩</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">远东第一都市的霓虹。</div>
-                            </button>
-                            <button class="station-card" onclick="flyTo('chengdu')" style="flex-shrink:0;">
-                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">四川省</div>
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">成都</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">一座来了就不想走的城市。</div>
-                            </button>
-                            <button class="station-card" onclick="flyTo('nagano')" style="flex-shrink:0;">
-                                <div style="font-size:0.72rem; color:var(--charcoal-light); margin-bottom:0.2rem; letter-spacing:0.05em;">长野县</div>
-                                <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:var(--charcoal); margin-bottom:0.3rem;">长野</div>
-                                <div style="font-size:0.78rem; color:var(--charcoal-light); font-style:italic;">日本阿尔卑斯，静到能听见心跳。</div>
-                            </button>
-                        </div>
-                    </div>
-                    <button onclick="carouselNext()" style="flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--warm-border); background:var(--cream); cursor:pointer; font-size:1.3rem; color:var(--charcoal); display:flex; align-items:center; justify-content:center; transition:all 0.2s; line-height:1;" onmouseover="this.style.borderColor='var(--terracotta)';this.style.color='var(--terracotta)'" onmouseout="this.style.borderColor='var(--warm-border)';this.style.color='var(--charcoal)'">›</button>
-                </div>
-
+            <div class="life-postcards" aria-hidden="true">
+                <figure class="life-postcard one">
+                    <img src="./assets/travel-xishuangbanna-rainforest.svg" alt="">
+                    <figcaption>西双版纳 / rainforest walk</figcaption>
+                </figure>
+                <figure class="life-postcard two">
+                    <img src="./assets/travel-huangshan-pine.svg" alt="">
+                    <figcaption>黄山 / pine and stone</figcaption>
+                </figure>
+                <figure class="life-postcard three">
+                    <img src="./assets/travel-jinan-spring.svg" alt="">
+                    <figcaption>济南 / spring water</figcaption>
+                </figure>
             </div>
         </div>
     </section>
@@ -631,267 +1552,305 @@
             element.classList.toggle('active');
         }
 
-        // ===== FOOTPRINTS MAP =====
-        const BEIJING = [39.9042, 116.4074];
+        // ===== SCROLL NARRATIVE =====
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-        const map = L.map('travel-map', {
-            zoomControl: false,
-            scrollWheelZoom: false,
-            dragging: false,
-            attributionControl: false,
-        }).setView(BEIJING, 5);
-
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(map);
-
-        const beijingIcon = L.divIcon({
-            className: '',
-            html: '<div style="width:10px;height:10px;background:#c96442;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 3px rgba(201,100,66,0.3);"></div>',
-            iconSize: [10, 10],
-            iconAnchor: [5, 5]
-        });
-        L.marker(BEIJING, { icon: beijingIcon }).addTo(map);
-
-        const stations = {
-            shanghai: {
-                coords: [31.2304, 121.4737],
-                province: '上海市',
-                name: '外滩',
-                quote: '远东第一都市的霓虹。',
-                desc: '魔都的节奏和北京完全不同。外滩的夜景、弄堂里的早点，还有那种天生的国际感。',
-                photos: ['./travel1.jpg', './travel2.jpg']
+        const storyData = [
+            {
+                state: "engineer",
+                accent: "#19c7df",
+                kicker: "01 / ENGINEER",
+                title: "先建立工程师身份。",
+                copy: "暗色、网格、代码感不是一个独立人格，而是起点。它回答“你是谁”：一个在做 Coding Agent Infra 和 AIQA 的 builder。"
             },
-            chengdu: {
-                coords: [30.5728, 104.0668],
-                province: '四川省',
-                name: '成都',
-                quote: '一座来了就不想走的城市。',
-                desc: '慢下来的城市。熊猫、火锅、和那些在茶馆里发呆一整个下午的人们。',
-                photos: ['./travel1.jpg']
+            {
+                state: "friction",
+                accent: "#d93025",
+                kicker: "02 / FRICTION",
+                title: "然后把问题说出来。",
+                copy: "这一段只讲摩擦来源：手搓、重复解释、上下文丢失。漫画风负责把痛点变得直接。"
             },
-            nagano: {
-                coords: [36.6513, 138.1810],
-                province: '长野县',
-                name: '长野',
-                quote: '日本阿尔卑斯，静到能听见心跳。',
-                desc: '日本阿尔卑斯的入口。雪山、温泉、和静到能听见自己心跳的夜晚。',
-                photos: ['./travel2.jpg']
+            {
+                state: "forge",
+                accent: "#c96442",
+                kicker: "03 / FORGE",
+                title: "摩擦被整理成工作台。",
+                copy: "暖色纸张不是为了“高级”，而是为了让方法论变得可读：团队、流程、基建，像一张可以摊开的工作图。"
+            },
+            {
+                state: "shipped",
+                accent: "#f5d53f",
+                kicker: "04 / SHIPPED",
+                title: "最后展示真实产出。",
+                copy: "作品区不要继续折叠。成果应该展开、放大、被检查。每次只讲一个项目，用户才会记住。"
             }
-        };
+        ];
 
-        let currentArcLayer = null;
-        let planeMarker = null;
-        let currentStation = null;
-        let isAnimating = false;
-        let isManualMode = false;
-        let autoTourIndex = 0;
-        const autoTourKeys = ['shanghai', 'chengdu', 'nagano'];
-
-        function getArcPoints(from, to, numPoints) {
-            numPoints = numPoints || 60;
-            const midLat = (from[0] + to[0]) / 2 + Math.abs(to[1] - from[1]) * 0.25;
-            const midLng = (from[1] + to[1]) / 2;
-            const points = [];
-            for (let i = 0; i <= numPoints; i++) {
-                const t = i / numPoints;
-                const lat = (1-t)*(1-t)*from[0] + 2*(1-t)*t*midLat + t*t*to[0];
-                const lng = (1-t)*(1-t)*from[1] + 2*(1-t)*t*midLng + t*t*to[1];
-                points.push([lat, lng]);
+        const projectData = [
+            {
+                index: "04 / SHIPPED · 01",
+                title: "卜灵",
+                summary: "第一个项目占满舞台。这里应该放真实 App Store 截图或产品录屏，而不是小图标。作品区的任务是证明“做出来了”。",
+                status: "上架中",
+                role: "设计 / 开发 / 上架"
+            },
+            {
+                index: "04 / SHIPPED · 02",
+                title: "牧途",
+                summary: "视觉辅助项目需要用真实画面建立信任：检测框、语音提示、距离判断。让用户先看懂它如何帮助人走路。",
+                status: "开发中",
+                role: "视觉检测 / 语音导航"
+            },
+            {
+                index: "04 / SHIPPED · 03",
+                title: "三国塔防",
+                summary: "游戏项目不要用普通技术卡展示。应该展示地图、单位、波次、策略冲突，让它看起来像可玩的东西。",
+                status: "Prototype",
+                role: "玩法 / 关卡 / 前端"
             }
-            return points;
+        ];
+
+        const storyStage = document.getElementById("storyStage");
+        const storyShell = document.getElementById("story");
+        const storyKicker = document.getElementById("storyKicker");
+        const storyTitle = document.getElementById("storyTitle");
+        const storyCopy = document.getElementById("storyCopy");
+        const storySteps = Array.from(document.querySelectorAll("[data-story-jump]"));
+        const storyVisuals = Array.from(document.querySelectorAll("[data-story-visual]"));
+        const materialLayers = Array.from(document.querySelectorAll("[data-material-layer]"));
+
+        const projectShell = document.getElementById("projects");
+        const projectIndex = document.getElementById("projectIndex");
+        const projectTitle = document.getElementById("projectTitle");
+        const projectSummary = document.getElementById("projectSummary");
+        const projectStatus = document.getElementById("projectStatus");
+        const projectRole = document.getElementById("projectRole");
+        const projectTabs = Array.from(document.querySelectorAll("[data-project-jump]"));
+        const projectArts = Array.from(document.querySelectorAll("[data-project-art]"));
+
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let activeStory = -1;
+        let activeProject = -1;
+        let targetStoryExact = 0;
+        let currentStoryExact = 0;
+        let targetProjectExact = 0;
+        let currentProjectExact = 0;
+        let rafId = null;
+        let lastScrollY = window.scrollY;
+        let lastScrollDirection = 1;
+        let snapTimer = null;
+        let snapLock = false;
+
+        function setStory(index) {
+            if (!storyStage || index === activeStory) return;
+            activeStory = index;
+            const item = storyData[index];
+            storyStage.dataset.state = item.state;
+            storyStage.style.setProperty("--accent", item.accent);
+            storyKicker.textContent = item.kicker;
+            storyTitle.textContent = item.title;
+            storyCopy.textContent = item.copy;
+            storySteps.forEach((step, i) => step.classList.toggle("active", i === index));
+            storyVisuals.forEach((visual, i) => visual.classList.toggle("active", i === index));
         }
 
-        function getBearing(from, to) {
-            const dLng = (to[1] - from[1]) * Math.PI / 180;
-            const lat1 = from[0] * Math.PI / 180;
-            const lat2 = to[0] * Math.PI / 180;
-            const y = Math.sin(dLng) * Math.cos(lat2);
-            const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
-            return Math.atan2(y, x) * 180 / Math.PI;
+        function setProject(index) {
+            if (!projectShell || index === activeProject) return;
+            activeProject = index;
+            const item = projectData[index];
+            projectIndex.textContent = item.index;
+            projectTitle.textContent = item.title;
+            projectSummary.textContent = item.summary;
+            projectStatus.textContent = item.status;
+            projectRole.textContent = item.role;
+            projectTabs.forEach((tab, i) => tab.classList.toggle("active", i === index));
+            projectArts.forEach((art, i) => art.classList.toggle("active", i === index));
         }
 
-        function clearFlight() {
-            if (currentArcLayer) { map.removeLayer(currentArcLayer); currentArcLayer = null; }
-            if (planeMarker) { map.removeLayer(planeMarker); planeMarker = null; }
+        function smoothWeight(distance) {
+            const x = clamp(1 - Math.abs(distance), 0, 1);
+            return x * x * (3 - 2 * x);
         }
 
-        function animateFlight(fromCoords, toCoords, onComplete) {
-            if (isAnimating) return;
-            isAnimating = true;
-            clearFlight();
+        function applyStoryMotion(exact) {
+            const index = clamp(Math.round(exact), 0, storyData.length - 1);
+            setStory(index);
 
-            const points = getArcPoints(fromCoords, toCoords);
-            currentArcLayer = L.polyline([], {
-                color: '#c96442',
-                weight: 2,
-                dashArray: '6, 4',
-                opacity: 0.7
-            }).addTo(map);
-
-            const planeIcon = L.divIcon({
-                className: '',
-                html: '<div class="plane-marker">✈</div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+            materialLayers.forEach((layer, i) => {
+                const diff = i - exact;
+                const opacity = smoothWeight(diff);
+                layer.style.opacity = opacity.toFixed(4);
+                layer.style.transform = `scale(${(1 + Math.abs(diff) * 0.018).toFixed(4)})`;
             });
-            planeMarker = L.marker(points[0], { icon: planeIcon, zIndexOffset: 1000 }).addTo(map);
 
-            let step = 0;
-            function stepAnim() {
-                if (step < points.length) {
-                    currentArcLayer.addLatLng(points[step]);
-                    planeMarker.setLatLng(points[step]);
-                    if (step < points.length - 1) {
-                        const bearing = getBearing(points[step], points[step+1]);
-                        const el = planeMarker.getElement();
-                        if (el) el.style.transform = 'rotate(' + bearing + 'deg)';
-                    }
-                    step++;
-                    setTimeout(stepAnim, 25);
-                } else {
-                    isAnimating = false;
-                    if (onComplete) onComplete();
+            storyVisuals.forEach((visual, i) => {
+                const diff = i - exact;
+                const distance = Math.abs(diff);
+                const visible = clamp(1 - distance / 1.18, 0, 1);
+                const opacity = visible * visible * (3 - 2 * visible);
+                const side = diff < 0 ? -1 : 1;
+                const abs = Math.min(distance, 1.6);
+                const x = diff * 180;
+                const y = abs * 18;
+                const z = -abs * 320;
+                const rotateY = side * Math.min(abs * 18, 24);
+                const rotateZ = -diff * 1.8;
+                const scale = 1 - Math.min(abs, 1) * 0.055;
+                const blur = Math.max(0, (abs - 0.18) * 2.8);
+                visual.style.opacity = opacity.toFixed(4);
+                visual.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+                visual.style.setProperty("--depth-blur", `${blur.toFixed(2)}px`);
+                visual.style.zIndex = String(100 - Math.round(abs * 20));
+                visual.style.pointerEvents = distance < 0.28 ? "auto" : "none";
+            });
+
+            storySteps.forEach((step, i) => {
+                const opacity = 0.22 + smoothWeight(i - exact) * 0.78;
+                step.style.opacity = opacity.toFixed(4);
+            });
+        }
+
+        function applyProjectMotion(exact) {
+            const index = clamp(Math.round(exact), 0, projectData.length - 1);
+            setProject(index);
+
+            projectArts.forEach((art, i) => {
+                const diff = i - exact;
+                const distance = Math.abs(diff);
+                const visible = clamp(1 - distance / 1.15, 0, 1);
+                const opacity = visible * visible * (3 - 2 * visible);
+                const side = diff < 0 ? -1 : 1;
+                const abs = Math.min(distance, 1.5);
+                const x = diff * 160;
+                const z = -abs * 260;
+                const rotateY = side * Math.min(abs * 14, 20);
+                const scale = 1 - Math.min(abs, 1) * 0.045;
+                const blur = Math.max(0, (abs - 0.16) * 2.4);
+                art.style.opacity = opacity.toFixed(4);
+                art.style.transform = `translate3d(${x.toFixed(2)}px, 0, ${z.toFixed(2)}px) rotateY(${rotateY.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+                art.style.setProperty("--depth-blur", `${blur.toFixed(2)}px`);
+                art.style.zIndex = String(100 - Math.round(abs * 20));
+            });
+
+            projectTabs.forEach((tab, i) => {
+                tab.style.opacity = (0.46 + smoothWeight(i - exact) * 0.54).toFixed(4);
+            });
+        }
+
+        function measureTargets() {
+            if (storyShell) {
+                const storyRect = storyShell.getBoundingClientRect();
+                const storyScrollable = storyShell.offsetHeight - window.innerHeight;
+                if (storyScrollable > 0) {
+                    const storyProgress = clamp(-storyRect.top / storyScrollable, 0, 0.999);
+                    targetStoryExact = storyProgress * (storyData.length - 1);
                 }
             }
-            stepAnim();
-        }
 
-        function showJournal(station) {
-            document.getElementById('journal-placeholder').style.display = 'none';
-            var jc = document.getElementById('journal-content');
-            jc.style.display = 'flex';
-            document.getElementById('travel-city-name').textContent = station.name;
-            document.getElementById('travel-city-desc').textContent = station.desc;
-            var cap = document.getElementById('travel-city-name-photo');
-            if (cap) cap.textContent = station.name + ' ✈';
-        }
-
-        function hideJournal() {
-            document.getElementById('journal-placeholder').style.display = 'flex';
-            document.getElementById('journal-content').style.display = 'none';
-        }
-
-        function initCarousel() {
-            var viewport = document.getElementById('carousel-viewport');
-            var track = document.getElementById('cards-track');
-            var cards = document.querySelectorAll('.station-card');
-            if (!viewport || !track || !cards.length) return;
-            var vpW = viewport.offsetWidth;
-            var cardW = Math.round(vpW * 0.62);
-            var gap = 16;
-            var pad = (vpW - cardW) / 2;
-            cards.forEach(function(c) { c.style.width = cardW + 'px'; });
-            track.style.paddingLeft = pad + 'px';
-            track.style.paddingRight = pad + 'px';
-        }
-
-        function centerCarouselOn(key) {
-            var cards = Array.from(document.querySelectorAll('.station-card'));
-            var track = document.getElementById('cards-track');
-            if (!track || !key) return;
-            var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
-            if (!tab) return;
-            var idx = cards.indexOf(tab);
-            var cardW = tab.offsetWidth;
-            var gap = 16;
-            track.style.transform = 'translateX(-' + (idx * (cardW + gap)) + 'px)';
-        }
-
-        function setActiveTab(key) {
-            var cards = Array.from(document.querySelectorAll('.station-card'));
-            cards.forEach(function(t) { t.classList.remove('active'); });
-            if (key) {
-                var tab = document.querySelector('.station-card[onclick="flyTo(\'' + key + '\')"]');
-                if (tab) {
-                    tab.classList.add('active');
-                    centerCarouselOn(key);
+            if (projectShell) {
+                const projectRect = projectShell.getBoundingClientRect();
+                const projectScrollable = projectShell.offsetHeight - window.innerHeight;
+                if (projectScrollable > 0) {
+                    const projectProgress = clamp(-projectRect.top / projectScrollable, 0, 0.999);
+                    targetProjectExact = projectProgress * (projectData.length - 1);
                 }
             }
         }
 
-        function carouselPrev() {
-            isManualMode = true;
-            var cur = autoTourKeys.indexOf(currentStation);
-            var prev = (cur <= 0 ? autoTourKeys.length : cur) - 1;
-            flyTo(autoTourKeys[prev]);
+        function animateMotion() {
+            const ease = reduceMotion ? 1 : 0.13;
+            currentStoryExact += (targetStoryExact - currentStoryExact) * ease;
+            currentProjectExact += (targetProjectExact - currentProjectExact) * ease;
+
+            if (Math.abs(targetStoryExact - currentStoryExact) < 0.001) currentStoryExact = targetStoryExact;
+            if (Math.abs(targetProjectExact - currentProjectExact) < 0.001) currentProjectExact = targetProjectExact;
+
+            applyStoryMotion(currentStoryExact);
+            applyProjectMotion(currentProjectExact);
+
+            if (Math.abs(targetStoryExact - currentStoryExact) > 0.001 || Math.abs(targetProjectExact - currentProjectExact) > 0.001) {
+                rafId = requestAnimationFrame(animateMotion);
+            } else {
+                rafId = null;
+            }
         }
 
-        function carouselNext() {
-            isManualMode = true;
-            var cur = autoTourKeys.indexOf(currentStation);
-            var next = (cur + 1) % autoTourKeys.length;
-            flyTo(autoTourKeys[next]);
+        function requestScrollUpdate() {
+            measureTargets();
+            if (!rafId) rafId = requestAnimationFrame(animateMotion);
         }
 
-        setTimeout(initCarousel, 200);
+        function sectionSnapTarget(shell, count, exact) {
+            if (!shell || count < 2) return null;
+            const scrollable = shell.offsetHeight - window.innerHeight;
+            if (scrollable <= 0) return null;
 
-        function autoTour() {
-            if (isManualMode || isAnimating) return;
-            const key = autoTourKeys[autoTourIndex];
-            const station = stations[key];
-            const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
-            map.fitBounds(bounds, { animate: true, duration: 1 });
-            setTimeout(function() {
-                if (isManualMode) return;
-                animateFlight(BEIJING, station.coords, function() {
-                    if (isManualMode) return;
-                    // 到站：放大追踪
-                    map.flyTo(station.coords, 6, { duration: 1.2 });
-                    showJournal(station);
-                    setActiveTab(key);
-                    setTimeout(function() {
-                        if (isManualMode) return;
-                        // 返程弧线
-                        animateFlight(station.coords, BEIJING, function() {
-                            if (isManualMode) return;
-                            clearFlight();
-                            hideJournal();
-                            setActiveTab(null);
-                            map.flyTo(BEIJING, 5, { duration: 1 });
-                            autoTourIndex = (autoTourIndex + 1) % autoTourKeys.length;
-                            setTimeout(autoTour, 2000);
-                        });
-                    }, 3000);
-                });
-            }, 1200);
+            const top = shell.offsetTop;
+            const y = window.scrollY;
+            const bottom = top + scrollable;
+            if (y < top - 4 || y > bottom + 4) return null;
+
+            const nearest = Math.round(exact);
+            if (Math.abs(exact - nearest) < 0.035) return null;
+
+            const biased = lastScrollDirection >= 0
+                ? Math.ceil(exact - 0.035)
+                : Math.floor(exact + 0.035);
+            const index = clamp(biased, 0, count - 1);
+            return top + (index / (count - 1)) * scrollable;
         }
 
-        function flyTo(stationKey) {
-            isManualMode = true;
-            if (isAnimating) return;
-            const station = stations[stationKey];
-            if (!station) return;
+        function snapToPage() {
+            if (snapLock || reduceMotion || window.innerWidth <= 820) return;
+            const storyTarget = sectionSnapTarget(storyShell, storyData.length, targetStoryExact);
+            const projectTarget = sectionSnapTarget(projectShell, projectData.length, targetProjectExact);
+            const target = storyTarget ?? projectTarget;
+            if (target == null) return;
 
-            setActiveTab(stationKey);
-            clearFlight();
-            currentStation = stationKey;
-
-            const bounds = L.latLngBounds([BEIJING, station.coords]).pad(0.3);
-            map.fitBounds(bounds, { animate: true, duration: 0.5 });
-
-            setTimeout(function() {
-                animateFlight(BEIJING, station.coords, function() {
-                    // 到站：放大追踪，固定视角
-                    map.flyTo(station.coords, 6, { duration: 1.2 });
-                    showJournal(station);
-                });
-            }, 600);
+            snapLock = true;
+            window.scrollTo({ top: target, behavior: "smooth" });
+            window.setTimeout(() => {
+                snapLock = false;
+                requestScrollUpdate();
+            }, 760);
         }
 
-        function returnToGlobal() {
-            if (isAnimating) return;
-            clearFlight();
-            hideJournal();
-            setActiveTab(null);
-            map.flyTo(BEIJING, 5, { duration: 1.5 });
-            currentStation = null;
-            isManualMode = false;
-            setTimeout(autoTour, 2000);
+        function scheduleSnap() {
+            if (snapLock) return;
+            window.clearTimeout(snapTimer);
+            snapTimer = window.setTimeout(snapToPage, 120);
         }
 
-        setTimeout(autoTour, 1500);
+        function handleNarrativeScroll() {
+            const y = window.scrollY;
+            const delta = y - lastScrollY;
+            if (Math.abs(delta) > 1) lastScrollDirection = delta > 0 ? 1 : -1;
+            lastScrollY = y;
+            requestScrollUpdate();
+            scheduleSnap();
+        }
+
+        storySteps.forEach((step) => {
+            step.addEventListener("click", () => {
+                const index = Number(step.dataset.storyJump);
+                const storyScrollable = storyShell.offsetHeight - window.innerHeight;
+                const target = storyShell.offsetTop + (index / (storyData.length - 1)) * storyScrollable;
+                window.scrollTo({ top: target, behavior: "smooth" });
+            });
+        });
+
+        projectTabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                const index = Number(tab.dataset.projectJump);
+                const projectScrollable = projectShell.offsetHeight - window.innerHeight;
+                const target = projectShell.offsetTop + (index / (projectData.length - 1)) * projectScrollable;
+                window.scrollTo({ top: target, behavior: "smooth" });
+            });
+        });
+
+        window.addEventListener("scroll", handleNarrativeScroll, { passive: true });
+        window.addEventListener("resize", requestScrollUpdate);
+        requestScrollUpdate();
 
         // Scroll Reveal Observer
         const observerOptions = {
