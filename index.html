@@ -739,13 +739,17 @@
         }
         .forge-row {
             display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: 20px;
+            grid-template-columns: 138px 1fr auto;
+            gap: 16px;
             align-items: stretch;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            padding: 14px;
         }
         .forge-label {
             border-right: 2px solid rgba(201,100,66,0.28);
-            padding-right: 18px;
+            padding-right: 14px;
             color: var(--terra);
             font-family: var(--font-mono);
             font-size: 13px;
@@ -754,40 +758,43 @@
             display: flex;
             align-items: center;
         }
-        .forge-nodes {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        .node {
+        .forge-copy {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            padding: 14px;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: #fff;
+            gap: 6px;
+        }
+        .forge-copy strong {
             color: #4d4c48;
-            font-weight: 700;
-            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 22px;
+            letter-spacing: -0.04em;
+        }
+        .forge-copy span {
+            color: rgba(77,76,72,0.72);
+            font-size: 13px;
+            line-height: 1.55;
         }
         .forge-link-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 22px;
+            gap: 8px;
+            align-content: center;
+            justify-content: flex-end;
+            min-width: 186px;
         }
         .forge-link-row a {
             display: inline-flex;
             align-items: center;
-            min-height: 36px;
+            min-height: 32px;
             border: 1px solid rgba(201,100,66,0.28);
             border-radius: 999px;
-            padding: 8px 12px;
+            padding: 7px 10px;
             color: var(--terra);
             background: rgba(255,248,236,0.58);
             text-decoration: none;
             font: 700 11px var(--font-mono);
+            white-space: nowrap;
         }
 
         .ship-board {
@@ -1405,7 +1412,7 @@
                 gap: 10px;
             }
             .forge-label { border-right: 0; border-bottom: 1px solid rgba(201,100,66,0.28); padding: 0 0 10px; }
-            .forge-nodes { grid-template-columns: 1fr; }
+            .forge-link-row { justify-content: flex-start; min-width: 0; }
             .ship-board { grid-template-columns: 1fr; }
             .projects-scroll { display: none; }
             .mobile-projects { display: block; }
@@ -1542,8 +1549,8 @@
                     <div class="visual-card" data-story-visual="1">
                         <div class="comic-board">
                             <div class="comic-panel">
-                                <h3>问题不是“不会写”。</h3>
-                                <p>问题是重复劳动、口头教学、上下文丢失，把人的注意力磨掉。</p>
+                                <h3>问题不是模型不会写代码。</h3>
+                                <p>问题是重复交代背景、手动同步状态、review 断层、测试不闭环。</p>
                             </div>
                             <div class="comic-panel">
                                 <h3>所以需要一个转向。</h3>
@@ -1556,35 +1563,39 @@
                         <div class="forge-board">
                             <div class="forge-diagram">
                                 <div class="forge-row">
-                                    <div class="forge-label">Team</div>
-                                    <div class="forge-nodes">
-                                        <div class="node">muyu-claw-team</div>
-                                        <div class="node">dev / ops</div>
-                                        <div class="node">design</div>
+                                    <div class="forge-label">Harness</div>
+                                    <div class="forge-copy">
+                                        <strong>MuYu/CLAUDE.md</strong>
+                                        <span>tasks/todo.md、UI 规范、review、exec、func test、deploy、TestFlight。</span>
+                                    </div>
+                                    <div class="forge-link-row">
+                                        <a href="./agent-delivery-system.html#workflow">Blog</a>
                                     </div>
                                 </div>
                                 <div class="forge-row">
-                                    <div class="forge-label">Harness</div>
-                                    <div class="forge-nodes">
-                                        <div class="node">tasks/todo.md</div>
-                                        <div class="node">Plan Review</div>
-                                        <div class="node">Func Test</div>
+                                    <div class="forge-label">Agent Team</div>
+                                    <div class="forge-copy">
+                                        <strong>muyu-claw-team</strong>
+                                        <span>一个 bot 对应一个 agent，dev / ops / design 进入队列和 runtime。</span>
+                                    </div>
+                                    <div class="forge-link-row">
+                                        <a href="./agent-delivery-system.html#team">Blog</a>
+                                        <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
                                     </div>
                                 </div>
                                 <div class="forge-row">
                                     <div class="forge-label">Infra</div>
-                                    <div class="forge-nodes">
-                                        <div class="node">cui-no-auth</div>
-                                        <div class="node">model-steer</div>
-                                        <div class="node">GitHub</div>
+                                    <div class="forge-copy">
+                                        <strong>CUI + NB-Claude</strong>
+                                        <span>一个看任务过程，一个保证模型 fallback、熔断和路由不断。</span>
+                                    </div>
+                                    <div class="forge-link-row">
+                                        <a href="./agent-delivery-system.html#infra-cui">CUI</a>
+                                        <a href="./agent-delivery-system.html#infra-msc">NB</a>
+                                        <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">CUI GitHub</a>
+                                        <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">NB GitHub</a>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="forge-link-row" aria-label="forge architecture links">
-                                <a href="./agent-delivery-system.html">Architecture note</a>
-                                <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">Team GitHub</a>
-                                <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">CUI GitHub</a>
-                                <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">NB-Claude GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -1605,7 +1616,7 @@
                                     <span class="mini-marker"></span>
                                     <span class="mini-marker"></span>
                                 </div>
-                                <div class="ship-caption">作品区只放有本地项目证据的产出：卜灵和三国风云。没有材料支撑的项目先不展示。</div>
+                                <div class="ship-caption">真正产出是可检查的工程结果：卜灵的产品工程，三国风云的 1.0 可演示切片。</div>
                             </div>
                         </div>
                     </div>
@@ -1752,14 +1763,14 @@
                 accent: "#c96442",
                 kicker: "03 / FORGE",
                 title: "把交付流程写成可执行协议。",
-                copy: "MuYu/CLAUDE.md 负责定义节奏：tasks/todo.md、UI 规范、Codex plan review、exec、static review、func test、deploy remote、TestFlight。"
+                copy: "Forge 分成三块：Harness 定义交付协议，Agent Team 承接执行角色，Infra 负责可观测和模型续航。每块都能点进博客或 GitHub。"
             },
             {
                 state: "shipped",
                 accent: "#f5d53f",
                 kicker: "04 / SHIPPED",
                 title: "最后展示真正产出。",
-                copy: "Forge 讲底座，Outputs 讲作品。没有本地项目证据的名字先拿掉，只保留卜灵和三国风云。"
+                copy: "这里放能被检查的工程结果：卜灵的产品工程，三国风云的 1.0 demo。每个产出都能追到本地工程、验收记录或交付流程。"
             }
         ];
 

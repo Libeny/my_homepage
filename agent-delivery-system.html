@@ -282,7 +282,7 @@
         }
         .repo-strip {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
             margin-top: 28px;
         }
@@ -559,21 +559,26 @@
         <section class="section" id="repos">
             <div class="section-number">07 / Repos</div>
             <div>
-                <h2>三个仓库对应三个 Forge 能力。</h2>
-                <p>它们不是 04 Outputs 的作品卡，而是 03 Forge 的工程底座：团队执行、任务可观测、模型续航。</p>
+                <h2>Forge 分成 Harness、Agent Team 和 Infra。</h2>
+                <p>这三块不是 Outputs 的作品卡，而是支撑产出的工程底座：交付协议、执行团队、可观测性和模型续航。</p>
                 <div class="repo-strip">
+                    <a class="repo-card" href="#workflow">
+                        <span>Harness</span>
+                        <h3>MuYu/CLAUDE.md</h3>
+                        <p>交付协议：tasks/todo.md、UI 规范、Codex plan review、exec、static review、func test、deploy remote 和 TestFlight。</p>
+                    </a>
                     <a class="repo-card" href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">
-                        <span>Team</span>
+                        <span>Agent Team</span>
                         <h3>muyu-claw-team</h3>
                         <p>Personal multi-bot agent system，内置 dev、ops、design 角色，支持私聊、群聊和定时任务。</p>
                     </a>
                     <a class="repo-card" href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">
-                        <span>Observability</span>
+                        <span>Infra / Observability</span>
                         <h3>cui-no-auth</h3>
                         <p>Claude Code Web 实时监控平台，自动发现会话、刷新详情并支持 sub-agent 钻取。</p>
                     </a>
                     <a class="repo-card" href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">
-                        <span>Continuity</span>
+                        <span>Infra / Continuity</span>
                         <h3>model-steer-claude</h3>
                         <p>Claude Code 高可用模型代理，提供 fallback、circuit breaker、额度查看和任务路由。</p>
                     </a>
