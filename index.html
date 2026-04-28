@@ -879,7 +879,7 @@
 
         .projects-scroll {
             position: relative;
-            height: 360vh;
+            height: 260vh;
             background: #101010;
             color: white;
         }
@@ -1566,9 +1566,9 @@
                                 <div class="forge-row">
                                     <div class="forge-label">Harness</div>
                                     <div class="forge-nodes">
-                                        <div class="node">CLAUDE.md</div>
-                                        <div class="node">Review</div>
-                                        <div class="node">Test / Deploy</div>
+                                        <div class="node">tasks/todo.md</div>
+                                        <div class="node">Plan Review</div>
+                                        <div class="node">Func Test</div>
                                     </div>
                                 </div>
                                 <div class="forge-row">
@@ -1605,7 +1605,7 @@
                                     <span class="mini-marker"></span>
                                     <span class="mini-marker"></span>
                                 </div>
-                                <div class="ship-caption">作品区回到真正产出：先讲卜灵，再讲其他已经成形的产品和原型。</div>
+                                <div class="ship-caption">作品区只放有本地项目证据的产出：卜灵和三国风云。没有材料支撑的项目先不展示。</div>
                             </div>
                         </div>
                     </div>
@@ -1620,15 +1620,7 @@
             <div class="project-shell">
                 <div class="project-visual">
                     <div class="project-art art-buling active" data-project-art="0"></div>
-                    <div class="project-art art-mutu" data-project-art="1">
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <div class="vision-box one">obstacle: 2.4m</div>
-                        <div class="vision-box two">clear path: right side</div>
-                    </div>
-                    <div class="project-art art-kingdom" data-project-art="2">
+                    <div class="project-art art-kingdom" data-project-art="1">
                         <div class="game-path"></div>
                         <span class="tower"></span>
                         <span class="tower"></span>
@@ -1646,8 +1638,7 @@
                     </div>
                     <div class="project-tabs">
                         <button class="project-tab active" data-project-jump="0">01 卜灵</button>
-                        <button class="project-tab" data-project-jump="1">02 牧途</button>
-                        <button class="project-tab" data-project-jump="2">03 三国</button>
+                        <button class="project-tab" data-project-jump="1">02 三国风云</button>
                     </div>
                     <div class="project-links" id="projectLinks">
                         <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#buling">看卜灵交付笔记</a>
@@ -1673,21 +1664,15 @@
                 </div>
             </article>
             <article class="mobile-card">
-                <div class="mobile-art art-mutu">
-                    <div class="vision-box one">obstacle: 2.4m</div>
-                </div>
-                <div class="mobile-card-body">
-                    <h3>牧途</h3>
-                    <p>视觉辅助方向的产品原型，重点是检测框、距离判断和语音提示能不能真的帮助用户走路。</p>
-                </div>
-            </article>
-            <article class="mobile-card">
                 <div class="mobile-art art-kingdom">
                     <div class="game-path"></div>
                 </div>
                 <div class="mobile-card-body">
-                    <h3>三国塔防</h3>
-                    <p>玩法原型用地图、单位、波次和策略冲突说明，而不是把游戏当普通技术卡片展示。</p>
+                    <h3>三国风云</h3>
+                    <p>Phaser 塔防 1.0 demo：官渡地图、塔树、可玩关卡和四类塔 attack showcase 已有验收记录。</p>
+                    <div class="mobile-card-actions">
+                        <a href="./agent-delivery-system.html#sanguo">Demo 验收</a>
+                    </div>
                 </div>
             </article>
         </div>
@@ -1726,8 +1711,8 @@
                 BETTER CALL <br> MUYU
             </h2>
             <div class="flex flex-wrap justify-center gap-6 font-code">
-                <a href="#" class="px-10 py-4 bg-white text-black hover:bg-saul-yellow transition uppercase font-bold text-lg">Email Me</a>
-                <a href="#" class="px-10 py-4 border-2 border-white hover:bg-white hover:text-black transition uppercase font-bold text-lg">WeChat</a>
+                <a href="https://github.com/Libeny" target="_blank" rel="noopener noreferrer" class="px-10 py-4 bg-white text-black hover:bg-saul-yellow transition uppercase font-bold text-lg">GitHub</a>
+                <a href="./agent-delivery-system.html" class="px-10 py-4 border-2 border-white hover:bg-white hover:text-black transition uppercase font-bold text-lg">Workflow</a>
             </div>
             <p class="mt-20 text-gray-600 text-xs font-mono">&copy; 2026 Muyu. BAT Engineer.</p>
         </div>
@@ -1767,14 +1752,14 @@
                 accent: "#c96442",
                 kicker: "03 / FORGE",
                 title: "把交付流程写成可执行协议。",
-                copy: "CLAUDE.md 负责定义节奏：先写计划和 UI 规范，再做 Codex review、执行、静态审查、功能测试、远程部署和 TestFlight。"
+                copy: "MuYu/CLAUDE.md 负责定义节奏：tasks/todo.md、UI 规范、Codex plan review、exec、static review、func test、deploy remote、TestFlight。"
             },
             {
                 state: "shipped",
                 accent: "#f5d53f",
                 kicker: "04 / SHIPPED",
                 title: "最后展示真正产出。",
-                copy: "Forge 讲底座，Outputs 讲作品。第一个产出是卜灵：能从产品目标、技术栈、交付流程一直追到验证和发版。"
+                copy: "Forge 讲底座，Outputs 讲作品。没有本地项目证据的名字先拿掉，只保留卜灵和三国风云。"
             }
         ];
 
@@ -1793,17 +1778,12 @@
             },
             {
                 index: "04 / OUTPUT · 02",
-                title: "牧途",
-                summary: "视觉辅助方向的产品原型，核心不是炫技，而是把检测框、距离判断、可走方向和语音提示放进一个真实可理解的辅助场景。",
-                status: "Prototype",
-                role: "视觉辅助 / 交互"
-            },
-            {
-                index: "04 / OUTPUT · 03",
-                title: "三国塔防",
-                summary: "游戏玩法原型，展示重点放在地图、单位、波次和策略冲突上：它需要看起来像一套能继续打磨的玩法，而不是一张技术标签。",
-                status: "Prototype",
-                role: "玩法 / 关卡 / 前端"
+                title: "三国风云",
+                summary: "Phaser 塔防垂直切片：1.0 demo 已记录默认可玩关卡、塔系研发树、四类单塔 attack showcase、官渡地图和生成资产清单。",
+                status: "1.0 demo ready",
+                role: "玩法 / Phaser / 资产工作流",
+                primaryLabel: "看 Demo 验收",
+                primaryHref: "./agent-delivery-system.html#sanguo"
             }
         ];
 
