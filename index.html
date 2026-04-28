@@ -992,6 +992,107 @@
         .tower:nth-child(2) { left: 22%; top: 26%; }
         .tower:nth-child(3) { left: 58%; top: 24%; }
         .tower:nth-child(4) { left: 42%; bottom: 26%; }
+        .art-team {
+            background:
+                radial-gradient(circle at 78% 20%, rgba(245,213,63,0.32), transparent 24%),
+                radial-gradient(circle at 22% 76%, rgba(201,100,66,0.22), transparent 28%),
+                linear-gradient(145deg, #f5f0e8, #d8c4ad);
+        }
+        .art-team::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 360px;
+            height: 250px;
+            transform: translate(-50%, -50%);
+            background:
+                linear-gradient(90deg, transparent 0 17%, rgba(113,72,47,0.2) 17% 18%, transparent 18% 49%, rgba(113,72,47,0.2) 49% 50%, transparent 50% 82%, rgba(113,72,47,0.2) 82% 83%, transparent 83%),
+                radial-gradient(circle at 18% 50%, #101010 0 14px, transparent 15px),
+                radial-gradient(circle at 50% 18%, #c96442 0 18px, transparent 19px),
+                radial-gradient(circle at 50% 82%, #c96442 0 18px, transparent 19px),
+                radial-gradient(circle at 83% 50%, #101010 0 14px, transparent 15px);
+            border: 1px solid rgba(113,72,47,0.22);
+            border-radius: 32px;
+            box-shadow: 0 30px 80px rgba(92,73,46,0.2);
+        }
+        .art-team::after {
+            content: "muyu-claw-team";
+            position: absolute;
+            left: 42px;
+            bottom: 40px;
+            color: rgba(23,23,22,0.84);
+            font-family: var(--font-mono);
+            font-size: clamp(26px, 4vw, 56px);
+            letter-spacing: -0.04em;
+        }
+        .art-cui {
+            background:
+                linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(135deg, #111 0%, #171717 52%, #242019 100%);
+            background-size: 34px 34px, 34px 34px, auto;
+        }
+        .art-cui::before {
+            content: "scan ~/.claude/projects/**\\Aindex 1377 jsonl sessions\\Aevent: session_list_update\\Aevent: session_content_update\\Asub-agent drilldown ready";
+            white-space: pre;
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            top: 24%;
+            padding: 26px;
+            border: 1px solid rgba(245,213,63,0.2);
+            border-radius: 24px;
+            background: rgba(0,0,0,0.46);
+            color: rgba(255,255,255,0.76);
+            font-family: var(--font-mono);
+            font-size: clamp(12px, 1.4vw, 18px);
+            line-height: 2.1;
+            box-shadow: 0 28px 70px rgba(0,0,0,0.26);
+        }
+        .art-cui::after {
+            content: "CUI";
+            position: absolute;
+            right: 44px;
+            bottom: 34px;
+            color: rgba(245,213,63,0.92);
+            font-family: var(--font-serif);
+            font-size: clamp(64px, 10vw, 132px);
+            letter-spacing: -0.08em;
+        }
+        .art-msc {
+            background:
+                radial-gradient(circle at 20% 25%, rgba(25,199,223,0.2), transparent 22%),
+                radial-gradient(circle at 78% 68%, rgba(201,100,66,0.26), transparent 28%),
+                linear-gradient(145deg, #ece7dd, #b9c9c8);
+        }
+        .art-msc::before {
+            content: "Sonnet quota\\A    ↓\\A GLM fallback\\A    ↓\\A breaker probe";
+            white-space: pre;
+            position: absolute;
+            left: 15%;
+            top: 18%;
+            width: min(390px, 70%);
+            padding: 28px;
+            border-radius: 28px;
+            background: rgba(255,255,255,0.58);
+            border: 1px solid rgba(16,16,16,0.14);
+            color: rgba(16,16,16,0.78);
+            font-family: var(--font-mono);
+            font-size: clamp(14px, 1.6vw, 20px);
+            line-height: 2;
+            box-shadow: 0 28px 80px rgba(31,48,50,0.2);
+        }
+        .art-msc::after {
+            content: "NB-Claude";
+            position: absolute;
+            right: 38px;
+            bottom: 38px;
+            color: rgba(16,16,16,0.82);
+            font-family: var(--font-serif);
+            font-size: clamp(42px, 7vw, 92px);
+            letter-spacing: -0.08em;
+        }
         .project-info {
             min-height: 520px;
             display: flex;
@@ -1058,6 +1159,37 @@
             background: white;
             border-color: white;
         }
+        .project-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 999px;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.72);
+            text-decoration: none;
+            font: 700 12px var(--font-mono);
+            transition: transform 180ms ease, border-color 180ms ease, color 180ms ease;
+        }
+        .project-link.primary {
+            color: #101010;
+            background: var(--yellow);
+            border-color: var(--yellow);
+        }
+        .project-link:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.44);
+            color: white;
+        }
+        .project-link.primary:hover {
+            color: #101010;
+        }
 
         .mobile-projects {
             display: none;
@@ -1100,6 +1232,28 @@
         .mobile-card-body p {
             color: rgba(255,255,255,0.68);
             line-height: 1.8;
+        }
+        .mobile-card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .mobile-card-actions a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 999px;
+            padding: 9px 12px;
+            color: rgba(255,255,255,0.72);
+            text-decoration: none;
+            font: 700 11px var(--font-mono);
+        }
+        .mobile-card-actions a:first-child {
+            color: #101010;
+            background: var(--yellow);
+            border-color: var(--yellow);
         }
 
         .life-entry {
@@ -1380,25 +1534,25 @@
                                 <div class="forge-row">
                                     <div class="forge-label">Team</div>
                                     <div class="forge-nodes">
-                                        <div class="node">Designer</div>
-                                        <div class="node">Coder</div>
-                                        <div class="node">Reviewer</div>
+                                        <div class="node">muyu-claw-team</div>
+                                        <div class="node">dev / ops</div>
+                                        <div class="node">design</div>
                                     </div>
                                 </div>
                                 <div class="forge-row">
                                     <div class="forge-label">Harness</div>
                                     <div class="forge-nodes">
-                                        <div class="node">Plan</div>
-                                        <div class="node">Implement</div>
-                                        <div class="node">Verify</div>
+                                        <div class="node">CLAUDE.md</div>
+                                        <div class="node">Review</div>
+                                        <div class="node">Test / Deploy</div>
                                     </div>
                                 </div>
                                 <div class="forge-row">
                                     <div class="forge-label">Infra</div>
                                     <div class="forge-nodes">
-                                        <div class="node">CoT View</div>
-                                        <div class="node">Account Pool</div>
-                                        <div class="node">Model API</div>
+                                        <div class="node">cui-no-auth</div>
+                                        <div class="node">model-steer</div>
+                                        <div class="node">GitHub</div>
                                     </div>
                                 </div>
                             </div>
@@ -1421,7 +1575,7 @@
                                     <span class="mini-marker"></span>
                                     <span class="mini-marker"></span>
                                 </div>
-                                <div class="ship-caption">作品区不再用三张均分小卡，而是每次聚焦一个项目：看截图、看问题、看交付状态。</div>
+                                <div class="ship-caption">系统区每次聚焦一个底座：Team、可观测性、模型续航。点进去能看架构笔记和源码。</div>
                             </div>
                         </div>
                     </div>
@@ -1435,35 +1589,27 @@
         <div class="project-stage">
             <div class="project-shell">
                 <div class="project-visual">
-                    <div class="project-art art-buling active" data-project-art="0"></div>
-                    <div class="project-art art-mutu" data-project-art="1">
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <span class="camera-line"></span>
-                        <div class="vision-box one">obstacle: 2.4m</div>
-                        <div class="vision-box two">clear path: right side</div>
-                    </div>
-                    <div class="project-art art-kingdom" data-project-art="2">
-                        <div class="game-path"></div>
-                        <span class="tower"></span>
-                        <span class="tower"></span>
-                        <span class="tower"></span>
-                    </div>
+                    <div class="project-art art-team active" data-project-art="0"></div>
+                    <div class="project-art art-cui" data-project-art="1"></div>
+                    <div class="project-art art-msc" data-project-art="2"></div>
                 </div>
 
                 <div class="project-info">
-                    <div class="project-index" id="projectIndex">04 / SHIPPED · 01</div>
-                    <h2 class="project-title" id="projectTitle">卜灵</h2>
-                    <p class="project-summary" id="projectSummary">第一个项目占满舞台。这里应该放真实 App Store 截图或产品录屏，而不是小图标。作品区的任务是证明“做出来了”。</p>
+                    <div class="project-index" id="projectIndex">04 / SYSTEM · 01</div>
+                    <h2 class="project-title" id="projectTitle">muyu-claw-team</h2>
+                    <p class="project-summary" id="projectSummary">一个 bot 对应一个 agent 的多 Bot Agent 团队系统：dev、ops、design 分工，私聊、群聊、定时会话进入同一条队列，再由 Claude/Codex runtime 和沙箱执行。</p>
                     <div class="project-meta">
-                        <div class="meta-box"><span>Status</span><strong id="projectStatus">上架中</strong></div>
-                        <div class="meta-box"><span>Role</span><strong id="projectRole">设计 / 开发 / 上架</strong></div>
+                        <div class="meta-box"><span>Status</span><strong id="projectStatus">Team system</strong></div>
+                        <div class="meta-box"><span>Role</span><strong id="projectRole">Bridge / Queue / Runtime</strong></div>
                     </div>
                     <div class="project-tabs">
-                        <button class="project-tab active" data-project-jump="0">01 卜灵</button>
-                        <button class="project-tab" data-project-jump="1">02 牧途</button>
-                        <button class="project-tab" data-project-jump="2">03 三国</button>
+                        <button class="project-tab active" data-project-jump="0">01 Team</button>
+                        <button class="project-tab" data-project-jump="1">02 CUI</button>
+                        <button class="project-tab" data-project-jump="2">03 NB-Claude</button>
+                    </div>
+                    <div class="project-links">
+                        <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#team">读架构笔记</a>
+                        <a class="project-link" id="projectGithubLink" href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
                     </div>
                 </div>
             </div>
@@ -1474,28 +1620,36 @@
         <h2>作品展示</h2>
         <div class="mobile-track" aria-label="mobile project carousel">
             <article class="mobile-card">
-                <div class="mobile-art art-buling"></div>
+                <div class="mobile-art art-team"></div>
                 <div class="mobile-card-body">
-                    <h3>卜灵</h3>
-                    <p>AI 驱动的 App，用 Agent 工作流从零完成设计、开发、上架全流程。</p>
+                    <h3>muyu-claw-team</h3>
+                    <p>多 Bot Agent 团队系统：角色、会话、队列、runtime、沙箱和交付出口串在一起。</p>
+                    <div class="mobile-card-actions">
+                        <a href="./agent-delivery-system.html#team">架构笔记</a>
+                        <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    </div>
                 </div>
             </article>
             <article class="mobile-card">
-                <div class="mobile-art art-mutu">
-                    <div class="vision-box one">obstacle: 2.4m</div>
-                </div>
+                <div class="mobile-art art-cui"></div>
                 <div class="mobile-card-body">
-                    <h3>牧途</h3>
-                    <p>视觉辅助项目需要用真实画面建立信任：检测框、语音提示、距离判断。</p>
+                    <h3>cui-no-auth</h3>
+                    <p>Claude Code 实时监控面板：扫描 JSONL 会话、轮询变化，并通过 SSE 推送给浏览器。</p>
+                    <div class="mobile-card-actions">
+                        <a href="./agent-delivery-system.html#infra-cui">监控架构</a>
+                        <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    </div>
                 </div>
             </article>
             <article class="mobile-card">
-                <div class="mobile-art art-kingdom">
-                    <div class="game-path"></div>
-                </div>
+                <div class="mobile-art art-msc"></div>
                 <div class="mobile-card-body">
-                    <h3>三国塔防</h3>
-                    <p>展示地图、单位、波次、策略冲突，让它看起来像可玩的东西。</p>
+                    <h3>model-steer-claude</h3>
+                    <p>Claude Code 高可用模型代理：fallback、circuit breaker、任务路由，保证长任务不中断。</p>
+                    <div class="mobile-card-actions">
+                        <a href="./agent-delivery-system.html#infra-msc">模型基建</a>
+                        <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    </div>
                 </div>
             </article>
         </div>
@@ -1574,39 +1728,48 @@
                 state: "forge",
                 accent: "#c96442",
                 kicker: "03 / FORGE",
-                title: "摩擦被整理成工作台。",
-                copy: "暖色纸张不是为了“高级”，而是为了让方法论变得可读：团队、流程、基建，像一张可以摊开的工作图。"
+                title: "把交付流程写成可执行协议。",
+                copy: "CLAUDE.md 负责定义节奏：先写计划和 UI 规范，再做 Codex review、执行、静态审查、功能测试、远程部署和 TestFlight。"
             },
             {
                 state: "shipped",
                 accent: "#f5d53f",
                 kicker: "04 / SHIPPED",
-                title: "最后展示真实产出。",
-                copy: "作品区不要继续折叠。成果应该展开、放大、被检查。每次只讲一个项目，用户才会记住。"
+                title: "最后展示系统，而不是摆样子。",
+                copy: "Team、可观测性、模型续航是交付底座。每个展示项都能点进架构笔记和 GitHub，接受检查。"
             }
         ];
 
         const projectData = [
             {
-                index: "04 / SHIPPED · 01",
-                title: "卜灵",
-                summary: "第一个项目占满舞台。这里应该放真实 App Store 截图或产品录屏，而不是小图标。作品区的任务是证明“做出来了”。",
-                status: "上架中",
-                role: "设计 / 开发 / 上架"
+                index: "04 / SYSTEM · 01",
+                title: "muyu-claw-team",
+                summary: "一个 bot 对应一个 agent 的多 Bot Agent 团队系统：dev、ops、design 分工，私聊、群聊、定时会话进入同一条队列，再由 Claude/Codex runtime 和沙箱执行。",
+                status: "Team system",
+                role: "Bridge / Queue / Runtime",
+                primaryLabel: "读架构笔记",
+                primaryHref: "./agent-delivery-system.html#team",
+                github: "https://github.com/Libeny/muyu-claw-team"
             },
             {
-                index: "04 / SHIPPED · 02",
-                title: "牧途",
-                summary: "视觉辅助项目需要用真实画面建立信任：检测框、语音提示、距离判断。让用户先看懂它如何帮助人走路。",
-                status: "开发中",
-                role: "视觉检测 / 语音导航"
+                index: "04 / SYSTEM · 02",
+                title: "cui-no-auth",
+                summary: "Claude Code 实时监控平台：每 15 秒发现新会话、轮询文件变化，通过 SSE 推送列表和内容更新，支持多人一起看任务进度和 sub-agent 明细。",
+                status: "Observability",
+                role: "Discovery / Polling / SSE",
+                primaryLabel: "看监控架构",
+                primaryHref: "./agent-delivery-system.html#infra-cui",
+                github: "https://github.com/Libeny/cui-no-auth"
             },
             {
-                index: "04 / SHIPPED · 03",
-                title: "三国塔防",
-                summary: "游戏项目不要用普通技术卡展示。应该展示地图、单位、波次、策略冲突，让它看起来像可玩的东西。",
-                status: "Prototype",
-                role: "玩法 / 关卡 / 前端"
+                index: "04 / SYSTEM · 03",
+                title: "model-steer-claude",
+                summary: "给 Claude Code 长任务准备的模型高可用代理：主模型不可用时自动 fallback，配合 circuit breaker、错误分类和任务路由，让 AI 数字员工不中断。",
+                status: "Model continuity",
+                role: "Fallback / Routing / Breaker",
+                primaryLabel: "看模型基建",
+                primaryHref: "./agent-delivery-system.html#infra-msc",
+                github: "https://github.com/Libeny/model-steer-claude"
             }
         ];
 
@@ -1625,6 +1788,8 @@
         const projectSummary = document.getElementById("projectSummary");
         const projectStatus = document.getElementById("projectStatus");
         const projectRole = document.getElementById("projectRole");
+        const projectPrimaryLink = document.getElementById("projectPrimaryLink");
+        const projectGithubLink = document.getElementById("projectGithubLink");
         const projectTabs = Array.from(document.querySelectorAll("[data-project-jump]"));
         const projectArts = Array.from(document.querySelectorAll("[data-project-art]"));
 
@@ -1663,6 +1828,13 @@
             projectSummary.textContent = item.summary;
             projectStatus.textContent = item.status;
             projectRole.textContent = item.role;
+            if (projectPrimaryLink) {
+                projectPrimaryLink.textContent = item.primaryLabel;
+                projectPrimaryLink.href = item.primaryHref;
+            }
+            if (projectGithubLink) {
+                projectGithubLink.href = item.github;
+            }
             projectTabs.forEach((tab, i) => tab.classList.toggle("active", i === index));
             projectArts.forEach((art, i) => art.classList.toggle("active", i === index));
         }

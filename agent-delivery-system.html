@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 交付系统架构笔记 | Muyu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #171716;
+            --muted: #69645c;
+            --paper: #f3eadc;
+            --cream: #fff8ec;
+            --line: rgba(91,73,46,0.18);
+            --terra: #c96442;
+            --yellow: #f5d53f;
+            --night: #101010;
+            --mono: "JetBrains Mono", monospace;
+            --serif: "Noto Serif SC", serif;
+            --sans: "Inter", system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background:
+                linear-gradient(rgba(91,73,46,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(91,73,46,0.035) 1px, transparent 1px),
+                var(--paper);
+            background-size: 36px 36px;
+            color: var(--ink);
+            font-family: var(--sans);
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 18px clamp(18px, 4vw, 54px);
+            border-bottom: 1px solid var(--line);
+            background: rgba(243,234,220,0.86);
+            backdrop-filter: blur(14px);
+        }
+        .back-link,
+        .repo-pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 9px 13px;
+            border: 1px solid rgba(201,100,66,0.28);
+            border-radius: 999px;
+            color: var(--terra);
+            text-decoration: none;
+            font: 700 12px var(--mono);
+        }
+        .repo-pill {
+            color: rgba(23,23,22,0.72);
+            border-color: var(--line);
+            background: rgba(255,248,236,0.58);
+        }
+        .repo-nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .hero {
+            min-height: calc(100svh - 75px);
+            display: grid;
+            grid-template-columns: minmax(0, 0.86fr) minmax(420px, 1.14fr);
+            gap: clamp(32px, 6vw, 82px);
+            align-items: center;
+            width: min(1240px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 56px 0 78px;
+        }
+        .kicker {
+            color: var(--terra);
+            font: 800 12px var(--mono);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+        h1 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(52px, 8vw, 112px);
+            line-height: 0.98;
+            letter-spacing: -0.07em;
+        }
+        .hero-copy {
+            margin: 26px 0 0;
+            max-width: 600px;
+            color: var(--muted);
+            font-size: clamp(17px, 2vw, 20px);
+            line-height: 1.9;
+        }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 34px;
+        }
+        .hero-actions a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 11px 16px;
+            text-decoration: none;
+            font: 700 12px var(--mono);
+        }
+        .hero-actions a.primary {
+            border-color: var(--night);
+            background: var(--night);
+            color: white;
+        }
+
+        .system-map {
+            position: relative;
+            min-height: 690px;
+            border: 1px solid var(--line);
+            border-radius: 32px;
+            padding: clamp(22px, 3vw, 34px);
+            background:
+                radial-gradient(circle at 80% 14%, rgba(245,213,63,0.32), transparent 24%),
+                radial-gradient(circle at 18% 82%, rgba(201,100,66,0.18), transparent 28%),
+                rgba(255,248,236,0.66);
+            box-shadow: 0 30px 90px rgba(92,73,46,0.15);
+            overflow: hidden;
+        }
+        .map-label {
+            color: rgba(23,23,22,0.48);
+            font: 800 11px var(--mono);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+        .map-flow {
+            display: grid;
+            gap: 18px;
+        }
+        .map-node {
+            position: relative;
+            border: 1px solid rgba(91,73,46,0.18);
+            border-radius: 24px;
+            padding: 19px;
+            background: rgba(255,254,250,0.62);
+            box-shadow: 0 16px 44px rgba(92,73,46,0.08);
+        }
+        .map-node.dark {
+            background: #111;
+            color: white;
+            border-color: rgba(255,255,255,0.12);
+        }
+        .map-node h3 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: 24px;
+            letter-spacing: -0.05em;
+        }
+        .map-node p {
+            margin: 10px 0 0;
+            color: rgba(23,23,22,0.62);
+            line-height: 1.75;
+            font-size: 14px;
+        }
+        .map-node.dark p { color: rgba(255,255,255,0.66); }
+        .map-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .map-tag {
+            border: 1px solid rgba(201,100,66,0.22);
+            border-radius: 999px;
+            padding: 7px 9px;
+            color: var(--terra);
+            background: rgba(255,248,236,0.54);
+            font: 700 10px var(--mono);
+        }
+        .map-node.dark .map-tag {
+            color: var(--yellow);
+            border-color: rgba(245,213,63,0.22);
+            background: rgba(245,213,63,0.08);
+        }
+        .split {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .connector {
+            display: grid;
+            place-items: center;
+            color: rgba(23,23,22,0.42);
+            font: 700 18px var(--mono);
+            min-height: 12px;
+        }
+
+        .article {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 30px 0 110px;
+        }
+        .section {
+            display: grid;
+            grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+            gap: clamp(28px, 5vw, 70px);
+            padding: 82px 0;
+            border-top: 1px solid var(--line);
+        }
+        .section > div,
+        .repo-card,
+        .map-node {
+            min-width: 0;
+        }
+        .section:first-child { border-top: 0; }
+        .section-number {
+            position: sticky;
+            top: 96px;
+            align-self: start;
+            color: var(--terra);
+            font: 800 12px var(--mono);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+        .section h2 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(34px, 5vw, 64px);
+            line-height: 1.06;
+            letter-spacing: -0.06em;
+            overflow-wrap: anywhere;
+        }
+        .section p {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.95;
+        }
+        .steps {
+            display: grid;
+            gap: 10px;
+            margin-top: 28px;
+            counter-reset: step;
+        }
+        .step {
+            counter-increment: step;
+            display: grid;
+            grid-template-columns: 54px 1fr;
+            gap: 16px;
+            align-items: start;
+            padding: 16px 0;
+            border-top: 1px solid rgba(91,73,46,0.12);
+        }
+        .step::before {
+            content: counter(step, decimal-leading-zero);
+            color: var(--terra);
+            font: 800 12px var(--mono);
+            padding-top: 5px;
+        }
+        .step strong {
+            display: block;
+            margin-bottom: 6px;
+            font-family: var(--serif);
+            font-size: 20px;
+        }
+        .step span {
+            color: var(--muted);
+            line-height: 1.8;
+        }
+        .repo-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 28px;
+        }
+        .repo-card {
+            min-height: 220px;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 22px;
+            background: rgba(255,248,236,0.58);
+            text-decoration: none;
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+        .repo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 22px 54px rgba(92,73,46,0.12);
+        }
+        .repo-card span {
+            color: var(--terra);
+            font: 800 11px var(--mono);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .repo-card h3 {
+            margin: 24px 0 10px;
+            font-family: var(--serif);
+            font-size: 26px;
+            letter-spacing: -0.05em;
+            overflow-wrap: anywhere;
+        }
+        .repo-card p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 26px;
+        }
+        .note {
+            border-left: 3px solid var(--terra);
+            padding: 4px 0 4px 18px;
+        }
+        .note p { margin: 0; }
+        pre {
+            margin: 28px 0 0;
+            padding: 22px;
+            max-width: 100%;
+            overflow-x: auto;
+            border-radius: 22px;
+            background: #111;
+            color: rgba(255,255,255,0.78);
+            font: 12px/1.8 var(--mono);
+        }
+        code { font-family: var(--mono); }
+        .final-band {
+            margin-top: 40px;
+            padding: clamp(28px, 5vw, 54px);
+            border-radius: 32px;
+            background: var(--night);
+            color: white;
+        }
+        .final-band h2 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(38px, 7vw, 88px);
+            line-height: 1;
+            letter-spacing: -0.07em;
+        }
+        .final-band p {
+            max-width: 780px;
+            color: rgba(255,255,255,0.68);
+        }
+
+        @media (max-width: 900px) {
+            .topbar { align-items: flex-start; flex-direction: column; }
+            .repo-nav { justify-content: flex-start; }
+            .hero {
+                grid-template-columns: 1fr;
+                padding-top: 42px;
+            }
+            .system-map { min-height: auto; }
+            .split,
+            .section,
+            .two-col,
+            .repo-strip {
+                grid-template-columns: 1fr;
+            }
+            .section-number {
+                position: static;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .hero,
+            .article {
+                width: min(100% - 32px, 1120px);
+            }
+            .repo-nav { display: none; }
+            h1 { font-size: 48px; }
+            .section h2 {
+                font-size: 38px;
+                letter-spacing: -0.04em;
+                word-break: break-word;
+            }
+            .section p,
+            .repo-card p {
+                overflow-wrap: anywhere;
+            }
+            .section { padding: 58px 0; }
+            .map-node { border-radius: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="topbar">
+        <a class="back-link" href="./index.html#projects">Back to homepage</a>
+        <div class="repo-nav" aria-label="repository links">
+            <a class="repo-pill" href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">muyu-claw-team</a>
+            <a class="repo-pill" href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">cui-no-auth</a>
+            <a class="repo-pill" href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">model-steer-claude</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div>
+            <div class="kicker">AI Delivery System / Architecture Note</div>
+            <h1>把 AI 编程变成可交付系统。</h1>
+            <p class="hero-copy">这不是一个“我会用 Agent”的展示页，而是一套交付底座：流程协议决定怎么做，Team 系统决定谁来做，监控面板决定怎么看，模型代理决定任务不断。</p>
+            <div class="hero-actions">
+                <a class="primary" href="#workflow">看流程</a>
+                <a href="#repos">看三个仓库</a>
+            </div>
+        </div>
+
+        <div class="system-map" aria-label="AI delivery system architecture diagram">
+            <div class="map-label">Context + Container View</div>
+            <div class="map-flow">
+                <div class="map-node">
+                    <h3>用户 / 产品目标</h3>
+                    <p>从一个功能、页面或发布目标开始，不直接进入代码，而是先进入计划、设计和验收定义。</p>
+                    <div class="map-tags">
+                        <span class="map-tag">需求</span>
+                        <span class="map-tag">验收标准</span>
+                        <span class="map-tag">发布判断</span>
+                    </div>
+                </div>
+                <div class="connector">↓</div>
+                <div class="map-node dark">
+                    <h3>CLAUDE.md 交付协议</h3>
+                    <p>计划写入 tasks/todo.md；前端变更补 UI 规范；Codex 审查计划、执行代码、功能测试；Claude 做静态审查；最后远程部署和 TestFlight。</p>
+                    <div class="map-tags">
+                        <span class="map-tag">Plan</span>
+                        <span class="map-tag">Review</span>
+                        <span class="map-tag">Exec</span>
+                        <span class="map-tag">Test</span>
+                        <span class="map-tag">Deploy</span>
+                    </div>
+                </div>
+                <div class="connector">↓</div>
+                <div class="split">
+                    <div class="map-node">
+                        <h3>muyu-claw-team</h3>
+                        <p>多 Bot Agent 团队：bridge 收事件，resolver 找 bot/agent/session，queue 合并消息，runtime 投影工作区并进入 Claude/Codex sandbox。</p>
+                        <div class="map-tags">
+                            <span class="map-tag">dev</span>
+                            <span class="map-tag">ops</span>
+                            <span class="map-tag">design</span>
+                        </div>
+                    </div>
+                    <div class="map-node">
+                        <h3>Infra Guardrails</h3>
+                        <p>cui-no-auth 给任务可观测性；model-steer-claude 给模型 fallback、错误分类、circuit breaker 和任务路由。</p>
+                        <div class="map-tags">
+                            <span class="map-tag">SSE</span>
+                            <span class="map-tag">Fallback</span>
+                            <span class="map-tag">Quota</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="connector">↓</div>
+                <div class="map-node dark">
+                    <h3>线上验证 / TestFlight / GitHub</h3>
+                    <p>交付完成的定义不是“代码写完”，而是线上能验证、发布路径清楚、源码和架构能被检查。</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="article">
+        <section class="section" id="workflow">
+            <div class="section-number">01 / Workflow</div>
+            <div>
+                <h2>CLAUDE.md 是交付协议，不是备忘录。</h2>
+                <p>MuYu 项目把 Claude 定位成 CTO、PM 和最大用户，Codex 则承担高级工程师执行位。关键点是把每次开发变成可复用的流水线：先定义计划和验收，再实现，再验证，再发布。</p>
+                <div class="steps">
+                    <div class="step"><div><strong>计划和设计</strong><span>用户说“开始”后，计划进入 <code>tasks/todo.md</code>；含前端改动时必须产出 UI 规范。</span></div></div>
+                    <div class="step"><div><strong>计划审查</strong><span><code>/codex-plan-review</code> 审查影响范围、接口消费方、存量兼容和闭环测试点。</span></div></div>
+                    <div class="step"><div><strong>代码执行</strong><span><code>/codex-exec</code> 按 task 执行，Claude 不直接跳过流程写代码。</span></div></div>
+                    <div class="step"><div><strong>静态和功能验证</strong><span>Claude 做编译与规范检查；Codex 通过模拟器、curl、日志和端到端路径做功能测试。</span></div></div>
+                    <div class="step"><div><strong>发布闭环</strong><span><code>/deploy-remote</code> 合入 main 并做线上测试；用户确认后再 <code>/testflight-deploy</code>。</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="team">
+            <div class="section-number">02 / Team</div>
+            <div>
+                <h2>muyu-claw-team 把 Agent 变成团队。</h2>
+                <p>这个仓库的核心原则很克制：一个 bot 映射一个 agent，不做自动路由；私聊、群聊和定时任务会话隔离；60 秒内的新消息只合并进尚未开始的 pending task。它解决的是“多人、多 bot、多任务如何稳定进入执行队列”的问题。</p>
+                <div class="two-col">
+                    <div class="note"><p><strong>Runtime flow</strong><br>bridge event → normalize → resolve bot/agent/session → enqueue → immediate ack → worker → workspace projection → sandbox → Claude/Codex runtime → final delivery。</p></div>
+                    <div class="note"><p><strong>State boundary</strong><br>Redis 和 PostgreSQL 承接队列、会话、群组记录和持久化状态；runtime 权限边界交给选定沙箱。</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="infra-cui">
+            <div class="section-number">03 / Infra A</div>
+            <div>
+                <h2>cui-no-auth 解决“看不见任务”的问题。</h2>
+                <p>Claude Code 长任务不应该只能在终端里盯着。cui-no-auth 通过浏览器展示会话列表、详情更新和 sub-agent 执行过程，团队成员可以一起看同一条任务进度。</p>
+                <div class="steps">
+                    <div class="step"><div><strong>Directory Discovery</strong><span>每 15 秒扫描 <code>~/.claude/projects/**</code>，发现新的 <code>*.jsonl</code> 并建立 sessionId 到文件路径的索引。</span></div></div>
+                    <div class="step"><div><strong>File Polling</strong><span>对已知 session 比较 mtime 和 size，推断首页列表和详情页是否需要更新。</span></div></div>
+                    <div class="step"><div><strong>SSE Broadcaster</strong><span>通过 <code>session_list_update</code> 和 <code>session_content_update</code> 把变化推到浏览器。</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="infra-msc">
+            <div class="section-number">04 / Infra B</div>
+            <div>
+                <h2>model-steer-claude 解决“模型断档”的问题。</h2>
+                <p>长任务真正怕的不是慢，而是 429、500、额度耗尽之后整条链路断掉。NB-Claude 架在 Claude Code 和模型 API 之间，把 fallback、错误分类、熔断探测和任务路由放进同一个本地代理。</p>
+                <div class="two-col">
+                    <div class="note"><p><strong>Never Fallback</strong><br>主模型不可用时自动降级到下一个 provider；错误分类区分临时限流、服务异常、内容安全和真实配额耗尽。</p></div>
+                    <div class="note"><p><strong>Task Routing</strong><br><code>cr --route</code> 把路由规则注入会话，简单任务、编码任务、架构任务可以切到不同模型等级。</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="repos">
+            <div class="section-number">05 / Repos</div>
+            <div>
+                <h2>三个仓库对应三个交付能力。</h2>
+                <p>首页不再只写抽象能力，而是把系统拆成可以点开的 repo：团队执行、任务可观测、模型续航。</p>
+                <div class="repo-strip">
+                    <a class="repo-card" href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">
+                        <span>Team</span>
+                        <h3>muyu-claw-team</h3>
+                        <p>Personal multi-bot agent system，内置 dev、ops、design 角色，支持私聊、群聊和定时任务。</p>
+                    </a>
+                    <a class="repo-card" href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">
+                        <span>Observability</span>
+                        <h3>cui-no-auth</h3>
+                        <p>Claude Code Web 实时监控平台，自动发现会话、刷新详情并支持 sub-agent 钻取。</p>
+                    </a>
+                    <a class="repo-card" href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">
+                        <span>Continuity</span>
+                        <h3>model-steer-claude</h3>
+                        <p>Claude Code 高可用模型代理，提供 fallback、circuit breaker、额度查看和任务路由。</p>
+                    </a>
+                </div>
+                <pre><code>C4Container
+  title Container Diagram - MuYu AI Delivery System
+
+  Person(user, "User", "Defines product goal and release decision")
+  System_Ext(github, "GitHub", "Source code and public repo links")
+  System_Ext(testflight, "TestFlight", "iOS release channel")
+
+  System_Boundary(system, "MuYu AI Delivery System") {
+    Container(protocol, "CLAUDE.md Delivery Protocol", "Markdown + Commands", "Plans, reviews, tests, deploys")
+    Container(team, "muyu-claw-team", "Node.js, Redis, PostgreSQL", "Multi-bot agent team runtime")
+    Container(cui, "cui-no-auth", "Node.js + SSE", "Claude Code session observability")
+    Container(msc, "model-steer-claude", "Python + Claude Code Plugin", "Model fallback and task routing")
+    Container(codex, "Codex Execution", "CLI Agent", "Implements code and runs functional tests")
+  }
+
+  Rel(user, protocol, "Starts work and confirms release")
+  Rel(protocol, codex, "Sends plan review, execution, and test tasks")
+  Rel(team, codex, "Projects workspace into runtime sandbox")
+  Rel(cui, codex, "Monitors JSONL sessions and sub-agent traces")
+  Rel(msc, codex, "Keeps model requests available")
+  Rel(codex, github, "Pushes reviewed changes")
+  Rel(protocol, testflight, "Triggers release after validation")</code></pre>
+            </div>
+        </section>
+
+        <section class="final-band" id="release">
+            <h2>判断标准很简单：能不能被交付、被观察、被恢复。</h2>
+            <p>如果 AI 编程只是一次聊天，它很难稳定生产。这里的方向是把它变成一个有队列、有角色、有日志、有模型续航、有发布验收的工程系统。</p>
+        </section>
+    </main>
+</body>
+</html>
