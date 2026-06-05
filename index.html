@@ -64,7 +64,7 @@
         .map-overlay { background: linear-gradient(to top, #09090b 0%, transparent 20%); }
         
         /* Scroll Reveal Animation */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal { opacity: 0; transform: translateY(50px); transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* ===== Anthropic Warm System ===== */
@@ -150,7 +150,7 @@
             border: 1px solid var(--warm-border);
             border-radius: 8px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease, border-color 0.3s ease;
             margin-bottom: 0.75rem;
         }
         .forge-item.active {
@@ -214,7 +214,7 @@
             font-size: 0.875rem;
             font-weight: 500;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
         }
         .btn-terra-outline:hover { background: var(--terracotta); color: #fff; }
 
@@ -224,7 +224,7 @@
             border: 1px solid var(--warm-border);
             border-radius: 12px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 1px 3px rgba(77,76,72,0.08);
         }
         .project-card:hover {
@@ -277,7 +277,7 @@
             border-radius: 10px;
             padding: 0.95rem 1rem;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            transition: background 0.4s cubic-bezier(0.4,0,0.2,1), border-color 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s cubic-bezier(0.4,0,0.2,1);
             text-align: left;
             font-family: 'Noto Sans SC', sans-serif;
             width: 100%;
@@ -646,7 +646,7 @@
             transform: translateY(34px) scale(0.97);
             transition: none;
             pointer-events: none;
-            will-change: opacity, transform;
+            will-change: opacity, transform, filter;
             filter: blur(var(--depth-blur, 0px));
         }
         .visual-card.active {
@@ -925,7 +925,7 @@
             opacity: 0;
             transform: scale(0.98);
             transition: none;
-            will-change: opacity, transform;
+            will-change: opacity, transform, filter;
             transform-origin: center center;
             filter: blur(var(--depth-blur, 0px));
         }
@@ -1831,6 +1831,8 @@
         let lastScrollDirection = 1;
         let snapTimer = null;
         let snapLock = false;
+        let scrollVelocity = 0;
+        let lastScrollTime = performance.now();
 
         function setStory(index) {
             if (!storyStage || index === activeStory) return;
@@ -2012,6 +2014,7 @@
 
         function snapToPage() {
             if (snapLock || reduceMotion || window.innerWidth <= 820) return;
+            if (scrollVelocity > 0.8) return;
             const storyTarget = sectionSnapTarget(storyShell, storyData.length, targetStoryExact);
             const projectTarget = sectionSnapTarget(projectShell, projectData.length, targetProjectExact);
             const target = storyTarget ?? projectTarget;
@@ -2028,14 +2031,18 @@
         function scheduleSnap() {
             if (snapLock) return;
             window.clearTimeout(snapTimer);
-            snapTimer = window.setTimeout(snapToPage, 120);
+            snapTimer = window.setTimeout(snapToPage, 350);
         }
 
         function handleNarrativeScroll() {
             const y = window.scrollY;
+            const now = performance.now();
             const delta = y - lastScrollY;
+            const dt = Math.max(now - lastScrollTime, 1);
+            scrollVelocity = Math.abs(delta) / dt;
             if (Math.abs(delta) > 1) lastScrollDirection = delta > 0 ? 1 : -1;
             lastScrollY = y;
+            lastScrollTime = now;
             requestScrollUpdate();
             scheduleSnap();
         }
