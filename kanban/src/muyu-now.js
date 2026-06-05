@@ -179,7 +179,7 @@
           <footer class="myn-footer">木鱼持续在搞事情 🐟</footer>
         </div>
 
-        <div class="myn-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mynModalTitle">
+        <div class="myn-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mynModalTitle" aria-hidden="true">
           <section class="myn-modal">
             <button class="myn-modal-close" type="button" aria-label="关闭详情">×</button>
             <div class="myn-modal-line">
@@ -282,7 +282,9 @@
     target.querySelectorAll(".myn-card").forEach((card) => {
       const open = () => {
         state.activeId = card.dataset.id;
+        state.lastFocus = card;
         modal.classList.add("is-open");
+        modal.removeAttribute("aria-hidden");
         syncModal(target, state);
         close.focus();
       };
@@ -295,19 +297,40 @@
     close.addEventListener("click", () => {
       state.activeId = null;
       modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      state.lastFocus?.focus();
     });
 
     modal.addEventListener("click", (e) => {
       if (e.target === modal) {
         state.activeId = null;
         modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        state.lastFocus?.focus();
       }
     });
 
-    window.addEventListener("keydown", (e) => {
+    const onEsc = (e) => {
       if (e.key === "Escape" && modal.classList.contains("is-open")) {
         state.activeId = null;
         modal.classList.remove("is-open");
+        state.lastFocus?.focus();
+      }
+    };
+    window.addEventListener("keydown", onEsc);
+
+    modal.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab" || !modal.classList.contains("is-open")) return;
+      const focusable = Array.from(
+        modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+      ).filter((el) => !el.disabled);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
 
@@ -319,6 +342,7 @@
     const state = {
       items: items.map((item) => ({ ...item })),
       activeId: null,
+      lastFocus: null,
     };
     renderShell(target, state);
     bindEvents(target, state);
