@@ -3,7 +3,6 @@
   --myn-canvas: #fafafa;
   --myn-ink: #1a1a1a;
   --myn-brand: #b2f59e;
-  --myn-brand-hover: #9ae085;
   --myn-surface: #fff;
   --myn-muted: #64748b;
   --myn-gray-50: #f8fafc;
@@ -207,7 +206,7 @@ body {
   margin: 0;
   color: #556274;
   font-size: 18px;
-  font-weight: 750;
+  font-weight: 700;
   text-wrap: balance;
 }
 
@@ -235,7 +234,7 @@ body {
   opacity: 0;
   transform: translateY(0);
   filter: blur(0);
-  transition: opacity 200ms ease, transform 0s linear, filter 0s linear;
+  transition: opacity 200ms ease;
   transition-delay: 0s;
 }
 
@@ -314,7 +313,7 @@ body {
   margin-left: 47px;
   color: var(--myn-muted);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 /* ── Card list + transitions.dev avatar group hover ─────── */
@@ -331,7 +330,6 @@ body {
   transform-origin: center;
   transform: translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
   transition: transform var(--avatar-dur) var(--avatar-ease-in);
-  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -359,15 +357,16 @@ body {
   z-index: -1;
   width: 42px; height: 42px;
   content: "";
-  background: var(--myn-gray-50);
+  background: var(--myn-brand);
   border-radius: 999px;
-  transition: background 160ms ease;
+  opacity: 0;
+  transition: opacity 160ms ease;
 }
 .myn-card:hover {
   box-shadow: 4px 4px 0 var(--myn-brand);
 }
 .myn-card:hover::after {
-  background: color-mix(in srgb, var(--myn-brand) 22%, transparent);
+  opacity: 0.22;
 }
 
 .myn-card-title {
@@ -431,14 +430,23 @@ body {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   background: color-mix(in srgb, var(--myn-ink) 22%, transparent);
   backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 220ms ease, visibility 0s linear 220ms;
 }
-.myn-modal-backdrop.is-open { display: flex; }
+.myn-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 220ms ease, visibility 0s linear 0s;
+}
 
 .myn-modal {
   position: relative;
@@ -450,10 +458,12 @@ body {
   border: 3px solid var(--myn-ink);
   border-radius: 24px;
   box-shadow: var(--myn-shadow-8);
+  isolation: isolate;
 }
 .myn-modal::before {
   position: absolute;
   top: -70px; right: -70px;
+  z-index: -1;
   width: 150px; height: 150px;
   pointer-events: none;
   content: "";
@@ -530,11 +540,11 @@ body {
   color: #94a3b8;
   text-align: center;
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .myn-shell :focus-visible {
-  outline: 3px solid var(--myn-brand);
+  outline: 3px solid var(--myn-ink);
   outline-offset: 3px;
 }
 
