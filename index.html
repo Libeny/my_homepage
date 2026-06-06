@@ -1616,7 +1616,7 @@
                                     <span class="mini-marker"></span>
                                     <span class="mini-marker"></span>
                                 </div>
-                                <div class="ship-caption">真正产出是可检查的工程结果：卜灵的产品工程，三国风云的 1.0 可演示切片。</div>
+                                <div class="ship-caption">进度公开可追踪，正在搞什么都在木鱼进度板。</div>
                             </div>
                         </div>
                     </div>
@@ -1631,12 +1631,6 @@
             <div class="project-shell">
                 <div class="project-visual">
                     <div class="project-art art-buling active" data-project-art="0"></div>
-                    <div class="project-art art-kingdom" data-project-art="1">
-                        <div class="game-path"></div>
-                        <span class="tower"></span>
-                        <span class="tower"></span>
-                        <span class="tower"></span>
-                    </div>
                 </div>
 
                 <div class="project-info">
@@ -1649,7 +1643,6 @@
                     </div>
                     <div class="project-tabs">
                         <button class="project-tab active" data-project-jump="0">01 卜灵</button>
-                        <button class="project-tab" data-project-jump="1">02 三国风云</button>
                     </div>
                     <div class="project-links" id="projectLinks">
                         <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#buling">看卜灵交付笔记</a>
@@ -1674,22 +1667,42 @@
                     </div>
                 </div>
             </article>
-            <article class="mobile-card">
-                <div class="mobile-art art-kingdom">
-                    <div class="game-path"></div>
-                </div>
-                <div class="mobile-card-body">
-                    <h3>三国风云</h3>
-                    <p>Phaser 塔防 1.0 demo：官渡地图、塔树、可玩关卡和四类塔 attack showcase 已有验收记录。</p>
-                    <div class="mobile-card-actions">
-                        <a href="./agent-delivery-system.html#sanguo">Demo 验收</a>
-                    </div>
-                </div>
-            </article>
         </div>
     </section>
 
-    <!-- SECTION 4: LIFE LOG ENTRY -->
+    <!-- SECTION 4: KANBAN ENTRY -->
+    <section id="kanban-entry" class="life-entry reveal">
+        <div class="life-entry-inner">
+            <div>
+                <div class="life-kicker">04 / NOW</div>
+                <h2>正在搞的事情都在这里。</h2>
+                <p>木鱼进度板：想法池、摸索中、暴风开发、已上线——每张卡片背后都是真实的项目进展，公开可追踪。</p>
+                <a class="life-link" href="./kanban/" target="_blank" rel="noopener">查看进度板 →</a>
+            </div>
+            <div class="life-postcards" aria-hidden="true">
+                <figure class="life-postcard one" style="background:#b2f59e20; border:2px solid #1a1a1a;">
+                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
+                        <span style="display:block; margin-bottom:6px;">⚡ 暴风开发</span>
+                        <span style="display:block; opacity:.7;">木鱼进度板</span>
+                    </div>
+                </figure>
+                <figure class="life-postcard two" style="background:#dbeafe20; border:2px solid #1a1a1a;">
+                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
+                        <span style="display:block; margin-bottom:6px;">🔍 摸索中</span>
+                        <span style="display:block; opacity:.7;">AI 交付系统</span>
+                    </div>
+                </figure>
+                <figure class="life-postcard three" style="background:#dcfce720; border:2px solid #1a1a1a;">
+                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
+                        <span style="display:block; margin-bottom:6px;">🚀 已上线</span>
+                        <span style="display:block; opacity:.7;">个人主页 v2</span>
+                    </div>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: LIFE LOG ENTRY -->
     <section id="life-entry" class="life-entry reveal">
         <div class="life-entry-inner">
             <div>
@@ -1697,7 +1710,6 @@
                 <h2>屏幕外的观察记录。</h2>
                 <p>旅行和生活轨迹不再挤进主页当地图展示。主页只留一个轻入口，把城市手账、待打卡便签和走过的地方放到独立页面慢慢长。</p>
                 <a class="life-link" href="./life.html">Open Life Log</a>
-                <a class="life-link" href="./kanban/">木鱼进度板</a>
             </div>
             <div class="life-postcards" aria-hidden="true">
                 <figure class="life-postcard one">
@@ -1768,10 +1780,10 @@
             },
             {
                 state: "shipped",
-                accent: "#f5d53f",
-                kicker: "04 / SHIPPED",
-                title: "最后展示真正产出。",
-                copy: "这里放能被检查的工程结果：卜灵的产品工程，三国风云的 1.0 demo。每个产出都能追到本地工程、验收记录或交付流程。"
+                accent: "#b2f59e",
+                kicker: "04 / NOW",
+                title: "正在搞的事情都在这里。",
+                copy: "木鱼进度板是我的公开工作流水：想法池、摸索中、暴风开发、已上线——每张卡片背后都是真实的项目进展。"
             }
         ];
 
@@ -1788,15 +1800,6 @@
                 secondaryHref: "./agent-delivery-system.html#workflow",
                 secondaryExternal: false
             },
-            {
-                index: "04 / OUTPUT · 02",
-                title: "三国风云",
-                summary: "Phaser 塔防垂直切片：1.0 demo 已记录默认可玩关卡、塔系研发树、四类单塔 attack showcase、官渡地图和生成资产清单。",
-                status: "1.0 demo ready",
-                role: "玩法 / Phaser / 资产工作流",
-                primaryLabel: "看 Demo 验收",
-                primaryHref: "./agent-delivery-system.html#sanguo"
-            }
         ];
 
         const storyStage = document.getElementById("storyStage");

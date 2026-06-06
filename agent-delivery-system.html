@@ -466,8 +466,8 @@
                 </div>
                 <div class="connector">↓</div>
                 <div class="map-node dark">
-                    <h3>卜灵 / 三国风云 / 可检查材料</h3>
-                    <p>Outputs 只放有材料支撑的产出：MuYu App 的产品工程，以及三国风云 1.0 demo 的验收记录。</p>
+                    <h3>卜灵 / 可检查材料</h3>
+                    <p>Outputs 只放有材料支撑的产出：卜灵的产品工程，是这套交付底座服务的第一个真实结果。</p>
                 </div>
             </div>
         </div>
@@ -486,19 +486,7 @@
             </div>
         </section>
 
-        <section class="section" id="sanguo">
-            <div class="section-number">02 / Output</div>
-            <div>
-                <h2>三国风云是可演示垂直切片。</h2>
-                <p>三国风云不是一句“游戏原型”的泛称。本地项目文档记录了 1.0 demo 范围和验收报告：默认可玩关卡、1.0 汇总入口、塔系研发树、单塔 attack showcase、官渡地图、透明塔图标和分层资产都已经归档。</p>
-                <div class="two-col">
-                    <div class="note"><p><strong>Demo ready</strong><br>1.0 报告记录了 <code>?mode=demo1</code>、<code>?mode=game</code>、<code>?mode=tower-tree</code>、<code>?mode=showcase&node=...</code> 等入口。</p></div>
-                    <div class="note"><p><strong>Four tower families</strong><br>枪兵营、诸葛连弩楼、霹雳楼、八卦台分别有攻击读感验收：接敌近战、错峰射击、高抛落点、阵法法球。</p></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="workflow">
+        <section class=”section” id=”workflow”>
             <div class="section-number">03 / Workflow</div>
             <div>
                 <h2>MuYu/CLAUDE.md 是交付协议，不是备忘录。</h2>
@@ -592,7 +580,6 @@
 
   System_Boundary(system, "MuYu AI Delivery System") {
     Container(muyu, "卜灵 MuYu", "Flutter + LangGraph + FastAPI", "AI divination product app")
-    Container(sanguo, "三国风云", "Phaser Demo", "Tower-defense vertical slice")
     Container(protocol, "CLAUDE.md Delivery Protocol", "Markdown + Commands", "Plans, reviews, tests, deploys")
     Container(team, "muyu-claw-team", "Node.js, Redis, PostgreSQL", "Multi-bot agent team runtime")
     Container(cui, "cui-no-auth", "Node.js + SSE", "Claude Code session observability")
@@ -602,7 +589,6 @@
 
   Rel(user, protocol, "Starts work and confirms release")
   Rel(protocol, muyu, "Plans and validates product changes")
-  Rel(protocol, sanguo, "Tracks demo scope and evidence")
   Rel(protocol, codex, "Sends plan review, execution, and test tasks")
   Rel(team, codex, "Projects workspace into runtime sandbox")
   Rel(cui, codex, "Monitors JSONL sessions and sub-agent traces")

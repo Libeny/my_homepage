@@ -78,6 +78,37 @@
     },
   ];
 
+  const VOTE_KEY = "myn-votes";
+
+  function loadVotes() {
+    try {
+      return JSON.parse(localStorage.getItem(VOTE_KEY) || "{}");
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveVote(id, type) {
+    const votes = loadVotes();
+    if (votes[id] === type) {
+      delete votes[id];
+    } else {
+      votes[id] = type;
+    }
+    localStorage.setItem(VOTE_KEY, JSON.stringify(votes));
+    return votes;
+  }
+
+  function renderVoteButtons(id, votes) {
+    const v = votes[id];
+    return `
+      <div class="myn-card-vote">
+        <button class="myn-vote-btn myn-vote-like${v === "like" ? " is-active" : ""}" data-vote="like" data-vote-id="${escapeHtml(id)}" aria-pressed="${v === "like"}" aria-label="赞这个">👍</button>
+        <button class="myn-vote-btn myn-vote-dislike${v === "dislike" ? " is-active" : ""}" data-vote="dislike" data-vote-id="${escapeHtml(id)}" aria-pressed="${v === "dislike"}" aria-label="踩这个">👎</button>
+      </div>
+    `;
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -105,7 +136,7 @@
     `;
   }
 
-  function renderCard(item) {
+  function renderCard(item, votes) {
     const title = escapeHtml(item.title);
     return `
       <article
@@ -118,12 +149,13 @@
         <p class="myn-card-title">${title}</p>
         <div class="myn-card-meta">
           <span class="myn-tag myn-tag-${escapeHtml(item.tagTone)}">${escapeHtml(item.tag)}</span>
+          ${renderVoteButtons(item.id, votes)}
         </div>
       </article>
     `;
   }
 
-  function renderStage(stage, stageItems) {
+  function renderStage(stage, stageItems, votes) {
     return `
       <section class="myn-column" data-stage="${stage.id}">
         <div class="myn-column-head">
@@ -136,14 +168,14 @@
         </div>
         <div class="myn-task-list t-avatar-group" data-stage-list="${stage.id}">
           ${stageItems.length
-            ? stageItems.map(renderCard).join("")
+            ? stageItems.map((item) => renderCard(item, votes)).join("")
             : '<div class="myn-empty">这里空空的</div>'}
         </div>
       </section>
     `;
   }
 
-  function renderShell(target, state) {
+  function renderShell(target, state, votes) {
     target.innerHTML = `
       <div class="myn-shell">
         ${renderDecor()}
@@ -155,7 +187,9 @@
 
           <header class="myn-hero">
             <div class="myn-hero-row t-stagger">
-              <div class="myn-mark t-stagger-line t-stagger-line--1" aria-hidden="true">🐟</div>
+              <div class="myn-mark t-stagger-line t-stagger-line--1">
+                <img src="../assets/zichao-bear.webp" alt="自嘲熊" width="56" height="56" />
+              </div>
               <h1 class="myn-title t-stagger-line t-stagger-line--2">
                 木鱼
                 <span class="myn-title-accent">进度板
@@ -171,12 +205,12 @@
           <div class="myn-board-scroll">
             <div class="myn-board">
               ${stages.map((stage) =>
-                renderStage(stage, state.items.filter((item) => item.stage === stage.id))
+                renderStage(stage, state.items.filter((item) => item.stage === stage.id), votes)
               ).join("")}
             </div>
           </div>
 
-          <footer class="myn-footer">木鱼持续在搞事情 🐟</footer>
+          <footer class="myn-footer">木鱼持续在搞事情</footer>
         </div>
 
         <div class="myn-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mynModalTitle" aria-hidden="true">
@@ -188,6 +222,7 @@
             </div>
             <h3 id="mynModalTitle" data-modal-title></h3>
             <p class="myn-modal-desc" data-modal-desc></p>
+            <div class="myn-modal-vote" data-modal-vote></div>
           </section>
         </div>
       </div>
@@ -208,12 +243,14 @@
     const modal = target.querySelector(".myn-modal-backdrop");
     if (!item || !modal) return;
 
+    const votes = loadVotes();
     const tag = modal.querySelector("[data-modal-tag]");
     tag.textContent = item.tag;
     tag.className = `myn-tag myn-tag-${item.tagTone}`;
     modal.querySelector("[data-modal-status]").textContent = stageTitle(item.stage);
     modal.querySelector("[data-modal-title]").textContent = item.title;
     modal.querySelector("[data-modal-desc]").textContent = item.description;
+    modal.querySelector("[data-modal-vote]").innerHTML = renderVoteButtons(item.id, votes);
   }
 
   function bindAvatarGroupHover(target) {
@@ -334,6 +371,20 @@
       }
     });
 
+    target.addEventListener("click", (e) => {
+      const btn = e.target.closest(".myn-vote-btn[data-vote-id]");
+      if (!btn) return;
+      e.stopPropagation();
+      const id = btn.dataset.voteId;
+      const type = btn.dataset.vote;
+      const votes = saveVote(id, type);
+      target.querySelectorAll(`.myn-vote-btn[data-vote-id="${id}"]`).forEach((el) => {
+        const isActive = votes[id] === el.dataset.vote;
+        el.classList.toggle("is-active", isActive);
+        el.setAttribute("aria-pressed", String(isActive));
+      });
+    });
+
     bindAvatarGroupHover(target);
     bindStaggerReveal(target);
   }
@@ -344,7 +395,7 @@
       activeId: null,
       lastFocus: null,
     };
-    renderShell(target, state);
+    renderShell(target, state, loadVotes());
     bindEvents(target, state);
   }
 
