@@ -21,6 +21,8 @@
       --shadow: 0 1px 3px rgba(77, 76, 72, 0.08), 0 4px 12px rgba(77, 76, 72, 0.04);
     }
 
+    html { scroll-behavior: smooth; }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -51,7 +53,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
+      min-height: 56px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+      gap: 16px;
     }
     nav .logo {
       display: flex;
@@ -66,15 +71,37 @@
       font-weight: 700;
       font-size: 18px;
     }
-    nav .links { display: flex; gap: 20px; }
+    nav .links {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+      padding-bottom: 2px;
+    }
+    nav .links::-webkit-scrollbar { display: none; }
     nav .links a {
       color: var(--charcoal-light);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid transparent;
     }
+    nav .links a.active,
     nav .links a:hover { color: var(--terracotta); }
+    nav .links a.home-link {
+      color: var(--charcoal);
+      font-weight: 600;
+      border-color: rgba(201, 100, 66, 0.18);
+      background: rgba(201, 100, 66, 0.08);
+    }
+    nav .links a.section-link.active {
+      border-color: rgba(201, 100, 66, 0.24);
+      background: rgba(201, 100, 66, 0.08);
+    }
 
     /* ---- Hero ---- */
     .hero {
@@ -449,7 +476,13 @@
       .hero h1 { font-size: 28px; }
       .hero .subtitle { font-size: 15px; }
       .features { grid-template-columns: 1fr; }
-      nav .links { display: none; }
+      nav .container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav .links {
+        width: 100%;
+      }
       .cta { padding: 32px 20px; }
       .cta-buttons { flex-direction: column; }
     }
@@ -476,11 +509,12 @@
         <span>NB-Claude</span>
       </a>
       <div class="links">
-        <a href="#why">为什么</a>
-        <a href="#architecture">架构</a>
-        <a href="#routing">路由</a>
-        <a href="#dashboard">Dashboard</a>
-        <a href="#quickstart">快速开始</a>
+        <a href="../index.html#saul-mode" class="home-link">回首页</a>
+        <a href="#why" class="section-link active" data-doc-target="why">为什么</a>
+        <a href="#architecture" class="section-link" data-doc-target="architecture">架构</a>
+        <a href="#routing" class="section-link" data-doc-target="routing">路由</a>
+        <a href="#dashboard" class="section-link" data-doc-target="dashboard">Dashboard</a>
+        <a href="#quickstart" class="section-link" data-doc-target="quickstart">快速开始</a>
         <a href="https://github.com/Libeny/model-steer-claude" target="_blank">GitHub</a>
       </div>
     </div>
@@ -747,6 +781,67 @@
       </p>
     </div>
   </footer>
+
+  <script>
+    const docSections = [
+      'why',
+      'architecture',
+      'routing',
+      'dashboard',
+      'quickstart'
+    ];
+
+    const docLinks = Array.from(document.querySelectorAll('[data-doc-target]'));
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function updateDocNav(sectionId) {
+      docLinks.forEach((link) => {
+        const isActive = link.dataset.docTarget === sectionId;
+        link.classList.toggle('active', isActive);
+        link.setAttribute('aria-current', isActive ? 'true' : 'false');
+      });
+    }
+
+    function scrollToDocSection(sectionId) {
+      const target = document.getElementById(sectionId);
+      if (!target) return;
+
+      target.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start'
+      });
+      updateDocNav(sectionId);
+    }
+
+    docLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        scrollToDocSection(link.dataset.docTarget);
+      });
+    });
+
+    const docSectionObserver = new IntersectionObserver((entries) => {
+      const visibleEntry = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+
+      if (visibleEntry) {
+        updateDocNav(visibleEntry.target.id);
+      }
+    }, {
+      threshold: [0.3, 0.5, 0.75],
+      rootMargin: '-20% 0px -45% 0px'
+    });
+
+    docSections.forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) {
+        docSectionObserver.observe(section);
+      }
+    });
+
+    updateDocNav(docSections[0]);
+  </script>
 
 </body>
 </html>
