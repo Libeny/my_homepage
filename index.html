@@ -1,2094 +1,1480 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="scroll-smooth">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MUYU | AI Transformation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@300;800&family=Kalam:wght@400;700&family=Orbitron:wght@900&family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        geek: ['"Orbitron"', 'sans-serif'],
-                        code: ['"JetBrains Mono"', 'monospace'],
-                        cute: ['"ZCOOL KuaiLe"', '"Kalam"', 'cursive'],
-                        loud: ['"Anton"', 'sans-serif'],
-                        serif: ['"Noto Serif SC"', 'Georgia', 'serif'],
-                        warm: ['"Noto Sans SC"', 'sans-serif'],
-                    },
-                    colors: {
-                        'baidu-blue': '#2932E1',
-                        'nagano-white': '#FFFFFA',
-                        'saul-yellow': '#F5C518',
-                        'saul-red': '#D93025',
-                    },
-                    backgroundImage: {
-                        'grid-tech': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
-                    },
-                    animation: {
-                        'marquee': 'marquee 25s linear infinite',
-                        'marquee-reverse': 'marqueeReverse 25s linear infinite',
-                        'wobble': 'wobble 3s ease-in-out infinite',
-                        'float-up': 'floatUp 0.5s ease-out forwards',
-                    },
-                    keyframes: {
-                        marquee: {
-                            '0%': { transform: 'translateX(0%)' },
-                            '100%': { transform: 'translateX(-100%)' },
-                        },
-                        marqueeReverse: {
-                            '0%': { transform: 'translateX(-100%)' },
-                            '100%': { transform: 'translateX(0%)' },
-                        },
-                        wobble: {
-                            '0%, 100%': { transform: 'rotate(-1deg)' },
-                            '50%': { transform: 'rotate(1deg)' },
-                        },
-                        floatUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .marquee-strip { display: flex; overflow: hidden; white-space: nowrap; padding: 0.8rem 0; position: relative; z-index: 20; }
-        .manga-panel { background: #FFFFFA; border: 3px solid #000; box-shadow: 6px 6px 0px #000; position: relative; }
-        .tape { background-color: rgba(255, 255, 255, 0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.2); backdrop-filter: blur(5px); position: absolute; height: 30px; width: 100px; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); z-index: 10; }
-        .map-overlay { background: linear-gradient(to top, #09090b 0%, transparent 20%); }
-        
-        /* Scroll Reveal Animation */
-        .reveal { opacity: 0; transform: translateY(50px); transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>探索者 · 用科技解决生活问题</title>
+  <meta name="description" content="一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。">
 
-        /* ===== Anthropic Warm System ===== */
-        :root {
-            --parchment: #f5f4ed;
-            --cream: #faf9f7;
-            --charcoal: #4d4c48;
-            --charcoal-light: #6b6a66;
-            --terracotta: #c96442;
-            --terracotta-dark: #a8523a;
-            --terracotta-light: #e8a88e;
-            --warm-border: #ddd9d0;
-        }
+  <!-- === esther 锁定 token：薄荷绿 / 淡粉 / 深棕 / 奶油 === -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,400;1,9..144,900&family=Caveat:wght@400;700&family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
-        .warm-section {
-            background: var(--parchment);
-            color: var(--charcoal);
-            font-family: 'Noto Sans SC', -apple-system, sans-serif;
-        }
+  <style>
+    /* =========================================================
+       esther brand tokens（颜色已锁，勿改色值，只改用法）
+       比例：主色 60% / 强调 30% / 点缀 10%
+       ========================================================= */
+    :root {
+      --blue:        #BDE7E5;  /* 薄荷绿 — 主品牌色：标题重点/链接/装饰 */
+      --blue-deep:   #9DD5D3;
+      --blue-soft:   #E8F6F5;
+      --yellow:      #F4CFD6;  /* 淡粉 — 强调/高亮/badge */
+      --yellow-soft: #FCE8EC;
+      --red:         #694B40;  /* 深棕 — 点缀/CTA/墨色文字 */
+      --cream:       #FBF2E3;  /* 米白 — 页面主背景 */
+      --cream-dark:  #F5E6D3;  /* 深奶 — section 交替 */
+      --ink:         #694B40;  /* 正文墨色（暖棕） */
+      --ink-light:   #8B6F5C;
+      --ink-faint:   #A89488;
+      --dark-panel:  #5A4037;  /* 暖棕暗面板 */
 
-        .warm-section h2 {
-            font-family: 'Noto Serif SC', Georgia, serif;
-            color: var(--charcoal);
-            font-size: 2.5rem;
-            font-weight: 700;
-            display: inline-block;
-            border-bottom: 3px solid var(--terracotta);
-            padding-bottom: 0.5rem;
-            margin-bottom: 3rem;
-            line-height: 1.2;
-        }
+      /* 动效 token（emil：精确属性 + 自定义缓动） */
+      --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-soft:   cubic-bezier(0.33, 1, 0.68, 1);
+      --dur-fast:    160ms;
+      --dur-med:     240ms;
+      --dur-slow:    700ms;
+    }
 
-        .heading-en {
-            display: inline-block;
-            margin-left: 0.45rem;
-            color: var(--terracotta);
-            font-family: 'Kalam', 'Noto Sans SC', cursive;
-            font-size: 0.52em;
-            font-weight: 400;
-            letter-spacing: 0;
-            transform: rotate(-1deg) translateY(-0.08em);
-            opacity: 0.86;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .warm-section h2.handwritten-title {
-            position: relative;
-            border-bottom: 0;
-            padding-bottom: 0.75rem;
-            font-family: 'Kalam', 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
-            font-weight: 700;
-            letter-spacing: 0;
-            transform: rotate(-0.35deg);
-        }
-        .warm-section h2.handwritten-title::after {
-            content: "";
-            position: absolute;
-            left: 0.05rem;
-            right: 0.2rem;
-            bottom: 0.05rem;
-            height: 4px;
-            border-radius: 999px;
-            background: var(--terracotta);
-            transform: rotate(-1.2deg);
-            opacity: 0.9;
-        }
-        .warm-section h2.handwritten-title .heading-en {
-            margin-left: 0.55rem;
-            font-size: 0.58em;
-            font-weight: 700;
-            transform: rotate(1.2deg) translateY(-0.06em);
-            opacity: 0.9;
-        }
+    html { scroll-behavior: smooth; }
 
-        .warm-section h3 {
-            font-family: 'Noto Serif SC', Georgia, serif;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--ink);
+      background: var(--cream);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
 
-        /* Forge Accordion */
-        .forge-item {
-            background: #fff;
-            border: 1px solid var(--warm-border);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: background 0.3s ease, border-color 0.3s ease;
-            margin-bottom: 0.75rem;
-        }
-        .forge-item.active {
-            border-left: 4px solid var(--terracotta);
-            box-shadow: 0 4px 16px rgba(201, 100, 66, 0.08);
-        }
-        .forge-header {
-            cursor: pointer;
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fff;
-            transition: background 0.2s;
-        }
-        .forge-header:hover { background: var(--cream); }
-        .forge-header .num {
-            font-family: 'Noto Serif SC', serif;
-            color: var(--terracotta);
-            font-weight: 700;
-            margin-right: 1rem;
-            font-size: 1.1rem;
-        }
-        .forge-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 0 1.5rem;
-            background: var(--cream);
-        }
-        .forge-item.active .forge-content {
-            max-height: 600px;
-            padding: 1.5rem;
-        }
-        .forge-arrow { transition: transform 0.3s; color: var(--charcoal-light); }
-        .forge-item.active .forge-arrow { transform: rotate(180deg); }
+    ::selection { background: var(--yellow); color: var(--ink); }
 
-        /* Terracotta Button */
-        .btn-terra {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--terracotta);
-            color: #fff;
-            padding: 0.5rem 1.25rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        .btn-terra:hover { background: var(--terracotta-dark); }
-        .btn-terra-outline {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1.5px solid var(--terracotta);
-            color: var(--terracotta);
-            padding: 0.5rem 1.25rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-        }
-        .btn-terra-outline:hover { background: var(--terracotta); color: #fff; }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 4vw, 2.5rem);
+    }
 
-        /* Project Cards */
-        .project-card {
-            background: #fff;
-            border: 1px solid var(--warm-border);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 1px 3px rgba(77,76,72,0.08);
-        }
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(77,76,72,0.12);
-        }
-        .project-card .card-img {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: var(--cream);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--charcoal-light);
-            font-size: 0.85rem;
-            border-bottom: 1px solid var(--warm-border);
-            overflow: hidden;
-        }
-        .project-card .card-img img { width: 100%; height: 100%; object-fit: cover; }
-        .project-card .card-body { padding: 1.25rem; }
-        .project-card .card-title {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--charcoal);
-            margin-bottom: 0.5rem;
-        }
-        .project-card .card-desc {
-            color: var(--charcoal-light);
-            font-size: 0.875rem;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-        }
-        .status-live { background: #d1fae5; color: #065f46; }
-        .status-wip { background: #fef3c7; color: #92400e; }
+    /* 通用 label：mono 小字 / Caveat 手写 */
+    .label-caps {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+      font-weight: 500;
+    }
+    .handwrite { font-family: 'Caveat', cursive; font-weight: 700; }
 
-        /* Station Tabs */
-        /* Station cards — cinema carousel */
-        .station-card {
-            background: rgba(255,255,255,0.52);
-            border: 1.5px solid transparent;
-            border-radius: 10px;
-            padding: 0.95rem 1rem;
-            cursor: pointer;
-            transition: background 0.4s cubic-bezier(0.4,0,0.2,1), border-color 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s cubic-bezier(0.4,0,0.2,1);
-            text-align: left;
-            font-family: 'Noto Sans SC', sans-serif;
-            width: 100%;
-            flex: 0 0 172px;
-            max-width: 172px;
-            min-height: 108px;
-            opacity: 0.74;
-            transform: translateY(0);
-            position: relative;
-            scroll-snap-align: start;
-        }
-        .station-card:hover {
-            opacity: 1;
-            background: rgba(255,255,255,0.78);
-        }
-        .station-card.active {
-            border-color: rgba(201,100,66,0.38);
-            background: #fff;
-            opacity: 1;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(77,76,72,0.11);
-        }
-        .station-card::after {
-            content: "";
-            position: absolute;
-            left: 1rem;
-            bottom: 0.8rem;
-            width: 42px;
-            height: 2px;
-            background: var(--terracotta);
-            border-radius: 99px;
-            opacity: 0;
-            transform: rotate(-2deg);
-            transition: opacity 0.25s ease;
-        }
-        .station-card.active::after {
-            opacity: 1;
-        }
-        .station-meta {
-            font-size: 0.72rem;
-            color: var(--charcoal-light);
-            margin-bottom: 0.2rem;
-            letter-spacing: 0.05em;
-        }
-        .station-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-        .station-mode-icon {
-            width: auto;
-            height: auto;
-            padding: 0.18rem 0.42rem;
-            border: 1px solid rgba(201,100,66,0.28);
-            border-radius: 999px;
-            background: rgba(201,100,66,0.06);
-            color: var(--terracotta);
-            font-family: 'Kalam', 'Noto Sans SC', sans-serif;
-            font-size: 0.72rem;
-            line-height: 1;
-            opacity: 0.72;
-            flex: 0 0 auto;
-        }
-        .station-card.active .station-mode-icon,
-        .station-card:hover .station-mode-icon {
-            opacity: 1;
-        }
-        .station-name {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.1rem;
-            color: var(--charcoal);
-            margin-bottom: 0.35rem;
-        }
-        .station-quote {
-            font-family: 'Kalam', 'ZCOOL KuaiLe', cursive;
-            font-size: 0.88rem;
-            line-height: 1.35;
-            color: var(--charcoal-light);
-            max-width: 9.5rem;
-        }
+    /* =========================================================
+       §1  HERO —— 笔记本扉页
+       ========================================================= */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1.5rem 4rem;
+      text-align: center;
+      position: relative;
+      background:
+        radial-gradient(ellipse at 28% 18%, var(--yellow-soft) 0%, transparent 55%),
+        radial-gradient(ellipse at 78% 82%, rgba(189,231,229,0.32) 0%, transparent 55%),
+        var(--cream);
+    }
+    .hero .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 16px;
+      border: 1.5px dashed rgba(105,75,64,0.22);
+      border-radius: 100px;
+      margin-bottom: 2rem;
+      background: rgba(255,255,255,0.4);
+    }
+    .hero .hero-label .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--blue-deep);
+      box-shadow: 0 0 0 3px rgba(189,231,229,0.35);
+    }
+    .hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2.6rem, 7.5vw, 5.4rem);
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.75rem;
+      color: var(--ink);
+    }
+    .hero h1 .hl {
+      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
+      padding: 0 6px;
+    }
+    .hero p.hero-sub {
+      font-size: clamp(1rem, 1.4vw, 1.18rem);
+      color: var(--ink-light);
+      max-width: 540px;
+      line-height: 1.85;
+    }
+    .hero .marginalia {
+      position: absolute;
+      right: clamp(1rem, 5vw, 4rem);
+      bottom: clamp(2rem, 8vh, 5rem);
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+      color: var(--blue-deep);
+      transform: rotate(-3deg);
+      max-width: 180px;
+      line-height: 1.3;
+    }
+    .hero .marginalia::before { content: '↘ '; }
+    .hero .scroll-hint {
+      position: absolute;
+      bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--ink-faint);
+      opacity: 0.7;
+    }
 
-        /* Footprints layout */
-        .footprints-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.6fr) minmax(220px, 0.4fr);
-            grid-template-rows: 520px auto;
-            gap: 1.5rem;
-            align-items: start;
-        }
-        .footprints-grid > * { min-width: 0; }
-        .travel-map-frame {
-            grid-column: 1;
-            grid-row: 1;
-            position: relative;
-            height: 520px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--warm-border);
-            box-shadow: 0 4px 24px rgba(77,76,72,0.08);
-        }
-        #travel-map { height: 100%; width: 100%; }
-        .travel-journal {
-            grid-column: 2;
-            grid-row: 1 / 3;
-            align-self: stretch;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .travel-journal-stack {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-evenly;
-            gap: 1.2rem;
-            background: var(--cream);
-            border: 1px solid var(--warm-border);
-            border-radius: 16px;
-            padding: 1rem 1.1rem;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .travel-polaroid-card {
-            background: #fff;
-            padding: 0.45rem 0.45rem 1.1rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            width: 11rem;
-        }
-        .travel-photo {
-            aspect-ratio: 1 / 1;
-            background: #f3f0e8;
-            overflow: hidden;
-        }
-        .travel-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .travel-caption {
-            min-height: 3.15rem;
-            margin-top: 0.55rem;
-            color: #111;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 0.1rem;
-            font-family: 'Kalam', 'ZCOOL KuaiLe', cursive;
-            line-height: 1.15;
-        }
-        .travel-caption strong {
-            font-size: 0.92rem;
-            font-weight: 700;
-        }
-        .travel-caption span {
-            font-size: 0.78rem;
-        }
-        .station-carousel {
-            grid-column: 1;
-            grid-row: 2;
-            display: block;
-            background: rgba(255,255,255,0.3);
-            border: 1px solid var(--warm-border);
-            border-radius: 16px;
-            padding: 0.75rem;
-            min-width: 0;
-            overflow: hidden;
-            position: relative;
-        }
-        .station-carousel::after {
-            content: "";
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            bottom: 1.05rem;
-            width: 3rem;
-            pointer-events: none;
-            background: linear-gradient(to right, rgba(250,249,247,0), rgba(250,249,247,0.92));
-        }
-        .station-track {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 0.75rem;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x proximity;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(201,100,66,0.45) transparent;
-            padding: 0.1rem 0.15rem 0.45rem;
-        }
-        .station-track::-webkit-scrollbar { height: 6px; }
-        .station-track::-webkit-scrollbar-track { background: transparent; }
-        .station-track::-webkit-scrollbar-thumb {
-            background: rgba(201,100,66,0.42);
-            border-radius: 99px;
-        }
+    /* =========================================================
+       信念 manifesto —— 暖棕暗面板（节奏断点）
+       ========================================================= */
+    .manifesto {
+      background: var(--dark-panel);
+      color: var(--cream);
+      padding: clamp(72px, 13vh, 150px) 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .manifesto::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 30%, rgba(189,231,229,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .manifesto .manifesto-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+    .manifesto .label-caps { color: rgba(251,242,227,0.55); margin-bottom: 1.5rem; display: block; }
+    .manifesto .creed {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2.6rem, 8vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+    }
+    .manifesto .creed-body {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+      line-height: 1.9;
+      color: rgba(251,242,227,0.82);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .manifesto .creed-body em { font-style: normal; color: var(--yellow); }
 
-        /* Plane icon on map */
-        .plane-marker {
-            font-size: 18px;
-            line-height: 1;
-            transform-origin: center;
-        }
-        .route-marker {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--terracotta);
-            border: 3px solid #fffdf5;
-            box-shadow: 0 0 0 2px rgba(201,100,66,0.24), 0 4px 10px rgba(77,76,72,0.2);
-            transform-origin: center;
-        }
-        .section-endnote {
-            max-width: 44rem;
-            margin: 3.25rem auto 0;
-            padding-top: 1.4rem;
-            border-top: 1px solid rgba(221,217,208,0.82);
-            color: var(--charcoal-light);
-            font-family: 'Kalam', 'Noto Serif SC', Georgia, serif;
-            font-size: 1rem;
-            line-height: 1.9;
-            text-align: center;
-        }
+    /* =========================================================
+       通用 section header（编号 + 标题 + 英文小字）
+       ========================================================= */
+    .section { padding: clamp(80px, 13vh, 150px) 0; }
+    .section--alt { background: var(--cream-dark); }
 
-        /* ===== Narrative Homepage System ===== */
-        :root {
-            --ink: #171716;
-            --muted: #73706a;
-            --paper: #f4f1e8;
-            --line: #ded8cb;
-            --terra: var(--terracotta);
-            --blue: #2932e1;
-            --cyan: #19c7df;
-            --yellow: #f5d53f;
-            --night: #050816;
-            --font-sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-serif: "Noto Serif SC", Georgia, serif;
-            --font-mono: "JetBrains Mono", monospace;
-        }
+    .sec-head { margin-bottom: clamp(40px, 6vw, 76px); }
+    .sec-head .sec-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .sec-head .sec-num {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+      color: var(--blue-deep);
+      opacity: 0.6;
+      line-height: 1;
+    }
+    .sec-head .sec-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+      color: var(--ink);
+      line-height: 1.15;
+    }
+    .sec-head .sec-en {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink-faint);
+      margin-left: 4px;
+    }
+    .sec-head .sec-sub {
+      margin-top: 14px;
+      font-size: 0.98rem;
+      color: var(--ink-light);
+      max-width: 560px;
+    }
 
-        .story-shell {
-            height: 420vh;
-            position: relative;
-            background: var(--paper);
-        }
-        .story-stage {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow: hidden;
-            background: var(--night);
-            transition: color 320ms ease;
-        }
-        .story-stage[data-state="engineer"] { color: white; }
-        .story-stage[data-state="friction"] { color: #0d0d0c; }
-        .story-stage[data-state="forge"] { color: var(--ink); }
-        .story-stage[data-state="shipped"] { color: white; }
-        .material-stack,
-        .material-layer {
-            position: absolute;
-            inset: 0;
-        }
-        .material-stack {
-            z-index: 0;
-            pointer-events: none;
-        }
-        .material-layer {
-            opacity: 0;
-            will-change: opacity, transform;
-        }
-        .material-layer.is-engineer {
-            opacity: 1;
-            background:
-                linear-gradient(rgba(30,41,59,0.18) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(30,41,59,0.18) 1px, transparent 1px),
-                radial-gradient(circle at 77% 30%, rgba(41,50,225,0.24), transparent 32%),
-                #050816;
-            background-size: 44px 44px, 44px 44px, auto, auto;
-        }
-        .material-layer.is-friction {
-            background:
-                linear-gradient(-3deg, transparent 0 52%, var(--yellow) 52% 61%, transparent 61%),
-                #fffefa;
-        }
-        .material-layer.is-forge {
-            background:
-                radial-gradient(circle at 22% 18%, rgba(201,100,66,0.11), transparent 30%),
-                var(--paper);
-        }
-        .material-layer.is-shipped {
-            background:
-                radial-gradient(circle at 70% 40%, rgba(201,100,66,0.16), transparent 34%),
-                linear-gradient(135deg, #15110f 0%, #241b17 58%, #080707 100%);
-        }
-        .story-content {
-            position: relative;
-            z-index: 1;
-            width: min(1160px, calc(100% - 48px));
-            height: 100%;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: minmax(0, 0.88fr) minmax(360px, 1.12fr);
-            gap: 64px;
-            align-items: center;
-        }
-        .story-kicker {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent, var(--terra));
-            margin-bottom: 22px;
-        }
-        .story-title {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: clamp(40px, 6vw, 72px);
-            line-height: 1.08;
-            letter-spacing: -0.04em;
-            max-width: 560px;
-        }
-        .story-copy {
-            margin: 24px 0 0;
-            max-width: 530px;
-            font-size: 17px;
-            line-height: 1.9;
-            color: currentColor;
-            opacity: 0.68;
-        }
-        .story-progress {
-            margin-top: 44px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            max-width: 440px;
-        }
-        .story-step {
-            height: 3px;
-            border: 0;
-            border-radius: 999px;
-            background: currentColor;
-            opacity: 0.22;
-            cursor: pointer;
-        }
-        .story-step.active {
-            opacity: 1;
-            background: var(--accent, var(--terra));
-        }
-        .visual-stack {
-            position: relative;
-            height: min(590px, 70vh);
-            perspective: 1600px;
-            transform-style: preserve-3d;
-        }
-        .visual-card {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transform: translateY(34px) scale(0.97);
-            transition: none;
-            pointer-events: none;
-            will-change: opacity, transform, filter;
-            filter: blur(var(--depth-blur, 0px));
-        }
-        .visual-card.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
+    /* =========================================================
+       §2  探索 —— 编辑式排版 + 滚动联动渐变标尺（CSS + IO）
+       ========================================================= */
+    .explore {
+      display: grid;
+      grid-template-columns: 0.32fr 1fr;
+      gap: clamp(40px, 6vw, 96px);
+      align-items: start;
+    }
+    .explore .exp-side { position: sticky; top: 64px; }
 
-        .code-board {
-            height: 100%;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 28px;
-            background: rgba(6,11,25,0.76);
-            box-shadow: 0 30px 100px rgba(0,0,0,0.35);
-            overflow: hidden;
-        }
-        .code-board-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 18px 22px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.5);
-            font-family: var(--font-mono);
-            font-size: 12px;
-        }
-        .code-lines {
-            padding: 28px;
-            font-family: var(--font-mono);
-            font-size: clamp(13px, 1.15vw, 16px);
-            line-height: 2.1;
-            color: rgba(222,232,255,0.78);
-        }
-        .code-lines b { color: #45d4ff; }
-        .code-lines em { color: #f2cc60; font-style: normal; }
+    .gradient-meter {
+      margin-top: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .gradient-meter .meter-caption {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      transition: color 0.4s var(--ease-out);
+    }
+    .gradient-meter.has-profile .meter-caption { color: var(--blue-deep); }
+    .gradient-meter .meter-row {
+      display: flex; align-items: center; gap: 14px;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 0.86rem;
+      color: var(--ink-faint);
+      transition: color 0.4s var(--ease-out);
+    }
+    .gradient-meter.has-profile .meter-row { color: var(--ink); }
+    .gradient-meter .meter-bar {
+      width: 64px; height: 8px; border-radius: 100px;
+      background: rgba(105,75,64,0.12);
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .gradient-meter .meter-bar::after {
+      content: ''; position: absolute; inset: 0;
+      width: var(--fill, 0); border-radius: 100px;
+      transition: width 0.7s var(--ease-out);
+    }
+    .gradient-meter .meter-row[data-dim="tech"] .meter-bar::after { background: var(--red); }
+    .gradient-meter .meter-row[data-dim="design"] .meter-bar::after { background: var(--blue); }
+    .gradient-meter .meter-row[data-dim="life"] .meter-bar::after { background: var(--yellow); }
 
-        .comic-board {
-            height: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            align-items: center;
-            transform: rotate(-1.2deg);
-        }
-        .comic-panel {
-            min-height: 300px;
-            padding: 34px;
-            border: 4px solid #111;
-            background: #fffefa;
-            box-shadow: 9px 9px 0 #111;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .comic-panel:nth-child(2) { transform: rotate(2.2deg) translateY(28px); }
-        .comic-panel h3 {
-            margin: 0 0 20px;
-            font-size: 28px;
-            line-height: 1.2;
-            text-decoration: underline;
-            text-decoration-thickness: 3px;
-            text-underline-offset: 8px;
-        }
-        .comic-panel p {
-            margin: 0;
-            color: #252525;
-            font-size: 18px;
-            line-height: 1.9;
-            font-weight: 700;
-        }
-        .highlight {
-            padding: 0 5px;
-            background: var(--yellow);
-        }
+    .exp-items { display: flex; flex-direction: column; gap: 22px; }
 
-        .forge-board {
-            height: 100%;
-            padding: 42px;
-            border: 1px solid var(--line);
-            border-radius: 30px;
-            background: var(--cream);
-            box-shadow: 0 24px 80px rgba(78,66,50,0.12);
-            display: flex;
-            flex-direction: column;
-        }
-        .forge-diagram {
-            flex: 1;
-            display: grid;
-            grid-template-rows: repeat(3, 1fr);
-            gap: 18px;
-        }
-        .forge-row {
-            display: grid;
-            grid-template-columns: 138px 1fr auto;
-            gap: 16px;
-            align-items: stretch;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: #fff;
-            padding: 14px;
-        }
-        .forge-label {
-            border-right: 2px solid rgba(201,100,66,0.28);
-            padding-right: 14px;
-            color: var(--terra);
-            font-family: var(--font-mono);
-            font-size: 13px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-        }
-        .forge-copy {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 6px;
-        }
-        .forge-copy strong {
-            color: #4d4c48;
-            font-family: var(--font-serif);
-            font-size: 22px;
-            letter-spacing: -0.04em;
-        }
-        .forge-copy span {
-            color: rgba(77,76,72,0.72);
-            font-size: 13px;
-            line-height: 1.55;
-        }
-        .forge-link-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-content: center;
-            justify-content: flex-end;
-            min-width: 186px;
-        }
-        .forge-link-row a {
-            display: inline-flex;
-            align-items: center;
-            min-height: 32px;
-            border: 1px solid rgba(201,100,66,0.28);
-            border-radius: 999px;
-            padding: 7px 10px;
-            color: var(--terra);
-            background: rgba(255,248,236,0.58);
-            text-decoration: none;
-            font: 700 11px var(--font-mono);
-            white-space: nowrap;
-        }
+    .exp-item {
+      position: relative;
+      border-radius: 18px;
+      padding: clamp(28px, 3.4vw, 40px);
+      cursor: pointer;
+      transition: transform var(--dur-med) var(--ease-out),
+                  box-shadow var(--dur-med) var(--ease-out);
+    }
+    .exp-item:hover { transform: translateY(-3px); }
+    .exp-item:focus-visible { outline: 3px solid var(--blue-deep); outline-offset: 3px; }
 
-        .ship-board {
-            height: 100%;
-            display: grid;
-            grid-template-columns: 0.8fr 1.2fr;
-            gap: 24px;
-            align-items: stretch;
-        }
-        .ship-phone,
-        .ship-map {
-            border: 1px solid rgba(255,255,255,0.11);
-            border-radius: 30px;
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(18px);
-            box-shadow: 0 24px 90px rgba(0,0,0,0.22);
-            overflow: hidden;
-        }
-        .ship-phone {
-            padding: 22px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .phone-ui {
-            min-height: 420px;
-            border-radius: 24px;
-            background:
-                radial-gradient(circle at 50% 0%, rgba(201,100,66,0.28), transparent 34%),
-                #f8f1e8;
-            color: #181716;
-            padding: 26px 22px;
-        }
-        .phone-pill {
-            width: 88px;
-            height: 8px;
-            margin: 0 auto 28px;
-            border-radius: 999px;
-            background: rgba(0,0,0,0.14);
-        }
-        .phone-ui h3 {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: 28px;
-            line-height: 1.25;
-        }
-        .oracle-ring {
-            width: 190px;
-            height: 190px;
-            margin: 38px auto;
-            border-radius: 50%;
-            border: 1px solid rgba(201,100,66,0.32);
-            background:
-                conic-gradient(from 70deg, rgba(201,100,66,0), rgba(201,100,66,0.64), rgba(201,100,66,0)),
-                radial-gradient(circle, #f8f1e8 0 56%, transparent 57%);
-        }
-        .ship-map {
-            padding: 28px;
-            display: grid;
-            grid-template-rows: 1fr auto;
-            gap: 22px;
-        }
-        .mini-grid {
-            border-radius: 24px;
-            background:
-                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
-                rgba(255,255,255,0.05);
-            background-size: 42px 42px;
-            position: relative;
-            min-height: 300px;
-        }
-        .mini-marker {
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border-radius: 99px;
-            background: var(--terra);
-            box-shadow: 0 0 0 8px rgba(201,100,66,0.16);
-        }
-        .mini-marker:nth-child(1) { left: 18%; top: 28%; }
-        .mini-marker:nth-child(2) { right: 24%; top: 45%; }
-        .mini-marker:nth-child(3) { left: 48%; bottom: 22%; }
-        .ship-caption {
-            color: rgba(255,255,255,0.72);
-            font-size: 14px;
-            line-height: 1.8;
-        }
+    /* 交错揭示（transitions.dev #18 风） */
+    .exp-item .roman,
+    .exp-item .exp-title,
+    .exp-item .exp-role,
+    .exp-item .exp-desc,
+    .exp-item .exp-tag {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+    }
+    .exp-item.in-view .roman     { opacity: 1; transform: none; transition-delay: 0ms; }
+    .exp-item.in-view .exp-title { opacity: 1; transform: none; transition-delay: 90ms; }
+    .exp-item.in-view .exp-role  { opacity: 1; transform: none; transition-delay: 180ms; }
+    .exp-item.in-view .exp-desc  { opacity: 1; transform: none; transition-delay: 270ms; }
+    .exp-item.in-view .exp-tag   { opacity: 1; transform: none; transition-delay: 360ms; }
 
-        .projects-scroll {
-            position: relative;
-            height: 260vh;
-            background: #101010;
-            color: white;
-        }
-        .project-stage {
-            position: sticky;
-            top: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at 80% 30%, rgba(201,100,66,0.16), transparent 30%),
-                #101010;
-        }
-        .project-shell {
-            width: min(1180px, calc(100% - 48px));
-            display: grid;
-            grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
-            gap: 58px;
-            align-items: center;
-        }
-        .project-visual {
-            position: relative;
-            min-height: 560px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 32px;
-            background: rgba(255,255,255,0.05);
-            overflow: hidden;
-            box-shadow: 0 32px 100px rgba(0,0,0,0.34);
-            perspective: 1800px;
-            transform-style: preserve-3d;
-        }
-        .project-art {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transform: scale(0.98);
-            transition: none;
-            will-change: opacity, transform, filter;
-            transform-origin: center center;
-            filter: blur(var(--depth-blur, 0px));
-        }
-        .project-art.active {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .art-buling {
-            background:
-                radial-gradient(circle at 52% 42%, rgba(201,100,66,0.34), transparent 24%),
-                linear-gradient(145deg, #f5f0e8, #d8c4ad);
-        }
-        .art-buling::before {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 250px;
-            height: 250px;
-            border: 1px solid rgba(113,72,47,0.26);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow:
-                0 0 0 46px rgba(255,255,255,0.28),
-                0 0 0 86px rgba(201,100,66,0.12);
-        }
-        .art-buling::after {
-            content: "卜灵";
-            position: absolute;
-            left: 48px;
-            bottom: 42px;
-            color: rgba(23,23,22,0.84);
-            font-family: var(--font-serif);
-            font-size: 88px;
-            letter-spacing: -0.08em;
-        }
-        .art-mutu {
-            background:
-                linear-gradient(120deg, rgba(13,19,33,0.92), rgba(26,35,43,0.9)),
-                #111;
-        }
-        .camera-line {
-            position: absolute;
-            left: 50%;
-            bottom: -15%;
-            width: 2px;
-            height: 80%;
-            background: linear-gradient(to top, rgba(57,225,174,0), rgba(57,225,174,0.75));
-            transform-origin: bottom;
-        }
-        .camera-line:nth-child(1) { transform: rotate(-26deg); }
-        .camera-line:nth-child(2) { transform: rotate(-10deg); }
-        .camera-line:nth-child(3) { transform: rotate(10deg); }
-        .camera-line:nth-child(4) { transform: rotate(26deg); }
-        .vision-box {
-            position: absolute;
-            border: 1px solid rgba(57,225,174,0.64);
-            border-radius: 18px;
-            color: rgba(255,255,255,0.72);
-            font-family: var(--font-mono);
-            font-size: 12px;
-            padding: 10px 12px;
-        }
-        .vision-box.one { left: 15%; top: 24%; width: 180px; height: 110px; }
-        .vision-box.two { right: 14%; top: 42%; width: 210px; height: 130px; }
-        .art-kingdom {
-            background:
-                linear-gradient(rgba(48,34,24,0.18) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(48,34,24,0.18) 1px, transparent 1px),
-                #e5d2a3;
-            background-size: 72px 72px;
-        }
-        .game-path {
-            position: absolute;
-            left: 7%;
-            right: 7%;
-            top: 45%;
-            height: 72px;
-            border-radius: 999px;
-            background: rgba(116,80,45,0.28);
-            transform: rotate(-7deg);
-        }
-        .tower {
-            position: absolute;
-            width: 58px;
-            height: 58px;
-            border-radius: 18px 18px 12px 12px;
-            background: #6e2f24;
-            box-shadow: 0 12px 0 #432018;
-        }
-        .tower:nth-child(2) { left: 22%; top: 26%; }
-        .tower:nth-child(3) { left: 58%; top: 24%; }
-        .tower:nth-child(4) { left: 42%; bottom: 26%; }
-        .art-team {
-            background:
-                radial-gradient(circle at 78% 20%, rgba(245,213,63,0.32), transparent 24%),
-                radial-gradient(circle at 22% 76%, rgba(201,100,66,0.22), transparent 28%),
-                linear-gradient(145deg, #f5f0e8, #d8c4ad);
-        }
-        .art-team::before {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 360px;
-            height: 250px;
-            transform: translate(-50%, -50%);
-            background:
-                linear-gradient(90deg, transparent 0 17%, rgba(113,72,47,0.2) 17% 18%, transparent 18% 49%, rgba(113,72,47,0.2) 49% 50%, transparent 50% 82%, rgba(113,72,47,0.2) 82% 83%, transparent 83%),
-                radial-gradient(circle at 18% 50%, #101010 0 14px, transparent 15px),
-                radial-gradient(circle at 50% 18%, #c96442 0 18px, transparent 19px),
-                radial-gradient(circle at 50% 82%, #c96442 0 18px, transparent 19px),
-                radial-gradient(circle at 83% 50%, #101010 0 14px, transparent 15px);
-            border: 1px solid rgba(113,72,47,0.22);
-            border-radius: 32px;
-            box-shadow: 0 30px 80px rgba(92,73,46,0.2);
-        }
-        .art-team::after {
-            content: "muyu-claw-team";
-            position: absolute;
-            left: 42px;
-            bottom: 40px;
-            color: rgba(23,23,22,0.84);
-            font-family: var(--font-mono);
-            font-size: clamp(26px, 4vw, 56px);
-            letter-spacing: -0.04em;
-        }
-        .art-cui {
-            background:
-                linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #111 0%, #171717 52%, #242019 100%);
-            background-size: 34px 34px, 34px 34px, auto;
-        }
-        .art-cui::before {
-            content: "scan ~/.claude/projects/**\\Aindex 1377 jsonl sessions\\Aevent: session_list_update\\Aevent: session_content_update\\Asub-agent drilldown ready";
-            white-space: pre;
-            position: absolute;
-            left: 10%;
-            right: 10%;
-            top: 24%;
-            padding: 26px;
-            border: 1px solid rgba(245,213,63,0.2);
-            border-radius: 24px;
-            background: rgba(0,0,0,0.46);
-            color: rgba(255,255,255,0.76);
-            font-family: var(--font-mono);
-            font-size: clamp(12px, 1.4vw, 18px);
-            line-height: 2.1;
-            box-shadow: 0 28px 70px rgba(0,0,0,0.26);
-        }
-        .art-cui::after {
-            content: "CUI";
-            position: absolute;
-            right: 44px;
-            bottom: 34px;
-            color: rgba(245,213,63,0.92);
-            font-family: var(--font-serif);
-            font-size: clamp(64px, 10vw, 132px);
-            letter-spacing: -0.08em;
-        }
-        .art-msc {
-            background:
-                radial-gradient(circle at 20% 25%, rgba(25,199,223,0.2), transparent 22%),
-                radial-gradient(circle at 78% 68%, rgba(201,100,66,0.26), transparent 28%),
-                linear-gradient(145deg, #ece7dd, #b9c9c8);
-        }
-        .art-msc::before {
-            content: "Sonnet quota\\A    ↓\\A GLM fallback\\A    ↓\\A breaker probe";
-            white-space: pre;
-            position: absolute;
-            left: 15%;
-            top: 18%;
-            width: min(390px, 70%);
-            padding: 28px;
-            border-radius: 28px;
-            background: rgba(255,255,255,0.58);
-            border: 1px solid rgba(16,16,16,0.14);
-            color: rgba(16,16,16,0.78);
-            font-family: var(--font-mono);
-            font-size: clamp(14px, 1.6vw, 20px);
-            line-height: 2;
-            box-shadow: 0 28px 80px rgba(31,48,50,0.2);
-        }
-        .art-msc::after {
-            content: "NB-Claude";
-            position: absolute;
-            right: 38px;
-            bottom: 38px;
-            color: rgba(16,16,16,0.82);
-            font-family: var(--font-serif);
-            font-size: clamp(42px, 7vw, 92px);
-            letter-spacing: -0.08em;
-        }
-        .project-info {
-            min-height: 520px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .project-index {
-            color: var(--terra);
-            font-family: var(--font-mono);
-            letter-spacing: 0.14em;
-            font-size: 13px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-        .project-title {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: clamp(42px, 5vw, 74px);
-            line-height: 1.04;
-            letter-spacing: -0.06em;
-        }
-        .project-summary {
-            margin: 24px 0 0;
-            color: rgba(255,255,255,0.68);
-            font-size: 17px;
-            line-height: 1.9;
-        }
-        .project-meta {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin: 34px 0;
-        }
-        .meta-box {
-            border-top: 1px solid rgba(255,255,255,0.16);
-            padding-top: 14px;
-        }
-        .meta-box span {
-            display: block;
-            color: rgba(255,255,255,0.42);
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 7px;
-        }
-        .meta-box strong { font-size: 15px; }
-        .project-tabs {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .project-tab {
-            border: 1px solid rgba(255,255,255,0.18);
-            background: transparent;
-            color: rgba(255,255,255,0.58);
-            border-radius: 999px;
-            padding: 10px 14px;
-            font: 700 12px var(--font-mono);
-            cursor: pointer;
-        }
-        .project-tab.active {
-            color: #101010;
-            background: white;
-            border-color: white;
-        }
-        .project-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .project-link {
-            display: inline-flex;
-            align-items: center;
-            min-height: 42px;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 999px;
-            padding: 10px 15px;
-            color: rgba(255,255,255,0.72);
-            text-decoration: none;
-            font: 700 12px var(--font-mono);
-            transition: transform 180ms ease, border-color 180ms ease, color 180ms ease;
-        }
-        .project-link.primary {
-            color: #101010;
-            background: var(--yellow);
-            border-color: var(--yellow);
-        }
-        .project-link:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255,255,255,0.44);
-            color: white;
-        }
-        .project-link.primary:hover {
-            color: #101010;
-        }
-        .project-links[hidden],
-        .project-link[hidden] {
-            display: none;
-        }
+    .exp-item .roman {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      line-height: 1;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .exp-item .exp-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+    .exp-item .exp-role {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+    .exp-item .exp-desc {
+      font-size: 0.95rem;
+      color: var(--ink-light);
+      line-height: 1.85;
+      margin-bottom: 16px;
+    }
+    .exp-item .exp-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
 
-        .mobile-projects {
-            display: none;
-            background: #101010;
-            color: white;
-            padding: 80px 0;
-        }
-        .mobile-projects h2 {
-            margin: 0 24px 24px;
-            font-family: var(--font-serif);
-            font-size: 38px;
-            line-height: 1.1;
-        }
-        .mobile-track {
-            display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding: 0 24px 18px;
-        }
-        .mobile-card {
-            flex: 0 0 82%;
-            min-height: 580px;
-            scroll-snap-align: center;
-            border: 1px solid rgba(255,255,255,0.13);
-            border-radius: 26px;
-            background: rgba(255,255,255,0.06);
-            overflow: hidden;
-        }
-        .mobile-art {
-            height: 280px;
-            position: relative;
-        }
-        .mobile-card-body { padding: 24px; }
-        .mobile-card-body h3 {
-            margin: 0 0 14px;
-            font-family: var(--font-serif);
-            font-size: 32px;
-        }
-        .mobile-card-body p {
-            color: rgba(255,255,255,0.68);
-            line-height: 1.8;
-        }
-        .mobile-card-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .mobile-card-actions a {
-            display: inline-flex;
-            align-items: center;
-            min-height: 38px;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 999px;
-            padding: 9px 12px;
-            color: rgba(255,255,255,0.72);
-            text-decoration: none;
-            font: 700 11px var(--font-mono);
-        }
-        .mobile-card-actions a:first-child {
-            color: #101010;
-            background: var(--yellow);
-            border-color: var(--yellow);
-        }
+    /* i. 卜灵 — 暖粉 · 心 */
+    .exp-item.warm {
+      background: var(--yellow-soft);
+      border: 1.5px dashed rgba(244,207,214,0.9);
+    }
+    .exp-item.warm .roman { color: #D88A98; }
+    .exp-item.warm .exp-role { color: #C56B7B; }
+    .exp-item.warm .exp-tag { background: var(--yellow); color: var(--red); }
 
-        .life-entry {
-            padding: 110px 0;
-            background:
-                linear-gradient(rgba(91,73,46,0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(91,73,46,0.025) 1px, transparent 1px),
-                var(--paper);
-            background-size: 32px 32px;
-            color: var(--ink);
-        }
-        .life-entry-inner {
-            width: min(1120px, calc(100% - 48px));
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
-            gap: 58px;
-            align-items: center;
-        }
-        .life-kicker {
-            color: var(--terra);
-            font-family: "Kalam", var(--font-serif);
-            font-weight: 700;
-            margin-bottom: 14px;
-        }
-        .life-entry h2 {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: clamp(42px, 6vw, 76px);
-            line-height: 1.05;
-            letter-spacing: -0.05em;
-        }
-        .life-entry p {
-            margin: 24px 0 0;
-            max-width: 520px;
-            color: var(--muted);
-            line-height: 1.9;
-        }
-        .life-link {
-            display: inline-flex;
-            margin-top: 32px;
-            border: 1px solid rgba(201,100,66,0.3);
-            border-radius: 999px;
-            padding: 12px 18px;
-            background: var(--cream);
-            color: var(--terra);
-            text-decoration: none;
-            font-size: 14px;
-            transition: transform 180ms ease, box-shadow 180ms ease;
-        }
-        .life-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(92,73,46,0.12);
-        }
-        .life-postcards {
-            min-height: 430px;
-            position: relative;
-        }
-        .life-postcard {
-            position: absolute;
-            width: 230px;
-            padding: 12px 12px 42px;
-            border: 1px solid rgba(216,205,187,0.72);
-            background: #fffefa;
-            box-shadow: 0 18px 42px rgba(92,73,46,0.14);
-        }
-        .life-postcard img {
-            display: block;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            background: var(--paper);
-        }
-        .life-postcard figcaption {
-            position: absolute;
-            left: 14px;
-            right: 14px;
-            bottom: 12px;
-            color: rgba(45,42,38,0.62);
-            font-family: "Kalam", var(--font-serif);
-            font-size: 15px;
-        }
-        .life-postcard.one { left: 6%; top: 20px; transform: rotate(-5deg); }
-        .life-postcard.two { left: 38%; top: 92px; transform: rotate(4deg); }
-        .life-postcard.three { right: 2%; bottom: 28px; transform: rotate(-2deg); }
+    /* ii. crewless — 薄荷 · 桥 */
+    .exp-item.bridge {
+      background: var(--blue-soft);
+      border: 1.5px solid rgba(189,231,229,0.85);
+    }
+    .exp-item.bridge .roman { color: var(--blue-deep); }
+    .exp-item.bridge .exp-role { color: #4A9D9B; }
+    .exp-item.bridge .exp-tag { background: var(--blue); color: #2C5A58; }
 
-        @media (max-width: 820px) {
-            .story-shell { height: auto; }
-            .story-stage {
-                position: relative;
-                height: auto;
-                min-height: 100vh;
-                padding: 92px 0;
-            }
-            .story-content {
-                grid-template-columns: 1fr;
-                gap: 42px;
-                height: auto;
-            }
-            .material-stack {
-                display: none;
-            }
-            .story-stage[data-state] {
-                background: var(--night);
-                color: white;
-            }
-            .story-copy {
-                color: rgba(255,255,255,0.68);
-                opacity: 1;
-            }
-            .visual-stack { height: auto; min-height: 620px; }
-            .visual-card {
-                position: relative;
-                inset: auto;
-                opacity: 1;
-                transform: none;
-                display: none;
-            }
-            .visual-card.active { display: block; }
-            .comic-board { grid-template-columns: 1fr; }
-            .comic-panel:nth-child(2) { transform: rotate(1deg); }
-            .forge-board { padding: 24px; }
-            .forge-row {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .forge-label { border-right: 0; border-bottom: 1px solid rgba(201,100,66,0.28); padding: 0 0 10px; }
-            .forge-link-row { justify-content: flex-start; min-width: 0; }
-            .ship-board { grid-template-columns: 1fr; }
-            .projects-scroll { display: none; }
-            .mobile-projects { display: block; }
-            .life-entry-inner {
-                grid-template-columns: 1fr;
-                gap: 36px;
-            }
-            .life-postcards {
-                min-height: 360px;
-            }
-            .life-postcard {
-                width: 180px;
-            }
-            .life-postcard.one { left: 0; top: 0; }
-            .life-postcard.two { left: 36%; top: 54px; }
-            .life-postcard.three { right: 0; bottom: 8px; }
-        }
+    /* iii. 数字员工 — 棕墨 · 深 */
+    .exp-item.deep {
+      background: #fff;
+      border-left: 4px solid var(--red);
+      box-shadow: 0 2px 14px rgba(105,75,64,0.06);
+    }
+    .exp-item.deep .roman { color: rgba(105,75,64,0.22); }
+    .exp-item.deep .exp-role { color: var(--ink-light); }
+    .exp-item.deep .exp-tag { background: rgba(105,75,64,0.08); color: var(--red); }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                scroll-behavior: auto !important;
-                transition-duration: 0.01ms !important;
-                animation-duration: 0.01ms !important;
-            }
-        }
+    @media (max-width: 900px) {
+      .explore { grid-template-columns: 1fr; }
+      .explore .exp-side { position: static; }
+      .gradient-meter { flex-direction: row; flex-wrap: wrap; gap: 14px 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .exp-item .roman, .exp-item .exp-title, .exp-item .exp-role,
+      .exp-item .exp-desc, .exp-item .exp-tag {
+        opacity: 1 !important; transform: none !important; transition-delay: 0ms !important;
+      }
+    }
 
-        @media (max-width: 768px) {
-            .footprints-grid {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: auto !important;
-            }
-            .travel-map-frame,
-            .travel-journal,
-            .station-carousel {
-                grid-column: 1 !important;
-                grid-row: auto !important;
-            }
-            .travel-map-frame { height: 420px; }
-            .travel-journal { min-height: 620px; }
-            .station-card {
-                flex-basis: 154px;
-                max-width: 154px;
-                min-height: 106px;
-                padding: 0.9rem;
-            }
-            .section-endnote { margin-top: 2.4rem; font-size: 0.95rem; }
-        }
-    </style>
+    /* =========================================================
+       §3  正在搞 —— 手绘虚线卡（maker / in-progress 感）
+       ========================================================= */
+    .now-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(20px, 2.4vw, 28px);
+    }
+    .now-card {
+      position: relative;
+      border: 2px dashed;
+      border-radius: 18px;
+      padding: clamp(28px, 3vw, 40px);
+      background: #fff;
+      transition: transform var(--dur-med) var(--ease-out);
+    }
+    .now-card:hover { transform: translateY(-4px) rotate(-0.3deg); }
+    .now-card:nth-child(1) { border-color: rgba(189,231,229,0.85); }
+    .now-card:nth-child(1) .now-label { color: var(--blue-deep); }
+    .now-card:nth-child(2) { border-color: rgba(244,207,214,0.95); }
+    .now-card:nth-child(2) .now-label { color: #C56B7B; }
+    .now-card .now-label {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      font-weight: 700;
+      position: absolute;
+      top: -14px;
+      left: 22px;
+      background: var(--cream);
+      padding: 0 12px;
+    }
+    .now-card .now-emoji { font-size: 2.2rem; display: block; margin-bottom: 16px; }
+    .now-card .now-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .now-card .now-desc {
+      font-size: 0.9rem;
+      color: var(--ink-light);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .now-card .now-thumb {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+      margin-top: 8px;
+      border: 1px solid rgba(105,75,64,0.08);
+    }
+    .now-card .now-thumb-ph {
+      margin-top: 8px;
+      aspect-ratio: 16/10;
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(45deg, rgba(189,231,229,0.25) 0 10px, rgba(189,231,229,0.08) 10px 20px);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Caveat', cursive;
+      font-size: 1.2rem;
+      color: var(--ink-faint);
+      border: 1px dashed rgba(105,75,64,0.18);
+    }
+
+    /* =========================================================
+       §1  HERO mascot —— IP 形象贴纸
+       ========================================================= */
+    .hero-mascot {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .hero-mascot img {
+      height: clamp(150px, 20vw, 220px);
+      width: auto;
+      display: block;
+      border-radius: 22px;
+      border: 5px solid #fff;
+      transform: rotate(-2.5deg);
+      filter: drop-shadow(0 12px 24px rgba(105,75,64,0.22));
+      transition: transform var(--dur-slow) var(--ease-out);
+    }
+    .hero-mascot:hover img { transform: rotate(-1deg) translateY(-4px); }
+    .hero-mascot .mascot-tape {
+      position: absolute;
+      top: -12px; right: -6px;
+      transform: rotate(8deg);
+      font-family: 'Caveat', cursive;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--red);
+      background: var(--yellow);
+      padding: 3px 14px;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px rgba(105,75,64,0.15);
+      white-space: nowrap;
+    }
+
+    /* =========================================================
+       §4  屏幕外的我 —— 旅行 / 最近的观察（双入口 → 独立页）
+       ========================================================= */
+    .life-entry-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 2.5vw, 32px);
+    }
+    .life-entry {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: clamp(28px, 3.5vw, 40px);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 18px rgba(105,75,64,0.07);
+      text-decoration: none;
+      color: var(--ink);
+      transition: transform var(--dur-med) var(--ease-out),
+                  box-shadow var(--dur-med) var(--ease-out);
+    }
+    .life-entry:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 34px rgba(105,75,64,0.13);
+    }
+    .life-entry--wide {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+    }
+    .life-entry--wide .le-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    @media (max-width: 760px) {
+      .life-entry--wide { grid-template-columns: 1fr; }
+    }
+    .life-entry .le-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: var(--blue-deep);
+    }
+    .life-entry .le-postcards {
+      display: flex;
+      gap: 10px;
+      margin: 4px 0;
+    }
+    .life-entry .le-postcards img {
+      width: calc(33.333% - 7px);
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      border-radius: 10px;
+      background: var(--cream-dark);
+      border: 3px solid #fff;
+      box-shadow: 0 3px 10px rgba(105,75,64,0.1);
+    }
+    .life-entry .le-postcards img:nth-child(1) { transform: rotate(-3deg); }
+    .life-entry .le-postcards img:nth-child(2) { transform: rotate(2deg) translateY(8px); }
+    .life-entry .le-postcards img:nth-child(3) { transform: rotate(-1deg) translateY(-6px); }
+    .life-entry .le-body h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .life-entry .le-body p {
+      font-size: 0.92rem;
+      color: var(--ink-light);
+      line-height: 1.8;
+    }
+    .life-entry .le-notes ul {
+      list-style: none; padding: 0;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .life-entry .le-notes li {
+      font-size: 0.92rem;
+      color: var(--ink-light);
+      line-height: 1.7;
+      padding-left: 18px;
+      position: relative;
+    }
+    .life-entry .le-notes li::before {
+      content: '✦';
+      position: absolute; left: 0; top: 1px;
+      color: var(--blue-deep);
+      font-size: 0.8rem;
+    }
+    .life-entry .le-notes li strong {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      color: var(--ink);
+      margin-right: 4px;
+    }
+    .life-entry .le-cta {
+      margin-top: auto;
+      padding-top: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      letter-spacing: 0.04em;
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
+    .life-entry:hover .le-cta { transform: translateX(4px); }
+    @media (max-width: 900px) { .life-entry-grid { grid-template-columns: 1fr; } }
+
+    /* =========================================================
+       §5  写作 —— 轻量入口
+       ========================================================= */
+    .writing-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: clamp(32px, 4vw, 48px) clamp(28px, 3.5vw, 44px);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(105,75,64,0.05);
+      text-decoration: none;
+      color: var(--ink);
+      transition: transform var(--dur-med) var(--ease-out),
+                  box-shadow var(--dur-med) var(--ease-out);
+    }
+    .writing-entry:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(105,75,64,0.1);
+    }
+    .writing-entry .w-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.15rem, 2vw, 1.4rem);
+      font-weight: 700;
+    }
+    .writing-entry .w-sub {
+      font-size: 0.85rem;
+      color: var(--ink-light);
+      margin-top: 4px;
+    }
+    .writing-entry .arrow {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: var(--blue-deep);
+      transition: transform var(--dur-med) var(--ease-out);
+    }
+    .writing-entry:hover .arrow { transform: translateX(4px); }
+
+    /* blog 空列表（笔记本空白行） */
+    .blog-empty {
+      margin-top: clamp(28px, 4vw, 40px);
+      padding: clamp(24px, 3vw, 36px);
+      background: rgba(255,255,255,0.5);
+      border-radius: 16px;
+      border: 1.5px dashed rgba(105,75,64,0.18);
+    }
+    .blog-empty-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      display: block;
+      margin-bottom: 20px;
+    }
+    .blog-empty-lines { display: flex; flex-direction: column; gap: 20px; }
+    .blog-line {
+      height: 12px;
+      border-bottom: 1px solid rgba(105,75,64,0.14);
+      position: relative;
+    }
+    .blog-line::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 3px;
+      width: 28px; height: 6px;
+      background: rgba(189,231,229,0.55);
+      border-radius: 2px;
+    }
+    .blog-empty-note {
+      display: block;
+      margin-top: 20px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.05rem;
+      color: var(--ink-faint);
+    }
+
+    /* =========================================================
+       §6  联系 —— 大字链接，hover 下划线扫过
+       ========================================================= */
+    .contact {
+      background: var(--dark-panel);
+      color: var(--cream);
+      padding: clamp(90px, 14vh, 160px) 0 clamp(60px, 8vh, 90px);
+    }
+    .contact .sec-head .sec-title { color: var(--cream); }
+    .contact .sec-head .sec-num { color: var(--blue); }
+    .contact .sec-head .sec-en { color: rgba(251,242,227,0.5); }
+
+    .contact-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px 48px;
+      margin-top: 8px;
+    }
+    .contact-link {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 22px 0;
+      text-decoration: none;
+      color: var(--cream);
+      border-bottom: 1px solid rgba(251,242,227,0.12);
+      transition: color var(--dur-med) var(--ease-out),
+                  padding var(--dur-med) var(--ease-out);
+    }
+    .contact-link:hover { color: var(--blue); padding-left: 8px; }
+    .contact-link .c-platform {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+      position: relative;
+    }
+    .contact-link .c-platform::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 2px;
+      height: 8px;
+      background: var(--blue);
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--dur-med) var(--ease-out),
+                  opacity var(--dur-med) var(--ease-out);
+      z-index: -1;
+    }
+    .contact-link:hover .c-platform::after { opacity: 0.35; transform: scaleX(1); }
+    .contact-link .c-handle {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: rgba(251,242,227,0.5);
+      margin-left: auto;
+    }
+    .contact-link:hover .c-handle { color: var(--blue); }
+
+    /* =========================================================
+       收尾 —— BETTER CALL MUYU（Kinetic Text，esther #48）
+       悬停：字符 400→900 + 变薄荷色，相邻字符被"牵引"到 600
+       ========================================================= */
+    .kinetic-block {
+      margin-bottom: clamp(40px, 5vh, 60px);
+      padding-bottom: clamp(40px, 5vh, 64px);
+      border-bottom: 1px solid rgba(251,242,227,0.1);
+      text-align: center;
+    }
+    .kinetic-text {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: clamp(3rem, 12vw, 8rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--cream);
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+    .kinetic-text + .kinetic-text { margin-top: 0.05em; }
+    .kinetic-text span {
+      display: inline-block;
+      transition: font-weight 0.4s var(--ease-out),
+                  color 0.4s var(--ease-out),
+                  -webkit-text-stroke-color 0.4s var(--ease-out),
+                  padding 0.4s var(--ease-out);
+      -webkit-text-stroke-width: 0.02em;
+      -webkit-text-stroke-color: transparent;
+      cursor: default;
+    }
+    .kinetic-text span:hover {
+      font-weight: 900;
+      color: var(--blue);
+      -webkit-text-stroke-color: var(--blue);
+      padding-inline: 0.06em;
+    }
+    .footer-copy {
+      margin-top: clamp(32px, 5vh, 52px);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: rgba(251,242,227,0.4);
+    }
+
+    /* =========================================================
+       Contact modal —— transitions.dev #06（scale 0.95→1）
+       ========================================================= */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(90,64,55,0.55);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; visibility: hidden;
+      transition: opacity var(--dur-med) var(--ease-out),
+                  visibility var(--dur-med);
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-card {
+      background: var(--cream);
+      border-radius: 22px;
+      padding: clamp(34px, 4.5vw, 52px) clamp(28px, 3.5vw, 44px) clamp(28px, 3vw, 36px);
+      max-width: 420px; width: 100%;
+      text-align: center;
+      position: relative;
+      transform: scale(0.95); opacity: 0;
+      transition: transform var(--dur-med) var(--ease-out),
+                  opacity var(--dur-med) var(--ease-out);
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); opacity: 1; }
+    .modal-close {
+      position: absolute; top: 14px; right: 16px;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: none; background: rgba(105,75,64,0.08);
+      font-size: 1.4rem; line-height: 1; color: var(--ink-light);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--dur-fast) var(--ease-out),
+                  color var(--dur-fast) var(--ease-out);
+    }
+    .modal-close:hover { background: rgba(105,75,64,0.18); color: var(--ink); }
+    .modal-platform { display: block; margin-bottom: 16px; color: var(--blue-deep); }
+    .modal-detail {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 900;
+      color: var(--ink);
+      word-break: break-all;
+      line-height: 1.3;
+    }
+    .modal-note {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--ink-light);
+      line-height: 1.7;
+    }
+    .modal-actions {
+      margin-top: 28px;
+      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    }
+    .modal-action, .modal-copy {
+      padding: 10px 22px; border-radius: 100px;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      border: none; text-decoration: none;
+      transition: transform var(--dur-fast) var(--ease-out),
+                  background var(--dur-fast) var(--ease-out);
+    }
+    .modal-action { background: var(--red); color: var(--cream); }
+    .modal-action:hover { transform: translateY(-1px); }
+    .modal-copy { background: rgba(105,75,64,0.08); color: var(--ink); }
+    .modal-copy:hover { background: rgba(105,75,64,0.16); }
+    .modal-copy.copied { background: var(--blue); color: #2C5A58; }
+
+    .footer-copy--end {
+      text-align: center;
+      margin-top: clamp(44px, 6vh, 68px);
+    }
+
+    /* =========================================================
+       Project modal —— 案例详情卡（图 + 全文 + 标签）
+       ========================================================= */
+    .modal-card--proj {
+      max-width: 560px;
+      text-align: left;
+      padding: 0;
+      overflow: hidden;
+    }
+    .modal-card--proj .pm-thumb {
+      aspect-ratio: 16/9;
+      width: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      background: var(--cream-dark);
+    }
+    .modal-card--proj .pm-body { padding: clamp(24px, 3vw, 32px); }
+    .modal-card--proj .modal-close { background: rgba(255,255,255,0.92); }
+    .modal-card--proj .pm-role {
+      display: block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      color: var(--blue-deep);
+      margin-bottom: 10px;
+    }
+    .modal-card--proj .pm-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      font-weight: 900;
+      line-height: 1.2;
+    }
+    .modal-card--proj .pm-desc {
+      font-size: 0.95rem;
+      color: var(--ink-light);
+      line-height: 1.85;
+      margin-top: 14px;
+    }
+    .modal-card--proj .pm-tags {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .modal-card--proj .pm-tag {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      background: rgba(105,75,64,0.08);
+      color: var(--red);
+    }
+
+    /* =========================================================
+       动效：scroll reveal（transitions.dev #18 风）
+       ========================================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity var(--dur-slow) var(--ease-out),
+                  transform var(--dur-slow) var(--ease-out);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-d1 { transition-delay: 90ms; }
+    .reveal-d2 { transition-delay: 180ms; }
+    .reveal-d3 { transition-delay: 270ms; }
+
+    /* emil：按钮/可点元素 active 按压反馈 */
+    a.cta, .writing-entry, .contact-link:active { -webkit-tap-highlight-color: transparent; }
+    .writing-entry:active, .now-card:active { transform: scale(0.99); }
+
+    /* 响应式 */
+    @media (max-width: 900px) {
+      .explore { grid-template-columns: 1fr; }
+      .explore .exp-side { position: static; margin-bottom: 12px; }
+      .explore .exp-side .gradient-meter { flex-direction: row; flex-wrap: wrap; }
+      .now-grid { grid-template-columns: 1fr; }
+      .contact-links { grid-template-columns: 1fr; gap: 0; }
+      .hero .marginalia { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 15.5px; }
+      .life-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
 </head>
-<body class="antialiased overflow-x-hidden text-white" style="background:var(--parchment);">
+<body>
 
-    <!-- SECTION 1: THE GEEK -->
-    <section id="geek-mode" class="relative min-h-[90vh] bg-[#020617] flex flex-col justify-center overflow-hidden pb-20">
-        <div class="absolute inset-0 bg-grid-tech opacity-20 pointer-events-none"></div>
-        <nav class="absolute top-0 w-full p-6 flex justify-between items-center z-20">
-            <div class="font-geek text-baidu-blue tracking-widest text-xl hover:text-white transition cursor-pointer">MUYU<span class="text-white">.DEV</span></div>
-            <div class="font-code text-xs text-gray-500">[ SYSTEM ONLINE ]</div>
-        </nav>
-        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center z-10 pt-20 reveal active">
-            <div class="space-y-8">
-                <div class="inline-flex items-center gap-2 px-4 py-2 border border-baidu-blue/50 rounded-full bg-baidu-blue/5 backdrop-blur-sm">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    <span class="font-code text-xs text-blue-300 tracking-wide">BAT Software Engineer</span>
-                </div>
-                <h1 class="text-5xl md:text-7xl font-bold leading-tight font-sans tracking-tight">
-                    Thinking in <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-baidu-blue to-cyan-400">Code & Agents.</span>
-                </h1>
-                <p class="text-gray-400 text-lg font-light max-w-md leading-relaxed">
-                    负责 Coding Agent Infra + AIQA 代码知识建设。<br>
-                    我不在写代码，就在构建写代码的机器。
-                </p>
+  <!-- ============================================================
+       §1  HERO —— 扉页：我是谁
+       ============================================================ -->
+  <section class="hero">
+    <div class="hero-mascot reveal">
+      <img src="assets/zichao-bear.webp" alt="自嘲熊 · 我的 IP 形象">
+      <span class="mascot-tape">我的 IP ✦ 自嘲熊</span>
+    </div>
+
+    <span class="hero-label reveal">
+      <span class="dot"></span>
+      <span class="label-caps">EXPLORER ✦ 探索者</span>
+    </span>
+
+    <h1 class="reveal reveal-d1">
+      用科技<br>
+      解决<span class="hl">生活问题</span><br>
+      的探索者
+    </h1>
+
+    <p class="hero-sub reveal reveal-d2">
+      相信科技平权——做点真正让人幸福的东西。
+    </p>
+
+    <span class="marginalia reveal reveal-d3">信念，下一屏</span>
+    <span class="scroll-hint">SCROLL ↓</span>
+  </section>
+
+  <!-- ============================================================
+       信念 manifesto —— 暖棕暗面板
+       ============================================================ -->
+  <section class="manifesto">
+    <div class="manifesto-inner reveal">
+      <span class="label-caps">MANIFESTO · 我的信念</span>
+      <div class="creed">科技平权。</div>
+      <p class="creed-body">
+        让科技真的去解决<em>普通人</em>的生活问题，<em>带来幸福</em>——<br>
+        而不是只服务于少数人的效率游戏。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §2  探索 —— 心→深 渐变
+       ============================================================ -->
+  <section class="section" id="explore">
+    <div class="container">
+      <div class="explore">
+
+        <div class="exp-side">
+          <div class="sec-head reveal" style="margin-bottom: 0;">
+            <div class="sec-row">
+              <span class="sec-num">02</span>
+              <h2 class="sec-title">探索</h2>
+              <span class="sec-en">Exploration</span>
             </div>
-            <div class="relative flex justify-center group">
-                <div class="absolute inset-0 bg-baidu-blue/20 blur-[100px] rounded-full opacity-50 group-hover:opacity-80 transition duration-700"></div>
-                <div class="relative w-72 h-72 md:w-96 md:h-96 border border-white/10 p-2 bg-[#0F172A]/80 backdrop-blur rounded-2xl shadow-2xl transform rotate-3 group-hover:rotate-0 group-hover:scale-105 transition duration-500 ease-out cursor-pointer">
-                    <div class="w-full h-full overflow-hidden rounded-xl relative">
-                        <img src="./my.jpg" alt="Muyu Profile" class="w-full h-full object-cover filter contrast-105 transition duration-500">
-                        <div class="absolute top-4 right-4 flex gap-1">
-                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                        </div>
-                        <div class="absolute bottom-4 left-4 font-code text-[10px] text-green-400 bg-black/80 px-2 py-1 rounded border border-green-900/50">
-                            ID: MUYU_001
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <p class="sec-sub">致力于用科技解决的问题，与正在做的项目——点开看每一个的故事。</p>
+          </div>
+
+          <div class="gradient-meter reveal" id="gradientMeter">
+            <span class="meter-caption" id="meterCaption">项目画像 · PROJECT PROFILE</span>
+            <div class="meter-row" data-dim="tech"><span class="meter-bar"></span>技术深度</div>
+            <div class="meter-row" data-dim="design"><span class="meter-bar"></span>设计感</div>
+            <div class="meter-row" data-dim="life"><span class="meter-bar"></span>生活温度</div>
+          </div>
         </div>
-    </section>
 
-    <!-- SECTION 2: SCROLL NARRATIVE -->
-    <section class="story-shell" id="story">
-        <div class="story-stage" id="storyStage" data-state="engineer">
-            <div class="material-stack" aria-hidden="true">
-                <div class="material-layer is-engineer" data-material-layer="0"></div>
-                <div class="material-layer is-friction" data-material-layer="1"></div>
-                <div class="material-layer is-forge" data-material-layer="2"></div>
-                <div class="material-layer is-shipped" data-material-layer="3"></div>
-            </div>
-            <div class="story-content">
-                <div>
-                    <div class="story-kicker" id="storyKicker">01 / ENGINEER</div>
-                    <h2 class="story-title" id="storyTitle">Coding Agent Infra Builder</h2>
-                    <p class="story-copy" id="storyCopy">负责 Coding Agent Infra 和 AIQA 代码知识建设，把上下文、工具、验证和交付流程沉到系统里，让 AI 不只会回答，也能持续把任务做完。</p>
-                    <div class="story-progress" aria-label="story progress">
-                        <button class="story-step active" data-story-jump="0" aria-label="ENGINEER"></button>
-                        <button class="story-step" data-story-jump="1" aria-label="FRICTION"></button>
-                        <button class="story-step" data-story-jump="2" aria-label="FORGE"></button>
-                        <button class="story-step" data-story-jump="3" aria-label="SHIPPED"></button>
-                    </div>
-                </div>
+        <div class="exp-items">
 
-                <div class="visual-stack">
-                    <div class="visual-card active" data-story-visual="0">
-                        <div class="code-board">
-                            <div class="code-board-header">
-                                <span>agent-runtime.log</span>
-                                <span>[ SYSTEM ONLINE ]</span>
-                            </div>
-                            <div class="code-lines">
-                                <div><em>01</em> const role = <b>"AI Builder"</b>;</div>
-                                <div><em>02</em> observe(repository.context);</div>
-                                <div><em>03</em> route(task, agent_team);</div>
-                                <div><em>04</em> verify(output.screenshot);</div>
-                                <div><em>05</em> ship(product, not_demo);</div>
-                                <br>
-                                <div>&gt; build systems that build software</div>
-                            </div>
-                        </div>
-                    </div>
+          <!-- i. 数字员工 — 公司 · 技术深度（先立手艺） -->
+          <article class="exp-item deep" tabindex="0" role="button" data-level="1" data-score-tech="96" data-score-design="40" data-score-life="32"
+                   data-title="数字员工" data-role="公司 · 技术深度"
+                   data-desc="AI-Coding + AI-QA，分别帮研发和测试提效。设计了真正的「数字员工」——这是探索者磨手艺的地方，也只有去过深处，才知道怎么把好处送到浅处。"
+                   data-thumb-text="数字员工" data-tags="AI-Coding,AI-QA,效能,技术深度">
+            <span class="roman">i.</span>
+            <h3 class="exp-title">数字员工</h3>
+            <span class="exp-role">公司 · 技术深度</span>
+            <p class="exp-desc">AI-Coding + AI-QA，帮研发和测试提效。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
+            <span class="exp-tag">技术深度 · 深</span>
+          </article>
 
-                    <div class="visual-card" data-story-visual="1">
-                        <div class="comic-board">
-                            <div class="comic-panel">
-                                <h3>问题不是模型不会写代码。</h3>
-                                <p>问题是重复交代背景、手动同步状态、review 断层、测试不闭环。</p>
-                            </div>
-                            <div class="comic-panel">
-                                <h3>所以需要一个转向。</h3>
-                                <p>把摩擦变成系统：<span class="highlight">流程、角色、验证、交付</span>。</p>
-                            </div>
-                        </div>
-                    </div>
+          <!-- ii. crewless — Hackathon · 降低门槛 -->
+          <article class="exp-item bridge" tabindex="0" role="button" data-level="2" data-score-tech="88" data-score-design="72" data-score-life="60"
+                   data-title="crewless" data-role="Hackathon · 降低门槛"
+                   data-desc="从一个 idea，到后面全自动跑起来的 web 产品。把「造一个东西」的门槛拉到最低——让没有技术背景的人，也能把想法变成能跑的东西。"
+                   data-thumb-text="crewless" data-tags="idea → 全自动,科技平权,web 产品">
+            <span class="roman">ii.</span>
+            <h3 class="exp-title">crewless</h3>
+            <span class="exp-role">Hackathon · 降低门槛</span>
+            <p class="exp-desc">从一个 idea，到全自动跑起来的 web 产品。把「造东西」的门槛拉到最低——另一种科技平权。</p>
+            <span class="exp-tag">降低门槛 · 桥</span>
+          </article>
 
-                    <div class="visual-card" data-story-visual="2">
-                        <div class="forge-board">
-                            <div class="forge-diagram">
-                                <div class="forge-row">
-                                    <div class="forge-label">Harness</div>
-                                    <div class="forge-copy">
-                                        <strong>MuYu/CLAUDE.md</strong>
-                                        <span>tasks/todo.md、UI 规范、review、exec、func test、deploy、TestFlight。</span>
-                                    </div>
-                                    <div class="forge-link-row">
-                                        <a href="./agent-delivery-system.html#workflow">Blog</a>
-                                    </div>
-                                </div>
-                                <div class="forge-row">
-                                    <div class="forge-label">Agent Team</div>
-                                    <div class="forge-copy">
-                                        <strong>muyu-claw-team</strong>
-                                        <span>一个 bot 对应一个 agent，dev / ops / design 进入队列和 runtime。</span>
-                                    </div>
-                                    <div class="forge-link-row">
-                                        <a href="./agent-delivery-system.html#team">Blog</a>
-                                        <a href="https://github.com/Libeny/muyu-claw-team" target="_blank" rel="noopener noreferrer">GitHub</a>
-                                    </div>
-                                </div>
-                                <div class="forge-row">
-                                    <div class="forge-label">Infra</div>
-                                    <div class="forge-copy">
-                                        <strong>CUI + NB-Claude</strong>
-                                        <span>一个看任务过程，一个保证模型 fallback、熔断和路由不断。</span>
-                                    </div>
-                                    <div class="forge-link-row">
-                                        <a href="./agent-delivery-system.html#infra-cui">CUI</a>
-                                        <a href="./agent-delivery-system.html#infra-msc">NB</a>
-                                        <a href="https://github.com/Libeny/cui-no-auth" target="_blank" rel="noopener noreferrer">CUI GitHub</a>
-                                        <a href="https://github.com/Libeny/model-steer-claude" target="_blank" rel="noopener noreferrer">NB GitHub</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          <!-- iii. 卜灵 — 独立 App · 面向生活（落在信念上） -->
+          <article class="exp-item warm" tabindex="0" role="button" data-level="3" data-score-tech="55" data-score-design="78" data-score-life="95"
+                   data-title="卜灵" data-role="独立 App · 面向生活"
+                   data-desc="算命 + 情感陪伴 App。接住普通人的迷茫与孤独，给一点确定感和陪伴——让 AI 真的去够到一个人的情绪，而不是只做工具。"
+                   data-thumb-text="卜灵" data-tags="AI 情感,独立 App,解决生活问题">
+            <span class="roman">iii.</span>
+            <h3 class="exp-title">卜灵</h3>
+            <span class="exp-role">独立 App · 面向生活</span>
+            <p class="exp-desc">算命 + 情感陪伴。接住普通人的迷茫和孤独，让 AI 真的够到一个人的情绪，而不是只做工具。</p>
+            <span class="exp-tag">面向生活 · 心</span>
+          </article>
 
-                    <div class="visual-card" data-story-visual="3">
-                        <div class="ship-board">
-                            <div class="ship-phone">
-                                <div class="phone-ui">
-                                    <div class="phone-pill"></div>
-                                    <h3>卜灵 App</h3>
-                                    <div class="oracle-ring"></div>
-                                    <p>从功能想法到上线交付，不展示“我会写代码”，而展示“我能把事做完”。</p>
-                                </div>
-                            </div>
-                            <div class="ship-map">
-                                <div class="mini-grid">
-                                    <span class="mini-marker"></span>
-                                    <span class="mini-marker"></span>
-                                    <span class="mini-marker"></span>
-                                </div>
-                                <div class="ship-caption">进度公开可追踪，正在搞什么都在木鱼进度板。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- SECTION 3: OUTPUTS -->
-    <section class="projects-scroll" id="projects">
-        <div class="project-stage">
-            <div class="project-shell">
-                <div class="project-visual">
-                    <div class="project-art art-buling active" data-project-art="0"></div>
-                </div>
-
-                <div class="project-info">
-                    <div class="project-index" id="projectIndex">04 / OUTPUT · 01</div>
-                    <h2 class="project-title" id="projectTitle">卜灵</h2>
-                    <p class="project-summary" id="projectSummary">卜灵是第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，用 CLAUDE.md 的交付流程把计划、设计、开发、验证和 TestFlight 串起来。</p>
-                    <div class="project-meta">
-                        <div class="meta-box"><span>Status</span><strong id="projectStatus">Product app</strong></div>
-                        <div class="meta-box"><span>Role</span><strong id="projectRole">PM / 架构 / Flutter</strong></div>
-                    </div>
-                    <div class="project-tabs">
-                        <button class="project-tab active" data-project-jump="0">01 卜灵</button>
-                    </div>
-                    <div class="project-links" id="projectLinks">
-                        <a class="project-link primary" id="projectPrimaryLink" href="./agent-delivery-system.html#buling">看卜灵交付笔记</a>
-                        <a class="project-link" id="projectGithubLink" href="./agent-delivery-system.html#workflow">交付流程</a>
-                    </div>
-                </div>
-            </div>
+  <!-- ============================================================
+       §3  正在搞 —— maker / in-progress
+       ============================================================ -->
+  <section class="section section--alt" id="now">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div class="sec-row">
+          <span class="sec-num">03</span>
+          <h2 class="sec-title">正在搞</h2>
+          <span class="sec-en">Now</span>
         </div>
-    </section>
+        <p class="sec-sub">手上有两个还没收尾的小东西，都是玩心。</p>
+      </div>
 
-    <section class="mobile-projects" id="projectsMobile">
-        <h2>作品展示</h2>
-        <div class="mobile-track" aria-label="mobile project carousel">
-            <article class="mobile-card">
-                <div class="mobile-art art-buling"></div>
-                <div class="mobile-card-body">
-                    <h3>卜灵</h3>
-                    <p>第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，按交付协议推进到测试和发布。</p>
-                    <div class="mobile-card-actions">
-                        <a href="./agent-delivery-system.html#buling">交付笔记</a>
-                        <a href="./agent-delivery-system.html#workflow">流程</a>
-                    </div>
-                </div>
-            </article>
+      <div class="now-grid">
+        <div class="now-card reveal">
+          <span class="now-label">in progress ✦</span>
+          <span class="now-emoji">🤖</span>
+          <h3 class="now-title">stack-chan 改造</h3>
+          <p class="now-desc">
+            给那个开源小机器人换个灵魂——自己写表情、改语音、调动作。
+            硬件离生活最近，能摸到。
+          </p>
+          <div class="now-thumb-ph">stack-chan · 待拍照</div>
         </div>
-    </section>
 
-    <!-- SECTION 4: KANBAN ENTRY -->
-    <section id="kanban-entry" class="life-entry reveal">
-        <div class="life-entry-inner">
-            <div>
-                <div class="life-kicker">04 / NOW</div>
-                <h2>正在搞的事情都在这里。</h2>
-                <p>木鱼进度板：想法池、摸索中、暴风开发、已上线——每张卡片背后都是真实的项目进展，公开可追踪。</p>
-                <a class="life-link" href="./kanban/" target="_blank" rel="noopener">查看进度板 →</a>
-            </div>
-            <div class="life-postcards" aria-hidden="true">
-                <figure class="life-postcard one" style="background:#b2f59e20; border:2px solid #1a1a1a;">
-                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
-                        <span style="display:block; margin-bottom:6px;">⚡ 暴风开发</span>
-                        <span style="display:block; opacity:.7;">木鱼进度板</span>
-                    </div>
-                </figure>
-                <figure class="life-postcard two" style="background:#dbeafe20; border:2px solid #1a1a1a;">
-                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
-                        <span style="display:block; margin-bottom:6px;">🔍 摸索中</span>
-                        <span style="display:block; opacity:.7;">AI 交付系统</span>
-                    </div>
-                </figure>
-                <figure class="life-postcard three" style="background:#dcfce720; border:2px solid #1a1a1a;">
-                    <div style="padding:12px; font-size:13px; font-weight:800; line-height:1.5;">
-                        <span style="display:block; margin-bottom:6px;">🚀 已上线</span>
-                        <span style="display:block; opacity:.7;">个人主页 v2</span>
-                    </div>
-                </figure>
-            </div>
+        <div class="now-card reveal reveal-d1">
+          <span class="now-label">learning ✦</span>
+          <span class="now-emoji">🐻</span>
+          <h3 class="now-title">AI 生图 + Blender 做 IP</h3>
+          <p class="now-desc">
+            手捏一个属于自己的 IP 形象。从 prompt 到建模，
+            把脑子里那个“自嘲熊”一点点抠出来。
+          </p>
+          <div class="now-thumb-ph">自嘲熊 · 还在捏 ✦</div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- SECTION 5: LIFE LOG ENTRY -->
-    <section id="life-entry" class="life-entry reveal">
-        <div class="life-entry-inner">
-            <div>
-                <div class="life-kicker">LIFE LOG</div>
-                <h2>屏幕外的观察记录。</h2>
-                <p>旅行和生活轨迹不再挤进主页当地图展示。主页只留一个轻入口，把城市手账、待打卡便签和走过的地方放到独立页面慢慢长。</p>
-                <a class="life-link" href="./life.html">Open Life Log</a>
-            </div>
-            <div class="life-postcards" aria-hidden="true">
-                <figure class="life-postcard one">
-                    <img src="./assets/travel-xishuangbanna-rainforest.svg" alt="">
-                    <figcaption>西双版纳 / rainforest walk</figcaption>
-                </figure>
-                <figure class="life-postcard two">
-                    <img src="./assets/travel-huangshan-pine.svg" alt="">
-                    <figcaption>黄山 / pine and stone</figcaption>
-                </figure>
-                <figure class="life-postcard three">
-                    <img src="./assets/travel-jinan-spring.svg" alt="">
-                    <figcaption>济南 / spring water</figcaption>
-                </figure>
-            </div>
+  <!-- ============================================================
+       §4  屏幕外的我 —— 观察
+       ============================================================ -->
+  <section class="section" id="off-screen">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div class="sec-row">
+          <span class="sec-num">04</span>
+          <h2 class="sec-title">屏幕外的我</h2>
+          <span class="sec-en">Life Log</span>
         </div>
-    </section>
+        <p class="sec-sub">合上电脑之后——在路上，更多在独立页的 Life Log。</p>
+      </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-black text-white py-24 text-center relative overflow-hidden border-t border-zinc-900">
-        <div class="max-w-4xl mx-auto px-6 relative z-10 reveal">
-            <h2 class="text-7xl md:text-9xl font-loud tracking-tighter mb-12 hover:text-saul-yellow transition cursor-default leading-[0.8]">
-                BETTER CALL <br> MUYU
-            </h2>
-            <div class="flex flex-wrap justify-center gap-6 font-code">
-                <a href="https://github.com/Libeny" target="_blank" rel="noopener noreferrer" class="px-10 py-4 bg-white text-black hover:bg-saul-yellow transition uppercase font-bold text-lg">GitHub</a>
-                <a href="./agent-delivery-system.html" class="px-10 py-4 border-2 border-white hover:bg-white hover:text-black transition uppercase font-bold text-lg">Workflow</a>
+      <div class="life-entry-grid">
+        <a href="life.html#been-there" class="life-entry life-entry--wide reveal">
+          <div class="le-postcards">
+            <img src="assets/travel-xishuangbanna-rainforest.svg" alt="">
+            <img src="assets/travel-huangshan-pine.svg" alt="">
+            <img src="assets/travel-jinan-spring.svg" alt="">
+          </div>
+          <div class="le-content">
+            <span class="le-label">旅行 · TRAVEL</span>
+            <div class="le-body">
+              <h3>已经走过的地方</h3>
+              <p>西双版纳、黄山、济南、徐州——雨林、松石、泉水、汉石。一段路，一段记。更多城市在 Life Log。</p>
             </div>
-            <p class="mt-20 text-gray-600 text-xs font-mono">&copy; 2026 Muyu. BAT Engineer.</p>
+            <span class="le-cta">看完整 Life Log →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §5  写作 —— 轻量入口
+       ============================================================ -->
+  <section class="section section--alt" id="writing">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div class="sec-row">
+          <span class="sec-num">05</span>
+          <h2 class="sec-title">写</h2>
+          <span class="sec-en">Writing</span>
         </div>
-    </footer>
+        <p class="sec-sub">技术随笔，不常更——写的时候是认真想清楚了一件事。</p>
+      </div>
 
-    <!-- JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script>
-        function toggleForge(element) {
-            const allItems = document.querySelectorAll('.forge-item');
-            allItems.forEach(item => {
-                if (item !== element) item.classList.remove('active');
-            });
-            element.classList.toggle('active');
+      <a href="writing.html" class="writing-entry reveal">
+        <div>
+          <div class="w-title">技术随笔</div>
+          <div class="w-sub">关于 AI、Coding Agent、基建的那些想清楚的事。</div>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <div class="blog-empty reveal reveal-d1">
+        <span class="blog-empty-label">BLOG · 长文</span>
+        <div class="blog-empty-lines">
+          <div class="blog-line"></div>
+          <div class="blog-line"></div>
+          <div class="blog-line"></div>
+        </div>
+        <span class="blog-empty-note">还没有内容 ✦ 想到了就写</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §6  联系
+       ============================================================ -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="sec-head reveal">
+        <div class="sec-row">
+          <span class="sec-num">06</span>
+          <h2 class="sec-title">联系</h2>
+          <span class="sec-en">Contact</span>
+        </div>
+        <p class="sec-sub" style="color: rgba(251,242,227,0.6);">
+          聊一聊正在做的事，或者任何「如果有个懂代码的人就好」的 idea。
+        </p>
+      </div>
+
+      <div class="kinetic-block reveal">
+        <h2 class="kinetic-text" data-text="BETTER CALL">BETTER CALL</h2>
+        <h2 class="kinetic-text" data-text="MUYU">MUYU</h2>
+      </div>
+
+      <div class="contact-links">
+        <a href="mailto:hello@example.com" class="contact-link reveal"
+           data-platform="EMAIL" data-detail="hello@example.com"
+           data-note="工作时间也会看，慢慢回。" data-copyable="true">
+          <span class="c-platform">Email</span>
+          <span class="c-handle">hello@example.com</span>
+        </a>
+        <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener" class="contact-link reveal"
+           data-platform="小红书 · XIAOHONGSHU" data-detail="@explorer"
+           data-note="日常碎碎念 + IP 进度都在这。">
+          <span class="c-platform">小红书</span>
+          <span class="c-handle">@explorer</span>
+        </a>
+        <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="contact-link reveal"
+           data-platform="GITHUB" data-detail="@Libeny"
+           data-note="代码都在这，欢迎来玩。">
+          <span class="c-platform">GitHub</span>
+          <span class="c-handle">@Libeny</span>
+        </a>
+        <a href="#" class="contact-link reveal"
+           data-platform="微信 · WECHAT" data-detail="muyu_explorer"
+           data-note="备注一下来路，更容易通过。" data-copyable="true">
+          <span class="c-platform">微信</span>
+          <span class="c-handle">muyu_explorer</span>
+        </a>
+      </div>
+
+      <p class="footer-copy footer-copy--end">© 2026 · 探索者 · 用科技解决生活问题</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Contact modal —— 点开联系项弹卡片（handle 不裸露在 DOM）
+       ============================================================ -->
+  <div class="modal-overlay" id="contactModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalPlatform">
+      <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+      <span class="label-caps modal-platform" id="modalPlatform">CONTACT</span>
+      <div class="modal-detail" id="modalDetail"></div>
+      <p class="modal-note" id="modalNote"></p>
+      <div class="modal-actions">
+        <a class="modal-action" id="modalAction" href="#" target="_blank" rel="noopener">前往 →</a>
+        <button class="modal-copy" id="modalCopy">复制</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project modal —— 案例详情 -->
+  <div class="modal-overlay" id="projModal" aria-hidden="true">
+    <div class="modal-card modal-card--proj" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+      <button class="modal-close" id="pmClose" aria-label="关闭">×</button>
+      <div class="pm-thumb" id="pmThumb"></div>
+      <div class="pm-body">
+        <span class="pm-role" id="pmRole">PROJECT</span>
+        <h3 class="pm-title" id="pmTitle"></h3>
+        <p class="pm-desc" id="pmDesc"></p>
+        <div class="pm-tags" id="pmTags"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       JS：scroll reveal（emil：CSS 过渡可中断，优于 keyframe）
+       ============================================================ -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
         }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
-        // ===== SCROLL NARRATIVE =====
-        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        const storyData = [
-            {
-                state: "engineer",
-                accent: "#19c7df",
-                kicker: "01 / ENGINEER",
-                title: "Coding Agent Infra Builder",
-                copy: "负责 Coding Agent Infra 和 AIQA 代码知识建设，把上下文、工具、验证和交付流程沉到系统里，让 AI 不只会回答，也能持续把任务做完。"
-            },
-            {
-                state: "friction",
-                accent: "#d93025",
-                kicker: "02 / FRICTION",
-                title: "问题不是模型不会写代码。",
-                copy: "真正消耗人的是重复交代背景、手动同步状态、review 断层、测试不闭环。一次能跑通不够，下一次还要稳定复用。"
-            },
-            {
-                state: "forge",
-                accent: "#c96442",
-                kicker: "03 / FORGE",
-                title: "把交付流程写成可执行协议。",
-                copy: "Forge 分成三块：Harness 定义交付协议，Agent Team 承接执行角色，Infra 负责可观测和模型续航。每块都能点进博客或 GitHub。"
-            },
-            {
-                state: "shipped",
-                accent: "#b2f59e",
-                kicker: "04 / NOW",
-                title: "正在搞的事情都在这里。",
-                copy: "木鱼进度板是我的公开工作流水：想法池、摸索中、暴风开发、已上线——每张卡片背后都是真实的项目进展。"
-            }
-        ];
-
-        const projectData = [
-            {
-                index: "04 / OUTPUT · 01",
-                title: "卜灵",
-                summary: "卜灵是第一个真实产出：LangGraph + FastAPI 后端，Flutter + Provider 前端，用 CLAUDE.md 的交付流程把计划、设计、开发、验证和 TestFlight 串起来。",
-                status: "Product app",
-                role: "PM / 架构 / Flutter",
-                primaryLabel: "看卜灵交付笔记",
-                primaryHref: "./agent-delivery-system.html#buling",
-                secondaryLabel: "交付流程",
-                secondaryHref: "./agent-delivery-system.html#workflow",
-                secondaryExternal: false
-            },
-        ];
-
-        const storyStage = document.getElementById("storyStage");
-        const storyShell = document.getElementById("story");
-        const storyKicker = document.getElementById("storyKicker");
-        const storyTitle = document.getElementById("storyTitle");
-        const storyCopy = document.getElementById("storyCopy");
-        const storySteps = Array.from(document.querySelectorAll("[data-story-jump]"));
-        const storyVisuals = Array.from(document.querySelectorAll("[data-story-visual]"));
-        const materialLayers = Array.from(document.querySelectorAll("[data-material-layer]"));
-
-        const projectShell = document.getElementById("projects");
-        const projectIndex = document.getElementById("projectIndex");
-        const projectTitle = document.getElementById("projectTitle");
-        const projectSummary = document.getElementById("projectSummary");
-        const projectStatus = document.getElementById("projectStatus");
-        const projectRole = document.getElementById("projectRole");
-        const projectLinks = document.getElementById("projectLinks");
-        const projectPrimaryLink = document.getElementById("projectPrimaryLink");
-        const projectGithubLink = document.getElementById("projectGithubLink");
-        const projectTabs = Array.from(document.querySelectorAll("[data-project-jump]"));
-        const projectArts = Array.from(document.querySelectorAll("[data-project-art]"));
-
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        let activeStory = -1;
-        let activeProject = -1;
-        let targetStoryExact = 0;
-        let currentStoryExact = 0;
-        let targetProjectExact = 0;
-        let currentProjectExact = 0;
-        let rafId = null;
-        let lastScrollY = window.scrollY;
-        let lastScrollDirection = 1;
-        let snapTimer = null;
-        let snapLock = false;
-        let scrollVelocity = 0;
-        let lastScrollTime = performance.now();
-
-        function setStory(index) {
-            if (!storyStage || index === activeStory) return;
-            activeStory = index;
-            const item = storyData[index];
-            storyStage.dataset.state = item.state;
-            storyStage.style.setProperty("--accent", item.accent);
-            storyKicker.textContent = item.kicker;
-            storyTitle.textContent = item.title;
-            storyCopy.textContent = item.copy;
-            storySteps.forEach((step, i) => step.classList.toggle("active", i === index));
-            storyVisuals.forEach((visual, i) => visual.classList.toggle("active", i === index));
-        }
-
-        function setProject(index) {
-            if (!projectShell || index === activeProject) return;
-            activeProject = index;
-            const item = projectData[index];
-            projectIndex.textContent = item.index;
-            projectTitle.textContent = item.title;
-            projectSummary.textContent = item.summary;
-            projectStatus.textContent = item.status;
-            projectRole.textContent = item.role;
-            if (projectLinks) {
-                projectLinks.hidden = !item.primaryHref && !item.secondaryHref;
-            }
-            if (projectPrimaryLink) {
-                projectPrimaryLink.hidden = !item.primaryHref;
-                if (item.primaryHref) {
-                    projectPrimaryLink.textContent = item.primaryLabel;
-                    projectPrimaryLink.href = item.primaryHref;
-                }
-            }
-            if (projectGithubLink) {
-                projectGithubLink.hidden = !item.secondaryHref;
-                if (item.secondaryHref) {
-                    projectGithubLink.textContent = item.secondaryLabel;
-                    projectGithubLink.href = item.secondaryHref;
-                    projectGithubLink.target = item.secondaryExternal ? "_blank" : "_self";
-                    projectGithubLink.rel = item.secondaryExternal ? "noopener noreferrer" : "";
-                }
-            }
-            projectTabs.forEach((tab, i) => tab.classList.toggle("active", i === index));
-            projectArts.forEach((art, i) => art.classList.toggle("active", i === index));
-        }
-
-        function smoothWeight(distance) {
-            const x = clamp(1 - Math.abs(distance), 0, 1);
-            return x * x * (3 - 2 * x);
-        }
-
-        function applyStoryMotion(exact) {
-            const index = clamp(Math.round(exact), 0, storyData.length - 1);
-            setStory(index);
-
-            materialLayers.forEach((layer, i) => {
-                const diff = i - exact;
-                const opacity = smoothWeight(diff);
-                layer.style.opacity = opacity.toFixed(4);
-                layer.style.transform = `scale(${(1 + Math.abs(diff) * 0.018).toFixed(4)})`;
-            });
-
-            storyVisuals.forEach((visual, i) => {
-                const diff = i - exact;
-                const distance = Math.abs(diff);
-                const visible = clamp(1 - distance / 1.18, 0, 1);
-                const opacity = visible * visible * (3 - 2 * visible);
-                const side = diff < 0 ? -1 : 1;
-                const abs = Math.min(distance, 1.6);
-                const x = diff * 180;
-                const y = abs * 18;
-                const z = -abs * 320;
-                const rotateY = side * Math.min(abs * 18, 24);
-                const rotateZ = -diff * 1.8;
-                const scale = 1 - Math.min(abs, 1) * 0.055;
-                const blur = Math.max(0, (abs - 0.18) * 2.8);
-                visual.style.opacity = opacity.toFixed(4);
-                visual.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-                visual.style.setProperty("--depth-blur", `${blur.toFixed(2)}px`);
-                visual.style.zIndex = String(100 - Math.round(abs * 20));
-                visual.style.pointerEvents = distance < 0.28 ? "auto" : "none";
-            });
-
-            storySteps.forEach((step, i) => {
-                const opacity = 0.22 + smoothWeight(i - exact) * 0.78;
-                step.style.opacity = opacity.toFixed(4);
-            });
-        }
-
-        function applyProjectMotion(exact) {
-            const index = clamp(Math.round(exact), 0, projectData.length - 1);
-            setProject(index);
-
-            projectArts.forEach((art, i) => {
-                const diff = i - exact;
-                const distance = Math.abs(diff);
-                const visible = clamp(1 - distance / 1.15, 0, 1);
-                const opacity = visible * visible * (3 - 2 * visible);
-                const side = diff < 0 ? -1 : 1;
-                const abs = Math.min(distance, 1.5);
-                const x = diff * 160;
-                const z = -abs * 260;
-                const rotateY = side * Math.min(abs * 14, 20);
-                const scale = 1 - Math.min(abs, 1) * 0.045;
-                const blur = Math.max(0, (abs - 0.16) * 2.4);
-                art.style.opacity = opacity.toFixed(4);
-                art.style.transform = `translate3d(${x.toFixed(2)}px, 0, ${z.toFixed(2)}px) rotateY(${rotateY.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-                art.style.setProperty("--depth-blur", `${blur.toFixed(2)}px`);
-                art.style.zIndex = String(100 - Math.round(abs * 20));
-            });
-
-            projectTabs.forEach((tab, i) => {
-                tab.style.opacity = (0.46 + smoothWeight(i - exact) * 0.54).toFixed(4);
-            });
-        }
-
-        function measureTargets() {
-            if (storyShell) {
-                const storyRect = storyShell.getBoundingClientRect();
-                const storyScrollable = storyShell.offsetHeight - window.innerHeight;
-                if (storyScrollable > 0) {
-                    const storyProgress = clamp(-storyRect.top / storyScrollable, 0, 0.999);
-                    targetStoryExact = storyProgress * (storyData.length - 1);
-                }
-            }
-
-            if (projectShell) {
-                const projectRect = projectShell.getBoundingClientRect();
-                const projectScrollable = projectShell.offsetHeight - window.innerHeight;
-                if (projectScrollable > 0) {
-                    const projectProgress = clamp(-projectRect.top / projectScrollable, 0, 0.999);
-                    targetProjectExact = projectProgress * (projectData.length - 1);
-                }
-            }
-        }
-
-        function animateMotion() {
-            const ease = reduceMotion ? 1 : 0.13;
-            currentStoryExact += (targetStoryExact - currentStoryExact) * ease;
-            currentProjectExact += (targetProjectExact - currentProjectExact) * ease;
-
-            if (Math.abs(targetStoryExact - currentStoryExact) < 0.001) currentStoryExact = targetStoryExact;
-            if (Math.abs(targetProjectExact - currentProjectExact) < 0.001) currentProjectExact = targetProjectExact;
-
-            applyStoryMotion(currentStoryExact);
-            applyProjectMotion(currentProjectExact);
-
-            if (Math.abs(targetStoryExact - currentStoryExact) > 0.001 || Math.abs(targetProjectExact - currentProjectExact) > 0.001) {
-                rafId = requestAnimationFrame(animateMotion);
-            } else {
-                rafId = null;
-            }
-        }
-
-        function requestScrollUpdate() {
-            measureTargets();
-            if (!rafId) rafId = requestAnimationFrame(animateMotion);
-        }
-
-        function sectionSnapTarget(shell, count, exact) {
-            if (!shell || count < 2) return null;
-            const scrollable = shell.offsetHeight - window.innerHeight;
-            if (scrollable <= 0) return null;
-
-            const top = shell.offsetTop;
-            const y = window.scrollY;
-            const bottom = top + scrollable;
-            if (y < top - 4 || y > bottom + 4) return null;
-
-            const nearest = Math.round(exact);
-            if (Math.abs(exact - nearest) < 0.035) return null;
-
-            const biased = lastScrollDirection >= 0
-                ? Math.ceil(exact - 0.035)
-                : Math.floor(exact + 0.035);
-            const index = clamp(biased, 0, count - 1);
-            return top + (index / (count - 1)) * scrollable;
-        }
-
-        function snapToPage() {
-            if (snapLock || reduceMotion || window.innerWidth <= 820) return;
-            if (scrollVelocity > 0.8) return;
-            const storyTarget = sectionSnapTarget(storyShell, storyData.length, targetStoryExact);
-            const projectTarget = sectionSnapTarget(projectShell, projectData.length, targetProjectExact);
-            const target = storyTarget ?? projectTarget;
-            if (target == null) return;
-
-            snapLock = true;
-            window.scrollTo({ top: target, behavior: "smooth" });
-            window.setTimeout(() => {
-                snapLock = false;
-                requestScrollUpdate();
-            }, 760);
-        }
-
-        function scheduleSnap() {
-            if (snapLock) return;
-            window.clearTimeout(snapTimer);
-            snapTimer = window.setTimeout(snapToPage, 350);
-        }
-
-        function handleNarrativeScroll() {
-            const y = window.scrollY;
-            const now = performance.now();
-            const delta = y - lastScrollY;
-            const dt = Math.max(now - lastScrollTime, 1);
-            scrollVelocity = Math.abs(delta) / dt;
-            if (Math.abs(delta) > 1) lastScrollDirection = delta > 0 ? 1 : -1;
-            lastScrollY = y;
-            lastScrollTime = now;
-            requestScrollUpdate();
-            scheduleSnap();
-        }
-
-        storySteps.forEach((step) => {
-            step.addEventListener("click", () => {
-                const index = Number(step.dataset.storyJump);
-                const storyScrollable = storyShell.offsetHeight - window.innerHeight;
-                const target = storyShell.offsetTop + (index / (storyData.length - 1)) * storyScrollable;
-                window.scrollTo({ top: target, behavior: "smooth" });
-            });
+    // === BETTER CALL MUYU · Kinetic Text（esther #48） ===
+    // 鼠标悬停：字符字重 400→900 + 变薄荷色，相邻字符被"牵引"到 600
+    document.querySelectorAll('.kinetic-text').forEach(el => {
+      const text = el.dataset.text || el.textContent;
+      el.textContent = '';
+      text.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? ' ' : char;
+        el.appendChild(span);
+      });
+      const spans = el.querySelectorAll('span');
+      spans.forEach((span, i) => {
+        span.addEventListener('mouseenter', () => {
+          if (i > 0) spans[i - 1].style.fontWeight = '600';
+          if (i < spans.length - 1) spans[i + 1].style.fontWeight = '600';
         });
-
-        projectTabs.forEach((tab) => {
-            tab.addEventListener("click", () => {
-                const index = Number(tab.dataset.projectJump);
-                const projectScrollable = projectShell.offsetHeight - window.innerHeight;
-                const target = projectShell.offsetTop + (index / (projectData.length - 1)) * projectScrollable;
-                window.scrollTo({ top: target, behavior: "smooth" });
-            });
+        span.addEventListener('mouseleave', () => {
+          if (i > 0) spans[i - 1].style.fontWeight = '';
+          if (i < spans.length - 1) spans[i + 1].style.fontWeight = '';
         });
+      });
+    });
 
-        window.addEventListener("scroll", handleNarrativeScroll, { passive: true });
-        window.addEventListener("resize", requestScrollUpdate);
-        requestScrollUpdate();
+    // === Contact modal ===
+    (function() {
+      const modal = document.getElementById('contactModal');
+      if (!modal) return;
+      const mPlatform = document.getElementById('modalPlatform');
+      const mDetail = document.getElementById('modalDetail');
+      const mNote = document.getElementById('modalNote');
+      const mAction = document.getElementById('modalAction');
+      const mCopy = document.getElementById('modalCopy');
+      const mClose = document.getElementById('modalClose');
+      let currentCopy = '';
+      let lastFocus = null;
 
-        // Scroll Reveal Observer
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px"
-        };
+      function open(opts) {
+        lastFocus = document.activeElement;
+        mPlatform.textContent = opts.platform;
+        mDetail.textContent = opts.detail;
+        mNote.textContent = opts.note || '';
+        mNote.style.display = opts.note ? '' : 'none';
+        if (opts.link && opts.link !== '#') {
+          mAction.href = opts.link;
+          mAction.style.display = '';
+        } else {
+          mAction.style.display = 'none';
+        }
+        mCopy.style.display = opts.copyable ? '' : 'none';
+        mCopy.textContent = '复制';
+        mCopy.classList.remove('copied');
+        currentCopy = opts.copyable ? opts.detail : '';
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        setTimeout(() => mClose.focus(), 60);
+      }
+      function close() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        if (lastFocus) lastFocus.focus();
+      }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+      document.querySelectorAll('.contact-link').forEach(a => {
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          open({
+            platform: a.dataset.platform,
+            detail: a.dataset.detail,
+            note: a.dataset.note,
+            link: a.getAttribute('href'),
+            copyable: a.dataset.copyable === 'true'
+          });
+        });
+      });
+      mClose.addEventListener('click', close);
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) close();
+      });
+      mCopy.addEventListener('click', () => {
+        if (!currentCopy) return;
+        navigator.clipboard?.writeText(currentCopy).then(() => {
+          mCopy.textContent = '已复制 ✦';
+          mCopy.classList.add('copied');
+          setTimeout(() => { mCopy.textContent = '复制'; mCopy.classList.remove('copied'); }, 1600);
+        }).catch(() => {});
+      });
+    })();
 
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    </script>
+    // === Project modal ===
+    (function() {
+      const modal = document.getElementById('projModal');
+      if (!modal) return;
+      const pmThumb = document.getElementById('pmThumb');
+      const pmRole = document.getElementById('pmRole');
+      const pmTitle = document.getElementById('pmTitle');
+      const pmDesc = document.getElementById('pmDesc');
+      const pmTags = document.getElementById('pmTags');
+      const pmClose = document.getElementById('pmClose');
+      let lastFocus = null;
+      const thumbBgs = {
+        warm: 'linear-gradient(135deg, #F4CFD6, #FCE8EC)',
+        bridge: 'linear-gradient(135deg, #BDE7E5, #E8F6F5)',
+        deep: 'linear-gradient(135deg, #5A4037, #694B40)'
+      };
+      const thumbColors = { warm: '#694B40', bridge: '#2C5A58', deep: '#FBF2E3' };
+
+      function open(card) {
+        lastFocus = document.activeElement;
+        const variant = card.classList.contains('warm') ? 'warm'
+                      : card.classList.contains('bridge') ? 'bridge' : 'deep';
+        pmThumb.style.background = thumbBgs[variant];
+        pmThumb.style.color = thumbColors[variant];
+        pmThumb.textContent = card.dataset.thumbText || card.dataset.title;
+        pmRole.textContent = (card.dataset.role || '').toUpperCase();
+        pmTitle.textContent = card.dataset.title;
+        pmDesc.textContent = card.dataset.desc;
+        pmTags.innerHTML = '';
+        (card.dataset.tags || '').split(',').forEach(t => {
+          if (!t.trim()) return;
+          const span = document.createElement('span');
+          span.className = 'pm-tag';
+          span.textContent = t.trim();
+          pmTags.appendChild(span);
+        });
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        setTimeout(() => pmClose.focus(), 60);
+      }
+      function close() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        if (lastFocus) lastFocus.focus();
+      }
+
+      document.querySelectorAll('.exp-item').forEach(card => {
+        card.addEventListener('click', () => open(card));
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); }
+        });
+      });
+      pmClose.addEventListener('click', close);
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) close();
+      });
+    })();
+
+    // === §2 探索 interactions: 交错揭示 + 项目画像标尺 + hover ===
+    (function() {
+      const items = document.querySelectorAll('.exp-item');
+      const meter = document.getElementById('gradientMeter');
+      const caption = document.getElementById('meterCaption');
+      if (!items.length || !meter) return;
+      const rows = {
+        tech: meter.querySelector('[data-dim="tech"]'),
+        design: meter.querySelector('[data-dim="design"]'),
+        life: meter.querySelector('[data-dim="life"]')
+      };
+
+      // 1) 交错揭示——进视口时给 .in-view，子元素按 delay 依次落位
+      const revealObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in-view');
+            revealObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.18 });
+      items.forEach(it => revealObs.observe(it));
+
+      // 2) 项目画像——把当前条目的三围渲染到标尺
+      let scrollActive = null, hoverActive = null;
+      function render() {
+        const it = hoverActive || scrollActive;
+        if (!it) {
+          rows.tech.style.setProperty('--fill', '0%');
+          rows.design.style.setProperty('--fill', '0%');
+          rows.life.style.setProperty('--fill', '0%');
+          meter.classList.remove('has-profile');
+          if (caption) caption.textContent = '项目画像 · PROJECT PROFILE';
+          return;
+        }
+        rows.tech.style.setProperty('--fill', (it.dataset.scoreTech || 0) + '%');
+        rows.design.style.setProperty('--fill', (it.dataset.scoreDesign || 0) + '%');
+        rows.life.style.setProperty('--fill', (it.dataset.scoreLife || 0) + '%');
+        meter.classList.add('has-profile');
+        if (caption) caption.textContent = (it.dataset.title || '') + ' · 画像';
+      }
+
+      const centerObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) scrollActive = e.target;
+          else if (scrollActive === e.target) scrollActive = null;
+          render();
+        });
+      }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+      items.forEach(it => centerObs.observe(it));
+
+      // 3) hover——悬停预览该条目的画像
+      items.forEach(it => {
+        it.addEventListener('mouseenter', () => { hoverActive = it; render(); });
+        it.addEventListener('mouseleave', () => { hoverActive = null; render(); });
+      });
+    })();
+  </script>
 </body>
 </html>
