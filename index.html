@@ -460,7 +460,8 @@
       margin-bottom: 2rem;
       position: relative;
     }
-    .hero-mascot img {
+    .hero-mascot img,
+    .hero-mascot video {
       height: clamp(150px, 20vw, 220px);
       width: auto;
       display: block;
@@ -469,8 +470,10 @@
       transform: rotate(-2.5deg);
       filter: drop-shadow(0 12px 24px rgba(105,75,64,0.22));
       transition: transform var(--dur-slow) var(--ease-out);
+      object-fit: cover;
     }
-    .hero-mascot:hover img { transform: rotate(-1deg) translateY(-4px); }
+    .hero-mascot:hover img,
+    .hero-mascot:hover video { transform: rotate(-1deg) translateY(-4px); }
     .hero-mascot .mascot-tape {
       position: absolute;
       top: -12px; right: -6px;
@@ -960,13 +963,17 @@
        ============================================================ -->
   <section class="hero">
     <div class="hero-mascot reveal">
-      <img src="assets/zichao-bear.webp" alt="自嘲熊 · 我的 IP 形象">
-      <span class="mascot-tape">我的 IP ✦ 自嘲熊</span>
+      <video autoplay loop muted playsinline poster="assets/intro-avatar.gif" aria-label="我的形象动画">
+        <source src="assets/intro-avatar.webm" type="video/webm">
+        <source src="assets/intro-avatar.mp4" type="video/mp4">
+        <img src="assets/intro-avatar.gif" alt="我的形象">
+      </video>
+      <span class="mascot-tape">Hi, 是我 ✦</span>
     </div>
 
     <span class="hero-label reveal">
       <span class="dot"></span>
-      <span class="label-caps">EXPLORER ✦ 探索者</span>
+      <span class="label-caps">木鱼</span>
     </span>
 
     <h1 class="reveal reveal-d1">
@@ -975,11 +982,6 @@
       的探索者
     </h1>
 
-    <p class="hero-sub reveal reveal-d2">
-      相信科技平权——做点真正让人幸福的东西。
-    </p>
-
-    <span class="marginalia reveal reveal-d3">信念，下一屏</span>
     <span class="scroll-hint">SCROLL ↓</span>
   </section>
 
