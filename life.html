@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="./assets/travel-xishuangbanna-rainforest.svg">
+  <link rel="preload" as="image" href="./assets/travel-huangshan-pine.svg">
+  <link rel="preload" as="image" href="./assets/travel-jinan-spring.svg">
   <style>
     :root {
       --paper: #f3efe4;
@@ -869,7 +872,7 @@
         <p class="hero-copy">做系统的人，也需要定期离开系统。这里不做旅行打卡，只留下一些城市、路线、照片和还没出发的便签。</p>
         <div class="hero-actions">
           <a class="action primary" href="#been-there">看去过的地方</a>
-          <a class="action" href="#next-stops">看待打卡行程</a>
+          <a class="action" href="#next-stops">看想去的行程</a>
         </div>
       </div>
 
@@ -895,17 +898,17 @@
         </div>
 
         <figure class="postcard pc-1">
-          <img src="./assets/travel-xishuangbanna-rainforest.svg" alt="西双版纳雨林明信片">
+          <img src="./assets/travel-xishuangbanna-rainforest.svg" alt="西双版纳雨林明信片" loading="lazy">
           <strong>西双版纳</strong>
           <span>雨林把日程表泡软。</span>
         </figure>
         <figure class="postcard pc-2">
-          <img src="./assets/travel-huangshan-pine.svg" alt="黄山松石明信片">
+          <img src="./assets/travel-huangshan-pine.svg" alt="黄山松石明信片" loading="lazy">
           <strong>黄山</strong>
           <span>松、石、云，像一页旧速写。</span>
         </figure>
         <figure class="postcard pc-3">
-          <img src="./assets/travel-jinan-spring.svg" alt="济南泉水明信片">
+          <img src="./assets/travel-jinan-spring.svg" alt="济南泉水明信片" loading="lazy">
           <strong>济南</strong>
           <span>泉水在城里留白。</span>
         </figure>
@@ -919,7 +922,7 @@
             <div class="section-kicker">01 / BEEN THERE</div>
             <h2>已经走过的地方</h2>
           </div>
-          <p class="section-note">每个地方留一页短手账：照片、路线和当时最先浮上来的观察。</p>
+          <p class="section-note">每个地方留一页短手账：照片、路线和当时最先浮上来的观察。滚动加载更多。</p>
         </div>
         <div class="journal-board">
           <div class="journal-index">
@@ -1012,7 +1015,7 @@
     <footer class="closing">
       <h2>回到屏幕前</h2>
       <p>这些记录单独放在 Life Log 里。工作回到工作，路上的片段留给路上。</p>
-      <a class="action primary" href="./index.html">Back to Muyu.dev</a>
+      <a class="action primary" href="./index.html">Back to homepage</a>
     </footer>
   </div>
 
@@ -1424,7 +1427,7 @@
 
     function renderJournalTabs() {
       journalCount.textContent = `${journalEntryList.length} places`;
-      const buttons = journalEntryList.map((entry) => {
+      const buttons = journalEntryList.slice(0, 8).map((entry) => {
         const tab = document.createElement("button");
         const small = document.createElement("small");
         const name = document.createElement("span");
@@ -1443,6 +1446,29 @@
       });
 
       tabsContainer.replaceChildren(...buttons);
+      tabs = Array.from(tabsContainer.querySelectorAll("[data-journal-target]"));
+    }
+
+    function renderMoreJournalTabs() {
+      const moreButtons = journalEntryList.slice(8).map((entry) => {
+        const tab = document.createElement("button");
+        const small = document.createElement("small");
+        const name = document.createElement("span");
+        const summary = document.createElement("em");
+
+        tab.className = "journal-tab";
+        tab.type = "button";
+        tab.dataset.journalTarget = entry.key;
+        tab.setAttribute("aria-pressed", "false");
+        small.textContent = `${entry.index} / ${entry.region}`;
+        name.textContent = entry.title;
+        summary.textContent = entry.summary;
+        tab.append(small, name, summary);
+        tab.addEventListener("click", () => renderJournal(entry.key, false, false));
+        return tab;
+      });
+
+      tabsContainer.append(...moreButtons);
       tabs = Array.from(tabsContainer.querySelectorAll("[data-journal-target]"));
     }
 
@@ -1499,6 +1525,20 @@
     renderJournalTabs();
     const initialPlace = new URLSearchParams(window.location.search).get("place");
     renderJournal(journalEntries[initialPlace] ? initialPlace : journalEntryList[0].key, true, Boolean(initialPlace));
+
+    // 滚动到 journal-board 附近时加载更多 tab
+    const journalBoard = document.querySelector(".journal-board");
+    let moreLoaded = false;
+    const loadMoreObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !moreLoaded) {
+          renderMoreJournalTabs();
+          moreLoaded = true;
+          loadMoreObs.unobserve(journalBoard);
+        }
+      });
+    }, { rootMargin: "200px" });
+    loadMoreObs.observe(journalBoard);
   </script>
 </body>
 </html>

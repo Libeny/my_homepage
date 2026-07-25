@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>过程性记录 · 技术文档</title>
+  <meta name="description" content="项目的过程、踩坑、没获奖但值得记录的瞬间——数字员工：小刚Claw、crewless。">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Caveat:wght@400;700&family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 28% 18%, var(--yellow-soft) 0%, transparent 55%),
+        radial-gradient(ellipse at 78% 82%, rgba(189,231,229,0.32) 0%, transparent 55%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: clamp(3rem, 8vw, 6rem) 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem; letter-spacing: 0.18em;
+      color: var(--ink-faint); margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
+      padding: 0 6px;
+    }
+    .lede { color: var(--ink-light); margin-bottom: 3rem; }
+
+    .doc {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(105,75,64,0.05);
+      padding: clamp(28px, 4vw, 40px);
+      margin-bottom: 22px;
+    }
+    .doc-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 6px;
+    }
+    .doc-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+    }
+    .doc-badge {
+      flex-shrink: 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem; letter-spacing: 0.1em;
+      padding: 4px 12px; border-radius: 100px;
+      background: var(--blue-soft); color: #2C5A58;
+    }
+    .doc-badge.locked { background: var(--yellow-soft); color: #C56B7B; }
+    .doc-sub { font-size: 0.85rem; color: var(--ink-faint); margin-bottom: 18px; }
+    .doc-body { font-size: 0.95rem; color: var(--ink-light); line-height: 1.85; }
+    .doc-body p + p { margin-top: 0.8em; }
+    .doc-body .todo {
+      display: block;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border: 1.5px dashed rgba(105,75,64,0.18);
+      border-radius: 12px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.1rem;
+      color: var(--ink-faint);
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 2rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+    }
+    .back:hover { color: var(--blue-deep); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="label">WRITING · 技术文档 / 过程性记录</span>
+    <h1>过程比结果<em>值得记</em>。</h1>
+    <p class="lede">项目怎么来的、踩了什么坑、最后跑到了哪——结果未必都漂亮，过程全部算数。</p>
+
+    <!-- 数字员工：小刚Claw -->
+    <article class="doc" id="claw">
+      <div class="doc-head">
+        <h2 class="doc-title">数字员工：小刚Claw · 架构笔记</h2>
+        <span class="doc-badge locked">细节待解密</span>
+      </div>
+      <p class="doc-sub">公司项目 · AI-Coding / AI-QA</p>
+      <div class="doc-body">
+        <p>讲了能讲的：整体架构长什么样、两条线（Coding / QA）怎么分工、落地之后的效果如何。</p>
+        <p>不能讲的都收在「待解密」里——公司项目，分寸要先守住。</p>
+        <span class="todo">正文撰写中 ✦ 架构图 + 效果数据，陆续补上</span>
+      </div>
+    </article>
+
+    <!-- crewless -->
+    <article class="doc" id="crewless">
+      <div class="doc-head">
+        <h2 class="doc-title">crewless · Hackathon 完整复盘</h2>
+        <span class="doc-badge">撰写中</span>
+      </div>
+      <p class="doc-sub">Hackathon 项目 · idea → 全自动 web 产品</p>
+      <div class="doc-body">
+        <p>从一个 idea，到全自动跑起来的 web 产品——灵光一现、方案怎么定、管线怎么串、现场 demo 跑通的那一刻。</p>
+        <p>最后没获奖（难受）。但过程值得完整记下来，这篇就是全量复盘。</p>
+        <span class="todo">正文撰写中 ✦ 从 idea 到 demo 的每一步都会写进来</span>
+      </div>
+    </article>
+
+    <a href="index.html#writing" class="back">← 回主页</a>
+  </div>
+</body>
+</html>

@@ -234,7 +234,7 @@
     }
 
     /* =========================================================
-       §2  探索 —— 编辑式排版 + 滚动联动渐变标尺（CSS + IO）
+       §2  探索 —— 左侧 IP 视频 sticky + 右侧可展开项目卡
        ========================================================= */
     .explore {
       display: grid;
@@ -244,43 +244,33 @@
     }
     .explore .exp-side { position: sticky; top: 64px; }
 
-    .gradient-meter {
-      margin-top: 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    /* 左侧 IP 视频位 */
+    .exp-side .ip-frame {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 9 / 16;
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--cream-dark);
+      border: 5px solid #fff;
+      box-shadow: 0 12px 28px rgba(105,75,64,0.16);
+      transform: rotate(-1.5deg);
     }
-    .gradient-meter .meter-caption {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.66rem;
-      letter-spacing: 0.14em;
+    .exp-side .ip-frame video,
+    .exp-side .ip-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .exp-side .ip-caption {
+      margin-top: 14px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.05rem;
       color: var(--ink-faint);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      transition: color 0.4s var(--ease-out);
+      text-align: center;
+      transform: rotate(-1deg);
     }
-    .gradient-meter.has-profile .meter-caption { color: var(--blue-deep); }
-    .gradient-meter .meter-row {
-      display: flex; align-items: center; gap: 14px;
-      font-family: 'Noto Sans SC', sans-serif;
-      font-size: 0.86rem;
-      color: var(--ink-faint);
-      transition: color 0.4s var(--ease-out);
-    }
-    .gradient-meter.has-profile .meter-row { color: var(--ink); }
-    .gradient-meter .meter-bar {
-      width: 64px; height: 8px; border-radius: 100px;
-      background: rgba(105,75,64,0.12);
-      position: relative; overflow: hidden; flex-shrink: 0;
-    }
-    .gradient-meter .meter-bar::after {
-      content: ''; position: absolute; inset: 0;
-      width: var(--fill, 0); border-radius: 100px;
-      transition: width 0.7s var(--ease-out);
-    }
-    .gradient-meter .meter-row[data-dim="tech"] .meter-bar::after { background: var(--red); }
-    .gradient-meter .meter-row[data-dim="design"] .meter-bar::after { background: var(--blue); }
-    .gradient-meter .meter-row[data-dim="life"] .meter-bar::after { background: var(--yellow); }
 
     .exp-items { display: flex; flex-direction: column; gap: 22px; }
 
@@ -289,11 +279,120 @@
       border-radius: 18px;
       padding: clamp(28px, 3.4vw, 40px);
       cursor: pointer;
+      display: grid;
+      grid-template-rows: auto 0fr;
       transition: transform var(--dur-med) var(--ease-out),
-                  box-shadow var(--dur-med) var(--ease-out);
+                  box-shadow var(--dur-med) var(--ease-out),
+                  padding var(--dur-med) var(--ease-out),
+                  grid-template-rows 0.5s var(--ease-out);
     }
     .exp-item:hover { transform: translateY(-3px); }
     .exp-item:focus-visible { outline: 3px solid var(--blue-deep); outline-offset: 3px; }
+    .exp-item:active { transform: scale(0.98); }
+
+    /* 展开态：滚到视口中央时自动展开 */
+    .exp-item.expanded {
+      grid-template-rows: auto 1fr;
+      padding-bottom: clamp(36px, 4vw, 52px);
+      box-shadow: 0 8px 28px rgba(105,75,64,0.12);
+    }
+    .exp-item .exp-detail {
+      overflow: hidden;
+      min-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      border-top: 1.5px dashed rgba(105,75,64,0.16);
+      transition: opacity 0.3s var(--ease-out),
+                  margin-top 0.4s var(--ease-out);
+    }
+    .exp-item.expanded .exp-detail {
+      opacity: 1;
+      margin-top: 20px;
+    }
+
+    .exp-detail .exp-banner {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      background:
+        repeating-linear-gradient(45deg, rgba(189,231,229,0.25) 0 10px, rgba(189,231,229,0.08) 10px 20px);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Caveat', cursive;
+      font-size: 1.1rem;
+      color: var(--ink-faint);
+      border: 1px dashed rgba(105,75,64,0.18);
+      margin-top: 20px;
+      margin-bottom: 16px;
+    }
+    .exp-detail .exp-full {
+      font-size: 0.95rem;
+      color: var(--ink-light);
+      line-height: 1.85;
+      margin-bottom: 14px;
+    }
+    .exp-detail .exp-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .exp-detail .exp-meta span {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      background: rgba(105,75,64,0.08);
+      color: var(--ink);
+      transition: transform 0.2s var(--ease-out), background 0.2s var(--ease-out);
+    }
+    .exp-detail .exp-meta span:hover {
+      transform: translateY(-1px);
+      background: rgba(105,75,64,0.14);
+    }
+
+    /* 背景 / 关键支撑 / 效果 三段式 */
+    .exp-detail .exp-points {
+      list-style: none;
+      margin: 0 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .exp-detail .exp-points li {
+      font-size: 0.92rem;
+      color: var(--ink-light);
+      line-height: 1.75;
+      padding-left: 14px;
+      border-left: 2.5px solid rgba(157,213,211,0.65);
+    }
+    .exp-detail .exp-points li b {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--ink);
+      margin-right: 8px;
+    }
+    .exp-detail .exp-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      padding: 9px 18px;
+      border-radius: 100px;
+      background: var(--blue-soft);
+      color: #2C5A58;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.25s var(--ease-out), background 0.25s var(--ease-out);
+    }
+    .exp-detail .exp-cta:hover {
+      transform: translateY(-2px);
+      background: var(--blue);
+    }
+    .exp-detail .exp-cta.is-pending {
+      background: rgba(105,75,64,0.07);
+      color: var(--ink-faint);
+      pointer-events: none;
+    }
 
     /* 交错揭示（transitions.dev #18 风） */
     .exp-item .roman,
@@ -310,6 +409,21 @@
     .exp-item.in-view .exp-role  { opacity: 1; transform: none; transition-delay: 180ms; }
     .exp-item.in-view .exp-desc  { opacity: 1; transform: none; transition-delay: 270ms; }
     .exp-item.in-view .exp-tag   { opacity: 1; transform: none; transition-delay: 360ms; }
+
+    /* 展开时，内部元素轻微下移，营造「展开感」 */
+    .exp-item .exp-detail > * {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s var(--ease-out) 0.1s, transform 0.4s var(--ease-out) 0.1s;
+    }
+    .exp-item.expanded .exp-detail > *:nth-child(1) { transition-delay: 0.15s; }
+    .exp-item.expanded .exp-detail > *:nth-child(2) { transition-delay: 0.25s; }
+    .exp-item.expanded .exp-detail > *:nth-child(3) { transition-delay: 0.35s; }
+    .exp-item.expanded .exp-detail > *:nth-child(4) { transition-delay: 0.45s; }
+    .exp-item.expanded .exp-detail > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .exp-item .roman {
       font-family: 'Fraunces', serif;
@@ -348,6 +462,10 @@
       border-radius: 100px;
       font-size: 0.7rem;
       font-weight: 500;
+      transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+    }
+    .exp-item.expanded .exp-tag {
+      opacity: 0.6;
     }
 
     /* i. 卜灵 — 暖粉 · 心 */
@@ -380,8 +498,8 @@
 
     @media (max-width: 900px) {
       .explore { grid-template-columns: 1fr; }
-      .explore .exp-side { position: static; }
-      .gradient-meter { flex-direction: row; flex-wrap: wrap; gap: 14px 22px; }
+      .explore .exp-side { position: static; margin-bottom: 12px; }
+      .exp-side .ip-frame { max-width: 240px; margin: 0 auto; }
     }
     @media (prefers-reduced-motion: reduce) {
       .exp-item .roman, .exp-item .exp-title, .exp-item .exp-role,
@@ -554,6 +672,25 @@
     .life-entry .le-postcards img:nth-child(1) { transform: rotate(-3deg); }
     .life-entry .le-postcards img:nth-child(2) { transform: rotate(2deg) translateY(8px); }
     .life-entry .le-postcards img:nth-child(3) { transform: rotate(-1deg) translateY(-6px); }
+
+    .life-entry .le-media {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--cream-dark);
+      border: 4px solid #fff;
+      box-shadow: 0 4px 16px rgba(105,75,64,0.1);
+      transform: rotate(-1.5deg);
+      transition: transform var(--dur-med) var(--ease-out);
+    }
+    .life-entry:hover .le-media { transform: rotate(-0.5deg) translateY(-3px); }
+    .life-entry .le-media video,
+    .life-entry .le-media img {
+      width: 100%; height: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
     .life-entry .le-body h3 {
       font-family: 'Noto Serif SC', serif;
       font-size: 1.3rem;
@@ -604,6 +741,11 @@
     /* =========================================================
        §5  写作 —— 轻量入口
        ========================================================= */
+    .writing-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
     .writing-entry {
       display: flex;
       align-items: center;
@@ -1018,50 +1160,97 @@
             <p class="sec-sub">致力于用科技解决的问题，与正在做的项目——点开看每一个的故事。</p>
           </div>
 
-          <div class="gradient-meter reveal" id="gradientMeter">
-            <span class="meter-caption" id="meterCaption">项目画像 · PROJECT PROFILE</span>
-            <div class="meter-row" data-dim="tech"><span class="meter-bar"></span>技术深度</div>
-            <div class="meter-row" data-dim="design"><span class="meter-bar"></span>设计感</div>
-            <div class="meter-row" data-dim="life"><span class="meter-bar"></span>生活温度</div>
+          <div class="ip-frame reveal">
+            <video autoplay loop muted playsinline poster="assets/intro-avatar.gif" aria-label="木鱼探索中">
+              <source src="assets/intro-avatar.webm" type="video/webm">
+              <source src="assets/intro-avatar.mp4" type="video/mp4">
+              <img src="assets/intro-avatar.gif" alt="木鱼探索中">
+            </video>
           </div>
+          <p class="ip-caption">滚一滚，看我在探索什么 ↓</p>
         </div>
 
         <div class="exp-items">
 
-          <!-- i. 数字员工 — 公司 · 技术深度（先立手艺） -->
-          <article class="exp-item deep" tabindex="0" role="button" data-level="1" data-score-tech="96" data-score-design="40" data-score-life="32"
-                   data-title="数字员工" data-role="公司 · 技术深度"
-                   data-desc="AI-Coding + AI-QA，分别帮研发和测试提效。设计了真正的「数字员工」——这是探索者磨手艺的地方，也只有去过深处，才知道怎么把好处送到浅处。"
-                   data-thumb-text="数字员工" data-tags="AI-Coding,AI-QA,效能,技术深度">
+          <!-- i. 数字员工：小刚Claw — 公司 -->
+          <article class="exp-item deep" tabindex="0" role="button" data-level="1"
+                   data-title="数字员工：小刚Claw" data-role="公司"
+                   data-desc="AI-Coding / AI-QA，分别帮研发和测试提效。设计了真正的「数字员工」——这是探索者磨手艺的地方，也只有去过深处，才知道怎么把好处送到浅处。"
+                   data-tags="AI-Coding,AI-QA,效能">
             <span class="roman">i.</span>
-            <h3 class="exp-title">数字员工</h3>
-            <span class="exp-role">公司 · 技术深度</span>
-            <p class="exp-desc">AI-Coding + AI-QA，帮研发和测试提效。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
-            <span class="exp-tag">技术深度 · 深</span>
+            <h3 class="exp-title">数字员工：小刚Claw</h3>
+            <span class="exp-role">公司</span>
+            <p class="exp-desc">AI-Coding / AI-QA，帮研发和测试提效。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
+            <span class="exp-tag">AI-Coding / AI-QA</span>
+
+            <div class="exp-detail">
+              <div class="exp-banner">数字员工：小刚Claw · banner / poster 位</div>
+              <ul class="exp-points">
+                <li><b>背景</b>研发和测试的流程里有大量重复劳动——AI 怎么真正进流程，而不只是停在聊天框里？</li>
+                <li><b>关键支撑</b>AI-Coding / AI-QA 双线并进，设计真正的「数字员工」：有职责、有流程、能交付。</li>
+                <li><b>效果</b>在公司内帮研发和测试提效。公司项目，细节不展开——讲了架构和效果，其余待解密。</li>
+              </ul>
+              <a class="exp-cta" href="writing-tech-process.html#claw">读架构笔记 →（细节待解密）</a>
+              <div class="exp-meta">
+                <span>AI-Coding</span>
+                <span>AI-QA</span>
+                <span>效能</span>
+              </div>
+            </div>
           </article>
 
-          <!-- ii. crewless — Hackathon · 降低门槛 -->
-          <article class="exp-item bridge" tabindex="0" role="button" data-level="2" data-score-tech="88" data-score-design="72" data-score-life="60"
-                   data-title="crewless" data-role="Hackathon · 降低门槛"
+          <!-- ii. crewless — Hackathon -->
+          <article class="exp-item bridge" tabindex="0" role="button" data-level="2"
+                   data-title="crewless" data-role="Hackathon"
                    data-desc="从一个 idea，到后面全自动跑起来的 web 产品。把「造一个东西」的门槛拉到最低——让没有技术背景的人，也能把想法变成能跑的东西。"
-                   data-thumb-text="crewless" data-tags="idea → 全自动,科技平权,web 产品">
+                   data-tags="idea → 全自动,科技平权,web 产品">
             <span class="roman">ii.</span>
             <h3 class="exp-title">crewless</h3>
-            <span class="exp-role">Hackathon · 降低门槛</span>
+            <span class="exp-role">Hackathon</span>
             <p class="exp-desc">从一个 idea，到全自动跑起来的 web 产品。把「造东西」的门槛拉到最低——另一种科技平权。</p>
-            <span class="exp-tag">降低门槛 · 桥</span>
+            <span class="exp-tag">idea → 全自动</span>
+
+            <div class="exp-detail">
+              <div class="exp-banner">crewless · banner / poster 位</div>
+              <ul class="exp-points">
+                <li><b>背景</b>Hackathon 上的一道题：没有技术背景的人，怎么把一个 idea 变成能跑的产品？</li>
+                <li><b>关键支撑</b>从 idea 输入开始，需求拆解、生成、构建、部署全自动串成一条管线。</li>
+                <li><b>效果</b>现场 demo 全程跑通。最后没获奖（难受），但整个过程值得完整记下来。</li>
+              </ul>
+              <a class="exp-cta" href="writing-tech-process.html#crewless">读完整复盘 →</a>
+              <div class="exp-meta">
+                <span>idea → 全自动</span>
+                <span>科技平权</span>
+                <span>web 产品</span>
+              </div>
+            </div>
           </article>
 
-          <!-- iii. 卜灵 — 独立 App · 面向生活（落在信念上） -->
-          <article class="exp-item warm" tabindex="0" role="button" data-level="3" data-score-tech="55" data-score-design="78" data-score-life="95"
-                   data-title="卜灵" data-role="独立 App · 面向生活"
+          <!-- iii. 卜灵 — 独立 App -->
+          <article class="exp-item warm" tabindex="0" role="button" data-level="3"
+                   data-title="卜灵" data-role="独立 App"
                    data-desc="算命 + 情感陪伴 App。接住普通人的迷茫与孤独，给一点确定感和陪伴——让 AI 真的去够到一个人的情绪，而不是只做工具。"
-                   data-thumb-text="卜灵" data-tags="AI 情感,独立 App,解决生活问题">
+                   data-tags="AI 情感,独立 App,解决生活问题">
             <span class="roman">iii.</span>
             <h3 class="exp-title">卜灵</h3>
-            <span class="exp-role">独立 App · 面向生活</span>
+            <span class="exp-role">独立 App</span>
             <p class="exp-desc">算命 + 情感陪伴。接住普通人的迷茫和孤独，让 AI 真的够到一个人的情绪，而不是只做工具。</p>
-            <span class="exp-tag">面向生活 · 心</span>
+            <span class="exp-tag">AI 情感</span>
+
+            <div class="exp-detail">
+              <div class="exp-banner">卜灵 · banner / poster 位</div>
+              <ul class="exp-points">
+                <li><b>背景</b>迷茫和孤独是普通人的日常，但大多数 AI 只是工具——够不到一个人的情绪。</li>
+                <li><b>关键支撑</b>算命 + 情感陪伴的产品设计：先给一点确定感，再陪着把情绪理顺。</li>
+                <li><b>效果</b>已上线。不写文档了，直接上手体验最诚实。</li>
+              </ul>
+              <span class="exp-cta is-pending">下载体验 →（链接待补）</span>
+              <div class="exp-meta">
+                <span>AI 情感</span>
+                <span>独立 App</span>
+                <span>解决生活问题</span>
+              </div>
+            </div>
           </article>
 
         </div>
@@ -1100,10 +1289,10 @@
           <span class="now-emoji">🐻</span>
           <h3 class="now-title">AI 生图 + Blender 做 IP</h3>
           <p class="now-desc">
-            手捏一个属于自己的 IP 形象。从 prompt 到建模，
-            把脑子里那个“自嘲熊”一点点抠出来。
+            形象已经捏出来了，但表达还需要再进一步——
+            从 AI 生图到 Blender 建模，再到视频漫剧，让 IP 活起来。
           </p>
-          <div class="now-thumb-ph">自嘲熊 · 还在捏 ✦</div>
+          <div class="now-thumb-ph">木鱼 · 持续进化 ✦</div>
         </div>
       </div>
     </div>
@@ -1125,15 +1314,17 @@
 
       <div class="life-entry-grid">
         <a href="life.html#been-there" class="life-entry life-entry--wide reveal">
-          <div class="le-postcards">
-            <img src="assets/travel-xishuangbanna-rainforest.svg" alt="">
-            <img src="assets/travel-huangshan-pine.svg" alt="">
-            <img src="assets/travel-jinan-spring.svg" alt="">
+          <div class="le-media">
+            <video autoplay loop muted playsinline poster="assets/拍照-poster.jpg" aria-label="旅行中拍照的形象">
+              <source src="assets/拍照.webm" type="video/webm">
+              <source src="assets/拍照.mp4" type="video/mp4">
+              <img src="assets/拍照-poster.jpg" alt="旅行中拍照的形象">
+            </video>
           </div>
           <div class="le-content">
             <span class="le-label">旅行 · TRAVEL</span>
             <div class="le-body">
-              <h3>已经走过的地方</h3>
+              <h3>屏幕外，在路上</h3>
               <p>西双版纳、黄山、济南、徐州——雨林、松石、泉水、汉石。一段路，一段记。更多城市在 Life Log。</p>
             </div>
             <span class="le-cta">看完整 Life Log →</span>
@@ -1144,7 +1335,7 @@
   </section>
 
   <!-- ============================================================
-       §5  写作 —— 轻量入口
+       §5  写作 —— 技术文档 + 生活杂谈
        ============================================================ -->
   <section class="section section--alt" id="writing">
     <div class="container">
@@ -1154,31 +1345,39 @@
           <h2 class="sec-title">写</h2>
           <span class="sec-en">Writing</span>
         </div>
-        <p class="sec-sub">技术随笔，不常更——写的时候是认真想清楚了一件事。</p>
+        <p class="sec-sub">技术文档 + 生活杂谈——把项目里的思考和过程记下来。</p>
       </div>
 
-      <a href="writing.html" class="writing-entry reveal">
-        <div>
-          <div class="w-title">技术随笔</div>
-          <div class="w-sub">关于 AI、Coding Agent、基建的那些想清楚的事。</div>
-        </div>
-        <span class="arrow">→</span>
-      </a>
+      <div class="writing-grid">
+        <a href="writing-tech-process.html" class="writing-entry reveal">
+          <div>
+            <div class="w-title">技术文档 · 过程性记录</div>
+            <div class="w-sub">项目的过程、踩坑、没获奖但值得记录的瞬间。</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
 
-      <div class="blog-empty reveal reveal-d1">
-        <span class="blog-empty-label">BLOG · 长文</span>
-        <div class="blog-empty-lines">
-          <div class="blog-line"></div>
-          <div class="blog-line"></div>
-          <div class="blog-line"></div>
-        </div>
-        <span class="blog-empty-note">还没有内容 ✦ 想到了就写</span>
+        <a href="writing-tech-analysis.html" class="writing-entry reveal reveal-d1">
+          <div>
+            <div class="w-title">技术文档 · 分析拆解</div>
+            <div class="w-sub">技术架构、深度调研、拆解和复盘。</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a href="writing-life.html" class="writing-entry reveal reveal-d2">
+          <div>
+            <div class="w-title">生活杂谈</div>
+            <div class="w-sub">随便写写，不赶时间。</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
       </div>
     </div>
   </section>
 
   <!-- ============================================================
-       §6  联系
+       §5  联系
        ============================================================ -->
   <section class="contact" id="contact">
     <div class="container">
@@ -1241,20 +1440,6 @@
       <div class="modal-actions">
         <a class="modal-action" id="modalAction" href="#" target="_blank" rel="noopener">前往 →</a>
         <button class="modal-copy" id="modalCopy">复制</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Project modal —— 案例详情 -->
-  <div class="modal-overlay" id="projModal" aria-hidden="true">
-    <div class="modal-card modal-card--proj" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
-      <button class="modal-close" id="pmClose" aria-label="关闭">×</button>
-      <div class="pm-thumb" id="pmThumb"></div>
-      <div class="pm-body">
-        <span class="pm-role" id="pmRole">PROJECT</span>
-        <h3 class="pm-title" id="pmTitle"></h3>
-        <p class="pm-desc" id="pmDesc"></p>
-        <div class="pm-tags" id="pmTags"></div>
       </div>
     </div>
   </div>
@@ -1363,76 +1548,10 @@
       });
     })();
 
-    // === Project modal ===
-    (function() {
-      const modal = document.getElementById('projModal');
-      if (!modal) return;
-      const pmThumb = document.getElementById('pmThumb');
-      const pmRole = document.getElementById('pmRole');
-      const pmTitle = document.getElementById('pmTitle');
-      const pmDesc = document.getElementById('pmDesc');
-      const pmTags = document.getElementById('pmTags');
-      const pmClose = document.getElementById('pmClose');
-      let lastFocus = null;
-      const thumbBgs = {
-        warm: 'linear-gradient(135deg, #F4CFD6, #FCE8EC)',
-        bridge: 'linear-gradient(135deg, #BDE7E5, #E8F6F5)',
-        deep: 'linear-gradient(135deg, #5A4037, #694B40)'
-      };
-      const thumbColors = { warm: '#694B40', bridge: '#2C5A58', deep: '#FBF2E3' };
-
-      function open(card) {
-        lastFocus = document.activeElement;
-        const variant = card.classList.contains('warm') ? 'warm'
-                      : card.classList.contains('bridge') ? 'bridge' : 'deep';
-        pmThumb.style.background = thumbBgs[variant];
-        pmThumb.style.color = thumbColors[variant];
-        pmThumb.textContent = card.dataset.thumbText || card.dataset.title;
-        pmRole.textContent = (card.dataset.role || '').toUpperCase();
-        pmTitle.textContent = card.dataset.title;
-        pmDesc.textContent = card.dataset.desc;
-        pmTags.innerHTML = '';
-        (card.dataset.tags || '').split(',').forEach(t => {
-          if (!t.trim()) return;
-          const span = document.createElement('span');
-          span.className = 'pm-tag';
-          span.textContent = t.trim();
-          pmTags.appendChild(span);
-        });
-        modal.classList.add('active');
-        modal.setAttribute('aria-hidden', 'false');
-        setTimeout(() => pmClose.focus(), 60);
-      }
-      function close() {
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden', 'true');
-        if (lastFocus) lastFocus.focus();
-      }
-
-      document.querySelectorAll('.exp-item').forEach(card => {
-        card.addEventListener('click', () => open(card));
-        card.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); }
-        });
-      });
-      pmClose.addEventListener('click', close);
-      modal.addEventListener('click', e => { if (e.target === modal) close(); });
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) close();
-      });
-    })();
-
-    // === §2 探索 interactions: 交错揭示 + 项目画像标尺 + hover ===
+    // === §2 探索 interactions: 交错揭示 + 滚动自动展开 ===
     (function() {
       const items = document.querySelectorAll('.exp-item');
-      const meter = document.getElementById('gradientMeter');
-      const caption = document.getElementById('meterCaption');
-      if (!items.length || !meter) return;
-      const rows = {
-        tech: meter.querySelector('[data-dim="tech"]'),
-        design: meter.querySelector('[data-dim="design"]'),
-        life: meter.querySelector('[data-dim="life"]')
-      };
+      if (!items.length) return;
 
       // 1) 交错揭示——进视口时给 .in-view，子元素按 delay 依次落位
       const revealObs = new IntersectionObserver((entries) => {
@@ -1445,38 +1564,36 @@
       }, { threshold: 0.18 });
       items.forEach(it => revealObs.observe(it));
 
-      // 2) 项目画像——把当前条目的三围渲染到标尺
-      let scrollActive = null, hoverActive = null;
-      function render() {
-        const it = hoverActive || scrollActive;
-        if (!it) {
-          rows.tech.style.setProperty('--fill', '0%');
-          rows.design.style.setProperty('--fill', '0%');
-          rows.life.style.setProperty('--fill', '0%');
-          meter.classList.remove('has-profile');
-          if (caption) caption.textContent = '项目画像 · PROJECT PROFILE';
-          return;
-        }
-        rows.tech.style.setProperty('--fill', (it.dataset.scoreTech || 0) + '%');
-        rows.design.style.setProperty('--fill', (it.dataset.scoreDesign || 0) + '%');
-        rows.life.style.setProperty('--fill', (it.dataset.scoreLife || 0) + '%');
-        meter.classList.add('has-profile');
-        if (caption) caption.textContent = (it.dataset.title || '') + ' · 画像';
-      }
-
-      const centerObs = new IntersectionObserver((entries) => {
+      // 2) 滚动到视口中央时自动展开当前项目，收起其他
+      const expandObs = new IntersectionObserver((entries) => {
         entries.forEach(e => {
-          if (e.isIntersecting) scrollActive = e.target;
-          else if (scrollActive === e.target) scrollActive = null;
-          render();
+          if (e.isIntersecting) {
+            items.forEach(it => {
+              if (it === e.target) it.classList.add('expanded');
+              else it.classList.remove('expanded');
+            });
+          }
         });
       }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
-      items.forEach(it => centerObs.observe(it));
+      items.forEach(it => expandObs.observe(it));
 
-      // 3) hover——悬停预览该条目的画像
+      // 3) 点击卡片时，如果未展开则展开（兼容触摸端）
       items.forEach(it => {
-        it.addEventListener('mouseenter', () => { hoverActive = it; render(); });
-        it.addEventListener('mouseleave', () => { hoverActive = null; render(); });
+        it.addEventListener('click', () => {
+          if (!it.classList.contains('expanded')) {
+            items.forEach(i => i.classList.remove('expanded'));
+            it.classList.add('expanded');
+          }
+        });
+        it.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!it.classList.contains('expanded')) {
+              items.forEach(i => i.classList.remove('expanded'));
+              it.classList.add('expanded');
+            }
+          }
+        });
       });
     })();
   </script>
