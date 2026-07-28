@@ -314,62 +314,174 @@
       width: 100%;
       aspect-ratio: 16 / 9;
       border-radius: 12px;
-      background:
-        repeating-linear-gradient(45deg, rgba(189,231,229,0.25) 0 10px, rgba(189,231,229,0.08) 10px 20px);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Caveat', cursive;
-      font-size: 1.1rem;
-      color: var(--ink-faint);
-      border: 1px dashed rgba(105,75,64,0.18);
       margin-top: 20px;
       margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: clamp(18px, 3vw, 28px);
     }
+    /* 排版式项目海报 —— 三套主题色，真图来了整块换 */
+    .exp-banner .eb-kicker {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      opacity: 0.75;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .exp-banner .eb-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+      line-height: 1.15;
+      display: block;
+    }
+    .exp-banner .eb-sub {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      display: block;
+      margin-top: 6px;
+      opacity: 0.85;
+    }
+    .exp-banner .eb-deco {
+      position: absolute;
+      right: clamp(12px, 2.5vw, 24px);
+      bottom: clamp(10px, 2vw, 18px);
+      pointer-events: none;
+    }
+    /* 小刚Claw —— 深棕终端 */
+    .exp-banner--claw {
+      background:
+        radial-gradient(ellipse at 85% 20%, rgba(189,231,229,0.14) 0%, transparent 50%),
+        linear-gradient(135deg, #5A4037 0%, var(--red) 100%);
+      color: var(--cream);
+    }
+    .exp-banner--claw .eb-sub { color: var(--blue); }
+    .exp-banner--claw .eb-deco {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      color: rgba(251,242,227,0.85);
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(251,242,227,0.16);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: left;
+      line-height: 1.6;
+    }
+    .exp-banner--claw .eb-deco em {
+      display: block;
+      font-style: normal;
+      color: var(--blue-deep);
+    }
+    /* crewless —— 薄荷流水线 */
+    .exp-banner--crewless {
+      background:
+        radial-gradient(ellipse at 80% 85%, rgba(255,255,255,0.5) 0%, transparent 55%),
+        linear-gradient(135deg, var(--blue-soft) 0%, var(--blue) 100%);
+      color: #2C5A58;
+    }
+    .exp-banner--crewless .eb-deco {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.66rem;
+      color: #2C5A58;
+    }
+    .exp-banner--crewless .eb-deco i {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #2C5A58;
+      flex-shrink: 0;
+    }
+    .exp-banner--crewless .eb-deco i:nth-child(3) { background: #4A9D9B; }
+    .exp-banner--crewless .eb-deco i:nth-child(5) { background: var(--blue-deep); }
+    .exp-banner--crewless .eb-deco s {
+      text-decoration: none;
+      width: 16px; height: 1.5px;
+      background: rgba(44,90,88,0.4);
+    }
+    /* 卜灵 —— 暖粉星象 */
+    .exp-banner--buling {
+      background:
+        radial-gradient(ellipse at 82% 18%, rgba(255,255,255,0.55) 0%, transparent 50%),
+        linear-gradient(135deg, var(--yellow-soft) 0%, var(--yellow) 100%);
+      color: var(--red);
+    }
+    .exp-banner--buling .eb-deco {
+      font-size: clamp(1.2rem, 2.6vw, 1.7rem);
+      color: rgba(197,107,123,0.75);
+      letter-spacing: 0.2em;
+    }
+    .exp-banner--buling .eb-quote {
+      font-size: 0.78rem;
+      opacity: 0.7;
+      display: block;
+      margin-top: 2px;
+    }
+    .exp-banner--buling .eb-text {
+      position: relative;
+      z-index: 2;
+      max-width: 62%;
+    }
+    .exp-banner .eb-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .exp-banner .eb-icon {
+      width: clamp(34px, 4vw, 44px);
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(105,75,64,0.2);
+    }
+    .exp-banner .eb-feats {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      line-height: 1.7;
+      opacity: 0.75;
+    }
+    /* 真实截图组合：两台手机斜靠在右侧 */
+    .exp-banner .eb-phones {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .exp-banner .eb-phones img {
+      position: absolute;
+      width: 26%;
+      border-radius: 12px;
+      border: 2.5px solid rgba(255,255,255,0.95);
+      box-shadow: 0 10px 24px rgba(105,75,64,0.28);
+    }
+    .exp-banner .eb-phones .ph-1 { right: 16%; top: -8%; transform: rotate(-8deg); }
+    .exp-banner .eb-phones .ph-2 { right: 2.5%; top: 6%; transform: rotate(6deg); }
     .exp-detail .exp-full {
       font-size: 0.95rem;
       color: var(--ink-light);
       line-height: 1.85;
       margin-bottom: 14px;
     }
-    .exp-detail .exp-meta {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    .exp-detail .exp-meta span {
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 0.72rem;
-      background: rgba(105,75,64,0.08);
-      color: var(--ink);
-      transition: transform 0.2s var(--ease-out), background 0.2s var(--ease-out);
-    }
-    .exp-detail .exp-meta span:hover {
-      transform: translateY(-1px);
-      background: rgba(105,75,64,0.14);
-    }
-
-    /* 背景 / 关键支撑 / 效果 三段式 */
-    .exp-detail .exp-points {
-      list-style: none;
-      margin: 0 0 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .exp-detail .exp-points li {
+    /* 项目故事 —— 一拍一段 */
+    .exp-detail .exp-story {
       font-size: 0.92rem;
       color: var(--ink-light);
-      line-height: 1.75;
-      padding-left: 14px;
-      border-left: 2.5px solid rgba(157,213,211,0.65);
+      line-height: 1.85;
+      margin: 0;
     }
-    .exp-detail .exp-points li b {
-      display: inline-block;
+    .exp-detail .exp-story + .exp-story { margin-top: 10px; }
+    .exp-detail .exp-story:last-of-type { margin-bottom: 16px; }
+    .exp-detail .exp-story strong {
       font-weight: 700;
       color: var(--ink);
-      margin-right: 8px;
+      border-bottom: 2px solid rgba(105,75,64,0.2);
     }
+    .exp-item.warm .exp-story strong   { border-bottom-color: var(--yellow); }
+    .exp-item.bridge .exp-story strong { border-bottom-color: var(--blue-deep); }
     .exp-detail .exp-cta {
       display: inline-flex;
       align-items: center;
@@ -388,18 +500,11 @@
       transform: translateY(-2px);
       background: var(--blue);
     }
-    .exp-detail .exp-cta.is-pending {
-      background: rgba(105,75,64,0.07);
-      color: var(--ink-faint);
-      pointer-events: none;
-    }
-
     /* 交错揭示（transitions.dev #18 风） */
     .exp-item .roman,
     .exp-item .exp-title,
     .exp-item .exp-role,
-    .exp-item .exp-desc,
-    .exp-item .exp-tag {
+    .exp-item .exp-desc {
       opacity: 0;
       transform: translateY(14px);
       transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
@@ -408,7 +513,6 @@
     .exp-item.in-view .exp-title { opacity: 1; transform: none; transition-delay: 90ms; }
     .exp-item.in-view .exp-role  { opacity: 1; transform: none; transition-delay: 180ms; }
     .exp-item.in-view .exp-desc  { opacity: 1; transform: none; transition-delay: 270ms; }
-    .exp-item.in-view .exp-tag   { opacity: 1; transform: none; transition-delay: 360ms; }
 
     /* 展开时，内部元素轻微下移，营造「展开感」 */
     .exp-item .exp-detail > * {
@@ -420,6 +524,7 @@
     .exp-item.expanded .exp-detail > *:nth-child(2) { transition-delay: 0.25s; }
     .exp-item.expanded .exp-detail > *:nth-child(3) { transition-delay: 0.35s; }
     .exp-item.expanded .exp-detail > *:nth-child(4) { transition-delay: 0.45s; }
+    .exp-item.expanded .exp-detail > *:nth-child(5) { transition-delay: 0.5s; }
     .exp-item.expanded .exp-detail > * {
       opacity: 1;
       transform: translateY(0);
@@ -451,22 +556,20 @@
       display: inline-block;
     }
     .exp-item .exp-desc {
-      font-size: 0.95rem;
-      color: var(--ink-light);
-      line-height: 1.85;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.08rem;
+      color: var(--ink);
+      line-height: 1.7;
       margin-bottom: 16px;
     }
-    .exp-item .exp-tag {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+    .exp-item .exp-desc em {
+      font-style: normal;
+      padding: 0 3px;
     }
-    .exp-item.expanded .exp-tag {
-      opacity: 0.6;
-    }
+    .exp-item.warm .exp-desc em   { background: linear-gradient(to top, var(--yellow) 42%, transparent 42%); }
+    .exp-item.bridge .exp-desc em { background: linear-gradient(to top, var(--blue) 42%, transparent 42%); }
+    .exp-item.deep .exp-desc em   { background: linear-gradient(to top, rgba(105,75,64,0.16) 42%, transparent 42%); }
 
     /* i. 卜灵 — 暖粉 · 心 */
     .exp-item.warm {
@@ -475,7 +578,6 @@
     }
     .exp-item.warm .roman { color: #D88A98; }
     .exp-item.warm .exp-role { color: #C56B7B; }
-    .exp-item.warm .exp-tag { background: var(--yellow); color: var(--red); }
 
     /* ii. crewless — 薄荷 · 桥 */
     .exp-item.bridge {
@@ -484,7 +586,6 @@
     }
     .exp-item.bridge .roman { color: var(--blue-deep); }
     .exp-item.bridge .exp-role { color: #4A9D9B; }
-    .exp-item.bridge .exp-tag { background: var(--blue); color: #2C5A58; }
 
     /* iii. 数字员工 — 棕墨 · 深 */
     .exp-item.deep {
@@ -494,7 +595,6 @@
     }
     .exp-item.deep .roman { color: rgba(105,75,64,0.22); }
     .exp-item.deep .exp-role { color: var(--ink-light); }
-    .exp-item.deep .exp-tag { background: rgba(105,75,64,0.08); color: var(--red); }
 
     @media (max-width: 900px) {
       .explore { grid-template-columns: 1fr; }
@@ -503,7 +603,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .exp-item .roman, .exp-item .exp-title, .exp-item .exp-role,
-      .exp-item .exp-desc, .exp-item .exp-tag {
+      .exp-item .exp-desc {
         opacity: 1 !important; transform: none !important; transition-delay: 0ms !important;
       }
     }
@@ -560,17 +660,54 @@
       margin-top: 8px;
       border: 1px solid rgba(105,75,64,0.08);
     }
-    .now-card .now-thumb-ph {
+    .now-card .now-thumb {
       margin-top: 8px;
       aspect-ratio: 16/10;
       border-radius: 10px;
-      background:
-        repeating-linear-gradient(45deg, rgba(189,231,229,0.25) 0 10px, rgba(189,231,229,0.08) 10px 20px);
       display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .now-card .now-thumb--robot {
+      background:
+        radial-gradient(ellipse at 70% 25%, rgba(189,231,229,0.5) 0%, transparent 55%),
+        linear-gradient(135deg, var(--blue-soft) 0%, var(--blue) 100%);
+    }
+    .now-card .now-thumb--robot .bot {
+      font-size: clamp(2.8rem, 6vw, 4rem);
+      filter: drop-shadow(0 6px 10px rgba(44,90,88,0.25));
+    }
+    .now-card .now-thumb--robot .tag {
+      position: absolute;
+      right: 12px; bottom: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: #2C5A58;
+      background: rgba(255,255,255,0.65);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .now-card .now-thumb--muyu {
+      background:
+        radial-gradient(ellipse at 30% 20%, var(--yellow-soft) 0%, transparent 55%),
+        linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
+    }
+    .now-card .now-thumb--muyu img {
+      height: 78%;
+      width: auto;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(105,75,64,0.2);
+    }
+    .now-card .now-thumb--muyu .tag {
+      position: absolute;
+      right: 12px; bottom: 10px;
       font-family: 'Caveat', cursive;
-      font-size: 1.2rem;
-      color: var(--ink-faint);
-      border: 1px dashed rgba(105,75,64,0.18);
+      font-size: 0.95rem;
+      color: var(--ink-light);
+      background: rgba(255,255,255,0.7);
+      padding: 3px 12px;
+      border-radius: 100px;
     }
 
     /* =========================================================
@@ -958,6 +1095,15 @@
                   opacity var(--dur-med) var(--ease-out);
     }
     .modal-overlay.active .modal-card { transform: scale(1); opacity: 1; }
+    .modal-avatar {
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 18px;
+      display: block;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 14px rgba(105,75,64,0.18);
+    }
     .modal-close {
       position: absolute; top: 14px; right: 16px;
       width: 36px; height: 36px; border-radius: 50%;
@@ -1180,22 +1326,21 @@
             <span class="roman">i.</span>
             <h3 class="exp-title">数字员工：小刚Claw</h3>
             <span class="exp-role">公司</span>
-            <p class="exp-desc">AI-Coding / AI-QA，帮研发和测试提效。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
-            <span class="exp-tag">AI-Coding / AI-QA</span>
+            <p class="exp-desc">AI-Coding / AI-QA，<em>帮研发和测试提效</em>。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
 
             <div class="exp-detail">
-              <div class="exp-banner">数字员工：小刚Claw · banner / poster 位</div>
-              <ul class="exp-points">
-                <li><b>背景</b>研发和测试的流程里有大量重复劳动——AI 怎么真正进流程，而不只是停在聊天框里？</li>
-                <li><b>关键支撑</b>AI-Coding / AI-QA 双线并进，设计真正的「数字员工」：有职责、有流程、能交付。</li>
-                <li><b>效果</b>在公司内帮研发和测试提效。公司项目，细节不展开——讲了架构和效果，其余待解密。</li>
-              </ul>
-              <a class="exp-cta" href="writing-tech-process.html#claw">读架构笔记 →（细节待解密）</a>
-              <div class="exp-meta">
-                <span>AI-Coding</span>
-                <span>AI-QA</span>
-                <span>效能</span>
+              <div class="exp-banner exp-banner--claw">
+                <div class="eb-text">
+                  <span class="eb-kicker">数字员工 · DIGITAL EMPLOYEE</span>
+                  <span class="eb-title">小刚Claw</span>
+                  <span class="eb-sub">AI-Coding × AI-QA，有职责、能交付</span>
+                </div>
+                <div class="eb-deco" aria-hidden="true">$ claw run --qa<em>✓ 全部通过</em></div>
               </div>
+              <p class="exp-story">研发和测试的流程里有大量重复劳动——AI 怎么真正进流程，而不只是停在聊天框里？</p>
+              <p class="exp-story">小刚Claw 的做法是 AI-Coding / AI-QA 双线并进，做真正的「数字员工」：<strong>有职责、有流程、能交付</strong>。</p>
+              <p class="exp-story">已经在公司内帮研发和测试提效——公司项目，讲了架构和效果，其余待解密。</p>
+              <a class="exp-cta" href="writing-tech-process.html#claw">读架构笔记 →（细节待解密）</a>
             </div>
           </article>
 
@@ -1207,49 +1352,53 @@
             <span class="roman">ii.</span>
             <h3 class="exp-title">crewless</h3>
             <span class="exp-role">Hackathon</span>
-            <p class="exp-desc">从一个 idea，到全自动跑起来的 web 产品。把「造东西」的门槛拉到最低——另一种科技平权。</p>
-            <span class="exp-tag">idea → 全自动</span>
+            <p class="exp-desc">从一个 idea，到<em>全自动</em>跑起来的 web 产品。把「造东西」的门槛拉到最低——另一种科技平权。</p>
 
             <div class="exp-detail">
-              <div class="exp-banner">crewless · banner / poster 位</div>
-              <ul class="exp-points">
-                <li><b>背景</b>Hackathon 上的一道题：没有技术背景的人，怎么把一个 idea 变成能跑的产品？</li>
-                <li><b>关键支撑</b>从 idea 输入开始，需求拆解、生成、构建、部署全自动串成一条管线。</li>
-                <li><b>效果</b>现场 demo 全程跑通。最后没获奖（难受），但整个过程值得完整记下来。</li>
-              </ul>
-              <a class="exp-cta" href="writing-tech-process.html#crewless">读完整复盘 →</a>
-              <div class="exp-meta">
-                <span>idea → 全自动</span>
-                <span>科技平权</span>
-                <span>web 产品</span>
+              <div class="exp-banner exp-banner--crewless">
+                <div class="eb-text">
+                  <span class="eb-kicker">HACKATHON · FULL-AUTO</span>
+                  <span class="eb-title">crewless</span>
+                  <span class="eb-sub">一个 idea 进去，一个产品出来</span>
+                </div>
+                <div class="eb-deco" aria-hidden="true"><i></i><s></s><i></i><s></s><i></i></div>
               </div>
+              <p class="exp-story">Hackathon 上的一道题：没有技术背景的人，怎么把一个 idea 变成能跑的产品？</p>
+              <p class="exp-story">crewless 的解法是——从 idea 输入开始，把需求拆解、生成、构建、部署全自动串成一条管线。</p>
+              <p class="exp-story"><strong>现场 demo 全程跑通</strong>，最后没获奖（难受），但整个过程值得完整记下来。</p>
+              <a class="exp-cta" href="writing-tech-process.html#crewless">读完整复盘 →</a>
             </div>
           </article>
 
           <!-- iii. 卜灵 — 独立 App -->
           <article class="exp-item warm" tabindex="0" role="button" data-level="3"
                    data-title="卜灵" data-role="独立 App"
-                   data-desc="算命 + 情感陪伴 App。接住普通人的迷茫与孤独，给一点确定感和陪伴——让 AI 真的去够到一个人的情绪，而不是只做工具。"
-                   data-tags="AI 情感,独立 App,解决生活问题">
+                   data-desc="一群可爱的小狗大师坐镇——会算命，更会陪你。八字、六爻、梅花、灵水、筊杯真排盘，顺着盘解读，可以一直追问。"
+                   data-tags="AI 道长,独立 App,解决生活问题">
             <span class="roman">iii.</span>
             <h3 class="exp-title">卜灵</h3>
             <span class="exp-role">独立 App</span>
-            <p class="exp-desc">算命 + 情感陪伴。接住普通人的迷茫和孤独，让 AI 真的够到一个人的情绪，而不是只做工具。</p>
-            <span class="exp-tag">AI 情感</span>
+            <p class="exp-desc">一群可爱的小狗大师，<em>会算命，更会陪你</em>。</p>
 
             <div class="exp-detail">
-              <div class="exp-banner">卜灵 · banner / poster 位</div>
-              <ul class="exp-points">
-                <li><b>背景</b>迷茫和孤独是普通人的日常，但大多数 AI 只是工具——够不到一个人的情绪。</li>
-                <li><b>关键支撑</b>算命 + 情感陪伴的产品设计：先给一点确定感，再陪着把情绪理顺。</li>
-                <li><b>效果</b>已上线。不写文档了，直接上手体验最诚实。</li>
-              </ul>
-              <span class="exp-cta is-pending">下载体验 →（链接待补）</span>
-              <div class="exp-meta">
-                <span>AI 情感</span>
-                <span>独立 App</span>
-                <span>解决生活问题</span>
+              <div class="exp-banner exp-banner--buling">
+                <div class="eb-text">
+                  <span class="eb-kicker">独立 APP · 小狗大师</span>
+                  <span class="eb-head">
+                    <img class="eb-icon" src="assets/buling-icon.png" alt="卜灵 App 图标">
+                    <span class="eb-title">卜灵</span>
+                  </span>
+                  <span class="eb-quote">「先把心放松一点，我们再慢慢看。」—— 摇尾仙</span>
+                  <span class="eb-feats">八字排盘 · 八字合盘 · 六爻问卜<br>梅花易数 · 灵水占卜 · 筊杯问圣</span>
+                </div>
+                <div class="eb-phones" aria-hidden="true">
+                  <img class="ph-1" src="assets/buling-chat.png" alt="" loading="lazy">
+                  <img class="ph-2" src="assets/buling-home-v2.png" alt="" loading="lazy">
+                </div>
               </div>
+              <p class="exp-story">人一焦虑就想要答案——但直接给答案的 App 很多，<strong>先把心接住、再把事讲清楚</strong>的很少。</p>
+              <p class="exp-story">卜灵里住着一群可爱的小狗大师，<strong>八字、六爻、梅花、灵水、筊杯</strong>样样都会：为你先进行排盘，同时用趣味的 <strong>K 线</strong>形式展现，再看着盘解读所有疑问；还能算<strong>合盘</strong>，看看你和 ta 的关系。</p>
+              <p class="exp-story">早上看运势，遇事起一卦，睡不着聊两句——总有一只小狗大师在。</p>
             </div>
           </article>
 
@@ -1281,7 +1430,10 @@
             给那个开源小机器人换个灵魂——自己写表情、改语音、调动作。
             硬件离生活最近，能摸到。
           </p>
-          <div class="now-thumb-ph">stack-chan · 待拍照</div>
+          <div class="now-thumb now-thumb--robot">
+            <span class="bot">🤖</span>
+            <span class="tag">HACKING · 换魂中</span>
+          </div>
         </div>
 
         <div class="now-card reveal reveal-d1">
@@ -1292,7 +1444,10 @@
             形象已经捏出来了，但表达还需要再进一步——
             从 AI 生图到 Blender 建模，再到视频漫剧，让 IP 活起来。
           </p>
-          <div class="now-thumb-ph">木鱼 · 持续进化 ✦</div>
+          <div class="now-thumb now-thumb--muyu">
+            <img src="assets/favicon.png" alt="木鱼的 IP 形象">
+            <span class="tag">持续进化 ✦</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1398,11 +1553,11 @@
       </div>
 
       <div class="contact-links">
-        <a href="mailto:hello@example.com" class="contact-link reveal"
-           data-platform="EMAIL" data-detail="hello@example.com"
+        <a href="mailto:libeny0526@gmail.com" class="contact-link reveal"
+           data-platform="EMAIL" data-detail="libeny0526@gmail.com"
            data-note="工作时间也会看，慢慢回。" data-copyable="true">
           <span class="c-platform">Email</span>
-          <span class="c-handle">hello@example.com</span>
+          <span class="c-handle">libeny0526@gmail.com</span>
         </a>
         <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener" class="contact-link reveal"
            data-platform="小红书 · XIAOHONGSHU" data-detail="@explorer"
@@ -1417,10 +1572,10 @@
           <span class="c-handle">@Libeny</span>
         </a>
         <a href="#" class="contact-link reveal"
-           data-platform="微信 · WECHAT" data-detail="muyu_explorer"
+           data-platform="微信 · WECHAT" data-detail="BiothaLMY"
            data-note="备注一下来路，更容易通过。" data-copyable="true">
           <span class="c-platform">微信</span>
-          <span class="c-handle">muyu_explorer</span>
+          <span class="c-handle">BiothaLMY</span>
         </a>
       </div>
 
@@ -1434,6 +1589,7 @@
   <div class="modal-overlay" id="contactModal" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalPlatform">
       <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+      <img class="modal-avatar" src="assets/favicon.png" alt="木鱼的头像">
       <span class="label-caps modal-platform" id="modalPlatform">CONTACT</span>
       <div class="modal-detail" id="modalDetail"></div>
       <p class="modal-note" id="modalNote"></p>
