@@ -322,7 +322,7 @@
       align-items: center;
       padding: clamp(18px, 3vw, 28px);
     }
-    /* 排版式项目海报 —— 三套主题色，真图来了整块换 */
+    /* 项目海报 —— 小刚Claw / crewless 真图填进主题外框；卜灵仍为排版式 */
     .exp-banner .eb-kicker {
       font-family: 'Fira Code', monospace;
       font-size: 0.62rem;
@@ -351,57 +351,24 @@
       bottom: clamp(10px, 2vw, 18px);
       pointer-events: none;
     }
-    /* 小刚Claw —— 深棕终端 */
-    .exp-banner--claw {
-      background:
-        radial-gradient(ellipse at 85% 20%, rgba(189,231,229,0.14) 0%, transparent 50%),
-        linear-gradient(135deg, #5A4037 0%, var(--red) 100%);
-      color: var(--cream);
+    /* 真图海报 —— 图片铺满整个外框，方角由外框圆角裁掉 */
+    .exp-detail .exp-banner--img {
+      padding: 0;
+      box-shadow: 0 4px 18px rgba(105,75,64,0.10);
     }
-    .exp-banner--claw .eb-sub { color: var(--blue); }
-    .exp-banner--claw .eb-deco {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.68rem;
-      color: rgba(251,242,227,0.85);
-      background: rgba(0,0,0,0.28);
-      border: 1px solid rgba(251,242,227,0.16);
-      border-radius: 8px;
-      padding: 8px 12px;
-      text-align: left;
-      line-height: 1.6;
-    }
-    .exp-banner--claw .eb-deco em {
+    .exp-banner--img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
       display: block;
-      font-style: normal;
-      color: var(--blue-deep);
     }
-    /* crewless —— 薄荷流水线 */
-    .exp-banner--crewless {
-      background:
-        radial-gradient(ellipse at 80% 85%, rgba(255,255,255,0.5) 0%, transparent 55%),
-        linear-gradient(135deg, var(--blue-soft) 0%, var(--blue) 100%);
-      color: #2C5A58;
-    }
-    .exp-banner--crewless .eb-deco {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.66rem;
-      color: #2C5A58;
-    }
-    .exp-banner--crewless .eb-deco i {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #2C5A58;
-      flex-shrink: 0;
-    }
-    .exp-banner--crewless .eb-deco i:nth-child(3) { background: #4A9D9B; }
-    .exp-banner--crewless .eb-deco i:nth-child(5) { background: var(--blue-deep); }
-    .exp-banner--crewless .eb-deco s {
-      text-decoration: none;
-      width: 16px; height: 1.5px;
-      background: rgba(44,90,88,0.4);
+    /* 圆角描边——贴着图边缘的一圈细环，让海报有外框感 */
+    .exp-banner--img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 1.5px rgba(105,75,64,0.16);
+      pointer-events: none;
     }
     /* 卜灵 —— 暖粉星象 */
     .exp-banner--buling {
@@ -1329,13 +1296,8 @@
             <p class="exp-desc">AI-Coding / AI-QA，<em>帮研发和测试提效</em>。这是探索者磨手艺的地方——也只有去过深处，才知道怎么把好处送到浅处。</p>
 
             <div class="exp-detail">
-              <div class="exp-banner exp-banner--claw">
-                <div class="eb-text">
-                  <span class="eb-kicker">数字员工 · DIGITAL EMPLOYEE</span>
-                  <span class="eb-title">小刚Claw</span>
-                  <span class="eb-sub">AI-Coding × AI-QA，有职责、能交付</span>
-                </div>
-                <div class="eb-deco" aria-hidden="true">$ claw run --qa<em>✓ 全部通过</em></div>
+              <div class="exp-banner exp-banner--img">
+                <img src="assets/xiaogang.jpg" alt="小刚Claw 形象海报——戴眼镜、抱笔记本的开发者小刚" loading="lazy">
               </div>
               <p class="exp-story">研发和测试的流程里有大量重复劳动——AI 怎么真正进流程，而不只是停在聊天框里？</p>
               <p class="exp-story">小刚Claw 的做法是 AI-Coding / AI-QA 双线并进，做真正的「数字员工」：<strong>有职责、有流程、能交付</strong>。</p>
@@ -1355,13 +1317,8 @@
             <p class="exp-desc">从一个 idea，到<em>全自动</em>跑起来的 web 产品。把「造东西」的门槛拉到最低——另一种科技平权。</p>
 
             <div class="exp-detail">
-              <div class="exp-banner exp-banner--crewless">
-                <div class="eb-text">
-                  <span class="eb-kicker">HACKATHON · FULL-AUTO</span>
-                  <span class="eb-title">crewless</span>
-                  <span class="eb-sub">一个 idea 进去，一个产品出来</span>
-                </div>
-                <div class="eb-deco" aria-hidden="true"><i></i><s></s><i></i><s></s><i></i></div>
+              <div class="exp-banner exp-banner--img">
+                <img src="assets/crewless_banner.jpg" alt="crewless 海报——一句话开公司，AI 团队真执行" loading="lazy">
               </div>
               <p class="exp-story">Hackathon 上的一道题：没有技术背景的人，怎么把一个 idea 变成能跑的产品？</p>
               <p class="exp-story">crewless 的解法是——从 idea 输入开始，把需求拆解、生成、构建、部署全自动串成一条管线。</p>
