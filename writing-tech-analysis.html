@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>分析拆解 · 技术文档</title>
-  <meta name="description" content="技术架构、深度调研、拆解和复盘——后续补充。">
+  <meta name="description" content="技术架构、深度调研、拆解和复盘。">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,53 @@
       padding: 0 6px;
     }
     .lede { color: var(--ink-light); max-width: 480px; margin-bottom: 0.6rem; }
-    .lede-2 { color: var(--ink-faint); max-width: 480px; font-size: 0.92rem; }
+
+    /* 文章列表 */
+    .post-list {
+      margin-top: 3rem;
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .post-entry {
+      display: block;
+      text-align: left;
+      text-decoration: none;
+      color: var(--ink);
+      background: #FFFDF8;
+      border: 1px solid #E7D7C4;
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem;
+      box-shadow: 0 2px 14px rgba(105,75,64,0.05);
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    }
+    .post-entry:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(105,75,64,0.1);
+    }
+    .post-entry .p-meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .post-entry .p-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
+    .post-entry .p-sub {
+      margin-top: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--ink-light);
+    }
     .note {
       margin-top: 2.5rem;
       font-family: 'Caveat', cursive;
@@ -76,8 +122,14 @@
   <span class="label">WRITING · 技术文档 / 分析拆解</span>
   <h1>拆开了，<em>才算懂</em>。</h1>
   <p class="lede">技术架构、深度调研、拆解和复盘——不只记录做了什么，还拆开讲清楚为什么。</p>
-  <p class="lede-2">这一页还会长出来——在那之前，先回主页逛逛。</p>
-  <span class="note">还没有内容 ✦ 调研文档后续补充</span>
+  <div class="post-list">
+    <a href="writing-qwen-audio-agent.html" class="post-entry">
+      <div class="p-meta"><span>2026-08</span><span>ARCHITECTURE DEEP-DIVE</span></div>
+      <div class="p-title">qwen-audio-agent 架构深读：如何打造一个既能秒回，也能干活的 Agent</div>
+      <div class="p-sub">通读并实测 QwenAudio 开源的实时语音 Agent 运行时——它真正做的事，是把「对话」和「干活」拆成两条独立的循环。</div>
+    </a>
+  </div>
+  <span class="note">第一篇 ✦ more on the way</span>
   <a href="index.html#writing" class="back">← 回主页</a>
 </body>
 </html>
