@@ -366,6 +366,14 @@
 
     <p>用过 IM 里的 Agent（比如把 OpenClaw 接进飞书/钉钉/微信）的人都熟悉这个时刻：你在对话里下达一个任务，然后——长久的沉默。它是在干还是卡住了？不知道。这个对话窗口期间也别想干别的：再问个问题，要么排队，要么和进行中的任务搅在一起。消息发出去石沉大海，你只能盯着屏幕，等那句不知道什么时候来的回复。</p>
 
+    <figure class="fig">
+      <img src="assets/fig-qaa-0a-silence.jpg" alt="概念插画：一个人盯着聊天窗口，发出的消息像石头一样沉入深色的水底，画面安静、充满等待感" loading="lazy">
+      <figcaption>
+        <span class="hand">silence after the ask</span>
+        <span class="fig-no">FIG.00 · 石沉大海</span>
+      </figcaption>
+    </figure>
+
     <p><strong>对话被工作绑架了。</strong> 这个问题在桌面软件时代就出现过：早期程序把耗时操作放在界面线程里跑，界面直接冻死，解决办法是把耗时工作挪到后台线程。Agent 产品大多还停在"冻死"阶段，qwen-audio-agent 是少数真正解决了它的实现：</p>
 
     <ul>
@@ -375,6 +383,14 @@
     </ul>
 
     <p>所以准确地说，它不是"给 Agent 装个语音入口"，而是一套<strong>以语音为主线的 Agent 运行系统</strong>：管对话的、管调度的、管执行的各自独立，每层都可替换。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-qaa-0b-front-back.jpg" alt="概念插画：前景前台接待正与访客轻松交谈，背景透过玻璃可见忙碌的小团队在搬运箱子、操作机器" loading="lazy">
+      <figcaption>
+        <span class="hand">front talks, back works</span>
+        <span class="fig-no">FIG.01 · 前台与后台</span>
+      </figcaption>
+    </figure>
 
     <h2>二、四个角色，各管一段</h2>
 
