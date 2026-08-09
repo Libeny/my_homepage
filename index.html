@@ -671,18 +671,11 @@
         linear-gradient(135deg, #F6EEE5, #E8F3F1 54%, #FBE9EC);
       border: 1px solid rgba(105,75,64,.1);
     }
-    .now-reel-media::before {
-      content: '';
-      position: absolute; inset: 13% 16%;
-      border: 1px dashed rgba(105,75,64,.2);
-      border-radius: 50%;
-      transform: rotate(-9deg);
-    }
-    .now-reel-media img {
-      position: absolute;
-      height: 74%; width: auto;
-      right: 16%; bottom: -3%;
-      filter: drop-shadow(0 14px 16px rgba(105,75,64,.16));
+    .now-reel-media video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
     }
     .now-card {
       position: relative;
@@ -1675,7 +1668,10 @@
 
       <article class="now-reel reveal">
         <div class="now-reel-media" aria-label="木鱼 IP 创作过程视频预留区域">
-          <img src="assets/favicon.png" alt="木鱼的 IP 形象">
+          <video autoplay loop muted playsinline preload="metadata" poster="assets/ip-workshop-process-poster.jpg" aria-label="正在调试机器人">
+            <source src="assets/ip-workshop-process.webm" type="video/webm">
+            <source src="assets/ip-workshop-process.mp4" type="video/mp4">
+          </video>
         </div>
       </article>
 
