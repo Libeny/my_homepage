@@ -648,6 +648,8 @@
        §3  正在搞 —— 手绘虚线卡（maker / in-progress 感）
        ========================================================= */
     .now-grid {
+      width: min(100%, 920px);
+      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: clamp(20px, 2.4vw, 28px);
@@ -656,7 +658,7 @@
       width: min(100%, 920px);
       padding: clamp(14px, 2vw, 22px);
       margin: 0 auto clamp(34px, 5vw, 58px);
-      border: 1px solid rgba(105,75,64,.14);
+      border: 2px dashed rgba(189,231,229,.92);
       border-radius: 18px;
       background: rgba(255,255,255,.62);
     }
@@ -676,6 +678,25 @@
       height: 100%;
       display: block;
       object-fit: cover;
+    }
+    .now-reel-caption {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 22px;
+      row-gap: 5px;
+      padding: 18px 8px 4px;
+    }
+    .now-reel-caption .reel-label {
+      grid-row: span 2;
+      padding-top: 4px;
+      color: var(--blue-deep);
+      font: .65rem/1.45 'Fira Code', monospace;
+      letter-spacing: .12em;
+      white-space: nowrap;
+    }
+    .now-reel-caption h3 {
+      margin: 0;
+      font: 900 clamp(1.05rem, 1.7vw, 1.32rem)/1.45 'Noto Serif SC', serif;
     }
     .now-card {
       position: relative;
@@ -1414,6 +1435,8 @@
       .explore .exp-side { position: static; margin-bottom: 12px; }
       .explore .exp-side .gradient-meter { flex-direction: row; flex-wrap: wrap; }
       .now-grid { grid-template-columns: 1fr; }
+      .now-reel-caption { grid-template-columns: 1fr; gap: 7px; }
+      .now-reel-caption .reel-label { grid-row: auto; }
       .contact-links { grid-template-columns: 1fr; gap: 0; }
       .hero .marginalia { display: none; }
       .section-index { display: none; }
@@ -1663,7 +1686,7 @@
           <h2 class="sec-title">正在搞</h2>
           <span class="sec-en">Now</span>
         </div>
-        <p class="sec-sub">手上有一段正在打磨的影像，也有两个还没收尾的小东西。</p>
+        <p class="sec-sub">除了工作和已经做的事情，我也在不断扩展自己的边界。</p>
       </div>
 
       <article class="now-reel reveal">
@@ -1673,11 +1696,15 @@
             <source src="assets/ip-workshop-process.mp4" type="video/mp4">
           </video>
         </div>
+        <div class="now-reel-caption">
+          <span class="reel-label">我的日常状态</span>
+          <h3>学习、上手、调试，出 bug 再修 bug。</h3>
+        </div>
       </article>
 
       <div class="now-grid">
         <div class="now-card reveal">
-          <span class="now-label">in progress ✦</span>
+          <span class="now-label">AI + 硬件 ✦</span>
           <span class="now-emoji">🤖</span>
           <h3 class="now-title">stack-chan 改造</h3>
           <p class="now-desc">
@@ -1691,9 +1718,9 @@
         </div>
 
         <div class="now-card reveal reveal-d1">
-          <span class="now-label">learning ✦</span>
+          <span class="now-label">AI 生图&视频 + Blender ✦</span>
           <span class="now-emoji">🐻</span>
-          <h3 class="now-title">AI 生图 + 视频 + Blender 做 IP</h3>
+          <h3 class="now-title">AI 生图&视频 + Blender 做 IP</h3>
           <p class="now-desc">
             形象已经捏出来了，但表达还需要再进一步——
             从 AI 生图到 Blender 建模，再到视频漫剧，让 IP 活起来。
