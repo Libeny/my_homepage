@@ -148,6 +148,75 @@
     }
 
     /* =========================================================
+       页边目录 —— 书页索引，不抢首屏
+       ========================================================= */
+    .section-index {
+      position: fixed;
+      top: 50%;
+      right: clamp(1rem, 2.6vw, 2.5rem);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transform: translateY(-50%) translateX(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+    }
+    .section-index.is-visible {
+      transform: translateY(-50%);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .section-index a {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      min-height: 30px;
+      color: var(--ink-faint);
+      text-decoration: none;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      transition: color var(--dur-fast) var(--ease-out);
+    }
+    .section-index .index-label {
+      max-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      opacity: 0;
+      transition: max-width var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+    }
+    .section-index .index-line {
+      width: 12px;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.45;
+      transition: width var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+    }
+    .section-index:hover .index-label,
+    .section-index a[aria-current="true"] .index-label,
+    .section-index a:focus-visible .index-label {
+      max-width: 7em;
+      opacity: 1;
+    }
+    .section-index a[aria-current="true"] { color: var(--ink); }
+    .section-index a[aria-current="true"] .index-line {
+      width: 34px;
+      height: 2px;
+      background: var(--blue-deep);
+      opacity: 1;
+    }
+    .section-index a:focus-visible,
+    .index-menu-toggle:focus-visible,
+    .index-menu a:focus-visible {
+      outline: 2px solid var(--blue-deep);
+      outline-offset: 4px;
+    }
+    .index-menu-toggle, .index-menu { display: none; }
+
+    /* =========================================================
        信念 manifesto —— 暖棕暗面板（节奏断点）
        ========================================================= */
     .manifesto {
@@ -583,6 +652,38 @@
       grid-template-columns: repeat(2, 1fr);
       gap: clamp(20px, 2.4vw, 28px);
     }
+    .now-reel {
+      width: min(100%, 920px);
+      padding: clamp(14px, 2vw, 22px);
+      margin: 0 auto clamp(34px, 5vw, 58px);
+      border: 1px solid rgba(105,75,64,.14);
+      border-radius: 18px;
+      background: rgba(255,255,255,.62);
+    }
+    .now-reel-media {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(189,231,229,.9) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 76% 72%, rgba(244,207,214,.72) 0 1.5px, transparent 2px),
+        linear-gradient(135deg, #F6EEE5, #E8F3F1 54%, #FBE9EC);
+      border: 1px solid rgba(105,75,64,.1);
+    }
+    .now-reel-media::before {
+      content: '';
+      position: absolute; inset: 13% 16%;
+      border: 1px dashed rgba(105,75,64,.2);
+      border-radius: 50%;
+      transform: rotate(-9deg);
+    }
+    .now-reel-media img {
+      position: absolute;
+      height: 74%; width: auto;
+      right: 16%; bottom: -3%;
+      filter: drop-shadow(0 14px 16px rgba(105,75,64,.16));
+    }
     .now-card {
       position: relative;
       border: 2px dashed;
@@ -629,7 +730,7 @@
     }
     .now-card .now-thumb {
       margin-top: 8px;
-      aspect-ratio: 16/10;
+      aspect-ratio: 16/9;
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
@@ -741,16 +842,16 @@
     }
     .life-entry--wide {
       display: grid;
-      grid-template-columns: 0.85fr 1.15fr;
-      gap: clamp(28px, 4vw, 56px);
+      grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.72fr) minmax(230px, 0.48fr);
+      gap: clamp(24px, 3vw, 46px);
       align-items: center;
     }
     .life-entry--wide .le-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
-    @media (max-width: 760px) {
+    @media (max-width: 1100px) {
       .life-entry--wide { grid-template-columns: 1fr; }
     }
     .life-entry .le-label {
@@ -803,6 +904,7 @@
       line-height: 1.3;
     }
     .life-entry .le-body p {
+      max-width: 34ch;
       font-size: 0.92rem;
       color: var(--ink-light);
       line-height: 1.8;
@@ -831,64 +933,188 @@
       margin-right: 4px;
     }
     .life-entry .le-cta {
-      margin-top: auto;
-      padding-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      margin-top: 4px;
+      padding: 9px 0 7px;
+      border-bottom: 2px solid var(--blue-deep);
       font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--red);
       letter-spacing: 0.04em;
-      transition: transform var(--dur-fast) var(--ease-out);
+      text-decoration: none;
+      transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
     }
-    .life-entry:hover .le-cta { transform: translateX(4px); }
-    @media (max-width: 900px) { .life-entry-grid { grid-template-columns: 1fr; } }
-
-    /* =========================================================
-       §5  写作 —— 轻量入口
-       ========================================================= */
-    .writing-grid {
+    .life-entry .le-cta:hover { transform: translateX(6px); color: var(--ink); }
+    .life-entry .le-cta:focus-visible { outline: 2px solid var(--blue-deep); outline-offset: 5px; }
+    .life-entry .life-index {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      align-self: stretch;
+      justify-content: center;
+      gap: 22px;
+      padding-left: clamp(20px, 2vw, 34px);
+      border-left: 1px solid rgba(105,75,64,0.14);
+    }
+    .life-index-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.13em;
+      color: var(--blue-deep);
+    }
+    .life-index-title span { display: block; margin-top: 8px; color: var(--ink-faint); font-size: 0.62rem; }
+    .life-index-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      list-style: none;
+    }
+    .life-index-list li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; }
+    .life-index-list b { font-family: 'Fira Code', monospace; font-size: 0.62rem; color: var(--ink-faint); padding-top: 3px; }
+    .life-index-list strong { display: block; font-family: 'Noto Serif SC', serif; font-size: 0.94rem; line-height: 1.35; }
+    .life-index-list span { display: block; margin-top: 3px; color: var(--ink-light); font-size: 0.76rem; line-height: 1.55; }
+    @media (max-width: 900px) { .life-entry-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) {
+      .life-entry .life-index {
+        gap: 18px;
+        padding-top: 24px;
+        padding-left: 0;
+        border-top: 1px solid rgba(105,75,64,0.14);
+        border-left: 0;
+      }
+      .life-index-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+    }
+
+    /* =========================================================
+       §5  写作 —— 三本并列的目录册
+       ========================================================= */
+    .writing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid rgba(105,75,64,0.18);
+      border-bottom: 1px solid rgba(105,75,64,0.18);
     }
     .writing-entry {
+      --writing-accent: var(--blue-deep);
+      position: relative;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: clamp(32px, 4vw, 48px) clamp(28px, 3.5vw, 44px);
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 14px rgba(105,75,64,0.05);
+      min-height: 480px;
+      flex-direction: column;
+      padding: clamp(24px, 3vw, 38px);
+      border-left: 1px solid rgba(105,75,64,0.18);
       text-decoration: none;
       color: var(--ink);
-      transition: transform var(--dur-med) var(--ease-out),
-                  box-shadow var(--dur-med) var(--ease-out);
+      overflow: hidden;
+      transition: background var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+    }
+    .writing-entry:first-child { border-left: 0; }
+    .writing-entry::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: var(--writing-accent);
+      transform: scaleX(0.28);
+      transform-origin: left;
+      transition: transform var(--dur-med) var(--ease-out);
     }
     .writing-entry:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(105,75,64,0.1);
+      background: rgba(255,255,255,0.4);
+      transform: translateY(-5px);
+    }
+    .writing-entry:hover::before { transform: scaleX(1); }
+    .writing-entry--field { --writing-accent: var(--red); }
+    .writing-entry--life { --writing-accent: #C56B7B; }
+    .writing-entry--doc { min-height: 540px; }
+    .writing-entry .w-num {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.7rem, 5vw, 4.5rem);
+      font-style: italic;
+      font-weight: 900;
+      line-height: 0.9;
+      color: var(--writing-accent);
+      opacity: 0.72;
+      margin-bottom: 28px;
     }
     .writing-entry .w-title {
       font-family: 'Noto Serif SC', serif;
-      font-size: clamp(1.15rem, 2vw, 1.4rem);
-      font-weight: 700;
+      font-size: clamp(1.45rem, 2.4vw, 2rem);
+      font-weight: 900;
+      line-height: 1.2;
+    }
+    .writing-entry .w-en {
+      margin-top: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
     }
     .writing-entry .w-sub {
-      font-size: 0.85rem;
+      margin-top: 22px;
+      font-size: 0.9rem;
+      line-height: 1.85;
       color: var(--ink-light);
-      margin-top: 4px;
     }
+    .writing-entry .doc-preview {
+      margin-top: 36px;
+      padding: 18px;
+      border: 1px solid rgba(105,75,64,0.16);
+      border-left: 4px solid var(--writing-accent);
+      background: rgba(255,255,255,0.56);
+      box-shadow: 5px 6px 0 rgba(189,231,229,0.24);
+      transform: translate(5px, 4px) rotate(0.55deg);
+      transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), background var(--dur-med) var(--ease-out);
+    }
+    .writing-entry:hover .doc-preview {
+      transform: translate(0, -6px) rotate(0deg);
+      background: rgba(255,255,255,0.86);
+      box-shadow: 8px 10px 0 rgba(189,231,229,0.42);
+    }
+    .doc-preview .doc-label {
+      display: block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.61rem;
+      letter-spacing: 0.12em;
+      color: var(--writing-accent);
+      margin-bottom: 7px;
+    }
+    .doc-preview .doc-title { display: block; font-family: 'Noto Serif SC', serif; font-size: 1rem; font-weight: 900; line-height: 1.45; }
+    .doc-preview .doc-meta { display: block; margin-top: 7px; font-family: 'Fira Code', monospace; font-size: 0.59rem; letter-spacing: 0.06em; color: var(--ink-faint); }
+    .doc-preview .doc-summary {
+      display: block;
+      max-height: 0;
+      margin-top: 0;
+      overflow: hidden;
+      color: var(--ink-light);
+      font-size: 0.75rem;
+      line-height: 1.65;
+      opacity: 0;
+      transition: max-height var(--dur-med) var(--ease-out), margin var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+    }
+    .writing-entry:hover .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
+    .writing-entry:not(.writing-entry--doc) .arrow { margin-top: auto; }
     .writing-entry .arrow {
-      flex-shrink: 0;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--blue-soft);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      color: var(--blue-deep);
+      margin-top: 22px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      color: var(--writing-accent);
       transition: transform var(--dur-med) var(--ease-out);
     }
-    .writing-entry:hover .arrow { transform: translateX(4px); }
+    .writing-entry:hover .arrow { transform: translateX(7px); }
+
+    @media (max-width: 1080px) {
+      .writing-grid { grid-template-columns: 1fr; }
+      .writing-entry {
+        min-height: 0;
+        border-left: 0;
+        border-top: 1px solid rgba(105,75,64,0.18);
+      }
+      .writing-entry:first-child { border-top: 0; }
+      .writing-entry .w-num { margin-bottom: 16px; }
+      .writing-entry .doc-preview { margin-top: 36px; }
+      .doc-preview .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
+    }
 
     /* blog 空列表（笔记本空白行） */
     .blog-empty {
@@ -1197,6 +1423,59 @@
       .now-grid { grid-template-columns: 1fr; }
       .contact-links { grid-template-columns: 1fr; gap: 0; }
       .hero .marginalia { display: none; }
+      .section-index { display: none; }
+      .index-menu-toggle {
+        display: inline-flex;
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 31;
+        align-items: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid rgba(105,75,64,0.2);
+        border-radius: 100px;
+        background: rgba(251,242,227,0.92);
+        color: var(--ink);
+        box-shadow: 0 5px 18px rgba(105,75,64,0.12);
+        font-family: 'Fira Code', monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: opacity var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+      }
+      .index-menu-toggle.is-visible { opacity: 1; pointer-events: auto; transform: none; }
+      .index-menu {
+        position: fixed;
+        right: 16px;
+        bottom: 64px;
+        z-index: 30;
+        min-width: 166px;
+        padding: 8px;
+        border: 1px solid rgba(105,75,64,0.16);
+        border-radius: 12px;
+        background: var(--cream);
+        box-shadow: 0 12px 30px rgba(105,75,64,0.16);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+      }
+      .index-menu.is-open { opacity: 1; pointer-events: auto; transform: none; }
+      .index-menu a {
+        display: flex;
+        gap: 10px;
+        padding: 10px 9px;
+        color: var(--ink-light);
+        text-decoration: none;
+        font-size: 0.82rem;
+      }
+      .index-menu a[aria-current="true"] { color: var(--ink); background: var(--yellow-soft); }
+      .index-menu .index-num { font-family: 'Fira Code', monospace; color: var(--blue-deep); }
     }
     @media (max-width: 600px) {
       body { font-size: 15.5px; }
@@ -1215,10 +1494,28 @@
 </head>
 <body>
 
+  <nav class="section-index" aria-label="页面目录">
+    <a href="#top" data-index-target="top"><span class="index-label">首页</span><span>01</span><i class="index-line"></i></a>
+    <a href="#explore" data-index-target="explore"><span class="index-label">探索</span><span>02</span><i class="index-line"></i></a>
+    <a href="#now" data-index-target="now"><span class="index-label">正在搞</span><span>03</span><i class="index-line"></i></a>
+    <a href="#off-screen" data-index-target="off-screen"><span class="index-label">屏幕外</span><span>04</span><i class="index-line"></i></a>
+    <a href="#writing" data-index-target="writing"><span class="index-label">写</span><span>05</span><i class="index-line"></i></a>
+    <a href="#contact" data-index-target="contact"><span class="index-label">联系</span><span>06</span><i class="index-line"></i></a>
+  </nav>
+  <button class="index-menu-toggle" type="button" aria-expanded="false" aria-controls="indexMenu">目录 <span aria-hidden="true">↗</span></button>
+  <nav class="index-menu" id="indexMenu" aria-label="页面目录">
+    <a href="#top" data-index-target="top"><span class="index-num">01</span>首页</a>
+    <a href="#explore" data-index-target="explore"><span class="index-num">02</span>探索</a>
+    <a href="#now" data-index-target="now"><span class="index-num">03</span>正在搞</a>
+    <a href="#off-screen" data-index-target="off-screen"><span class="index-num">04</span>屏幕外的我</a>
+    <a href="#writing" data-index-target="writing"><span class="index-num">05</span>写</a>
+    <a href="#contact" data-index-target="contact"><span class="index-num">06</span>联系</a>
+  </nav>
+
   <!-- ============================================================
        §1  HERO —— 扉页：我是谁
        ============================================================ -->
-  <section class="hero">
+  <section class="hero" id="top">
     <div class="hero-mascot reveal">
       <video autoplay loop muted playsinline poster="assets/intro-avatar.gif" aria-label="我的形象动画">
         <source src="assets/intro-avatar.webm" type="video/webm">
@@ -1302,7 +1599,6 @@
               <p class="exp-story">研发和测试的流程里有大量重复劳动——AI 怎么真正进流程，而不只是停在聊天框里？</p>
               <p class="exp-story">小刚Claw 的做法是 AI-Coding / AI-QA 双线并进，做真正的「数字员工」：<strong>有职责、有流程、能交付</strong>。</p>
               <p class="exp-story">已经在公司内帮研发和测试提效——公司项目，讲了架构和效果，其余待解密。</p>
-              <a class="exp-cta" href="writing-tech-process.html#claw">读架构笔记 →（细节待解密）</a>
             </div>
           </article>
 
@@ -1323,7 +1619,6 @@
               <p class="exp-story">Hackathon 上的一道题：没有技术背景的人，怎么把一个 idea 变成能跑的产品？</p>
               <p class="exp-story">crewless 的解法是——从 idea 输入开始，把需求拆解、生成、构建、部署全自动串成一条管线。</p>
               <p class="exp-story"><strong>现场 demo 全程跑通</strong>，最后没获奖（难受），但整个过程值得完整记下来。</p>
-              <a class="exp-cta" href="writing-tech-process.html#crewless">读完整复盘 →</a>
             </div>
           </article>
 
@@ -1375,8 +1670,14 @@
           <h2 class="sec-title">正在搞</h2>
           <span class="sec-en">Now</span>
         </div>
-        <p class="sec-sub">手上有两个还没收尾的小东西，都是玩心。</p>
+        <p class="sec-sub">手上有一段正在打磨的影像，也有两个还没收尾的小东西。</p>
       </div>
+
+      <article class="now-reel reveal">
+        <div class="now-reel-media" aria-label="木鱼 IP 创作过程视频预留区域">
+          <img src="assets/favicon.png" alt="木鱼的 IP 形象">
+        </div>
+      </article>
 
       <div class="now-grid">
         <div class="now-card reveal">
@@ -1396,7 +1697,7 @@
         <div class="now-card reveal reveal-d1">
           <span class="now-label">learning ✦</span>
           <span class="now-emoji">🐻</span>
-          <h3 class="now-title">AI 生图 + Blender 做 IP</h3>
+          <h3 class="now-title">AI 生图 + 视频 + Blender 做 IP</h3>
           <p class="now-desc">
             形象已经捏出来了，但表达还需要再进一步——
             从 AI 生图到 Blender 建模，再到视频漫剧，让 IP 活起来。
@@ -1425,7 +1726,7 @@
       </div>
 
       <div class="life-entry-grid">
-        <a href="life.html#been-there" class="life-entry life-entry--wide reveal">
+        <article class="life-entry life-entry--wide reveal">
           <div class="le-media">
             <video autoplay loop muted playsinline poster="assets/拍照-poster.jpg" aria-label="旅行中拍照的形象">
               <source src="assets/拍照.webm" type="video/webm">
@@ -1437,11 +1738,20 @@
             <span class="le-label">旅行 · TRAVEL</span>
             <div class="le-body">
               <h3>屏幕外，在路上</h3>
-              <p>西双版纳、黄山、济南、徐州——雨林、松石、泉水、汉石。一段路，一段记。更多城市在 Life Log。</p>
+              <p>合上电脑之后，去走一走、看一看。这里记下城市、路线和当时最先浮上来的观察。</p>
             </div>
-            <span class="le-cta">看完整 Life Log →</span>
+            <a class="le-cta" href="life.html#been-there">进入 Life Log ↗</a>
           </div>
-        </a>
+          <div class="life-index">
+            <div class="life-index-title">城市索引<span>BEEN THERE</span></div>
+            <ol class="life-index-list">
+              <li><b>01</b><div><strong>西双版纳</strong><span>把通知声调低</span></div></li>
+              <li><b>02</b><div><strong>黄山</strong><span>松树把石头抓得很稳</span></div></li>
+              <li><b>03</b><div><strong>济南</strong><span>泉水托住老城的节奏</span></div></li>
+              <li><b>04</b><div><strong>徐州</strong><span>历史线条与湖边的松弛</span></div></li>
+            </ol>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -1457,32 +1767,38 @@
           <h2 class="sec-title">写</h2>
           <span class="sec-en">Writing</span>
         </div>
-        <p class="sec-sub">技术文档 + 生活杂谈——把项目里的思考和过程记下来。</p>
+        <p class="sec-sub">把做过的、在场的、生活里的，都留下一点。</p>
       </div>
 
       <div class="writing-grid">
-        <a href="writing-tech-process.html" class="writing-entry reveal">
-          <div>
-            <div class="w-title">技术文档 · 过程性记录</div>
-            <div class="w-sub">项目的过程、踩坑、没获奖但值得记录的瞬间。</div>
+        <a href="writing.html?category=tech" class="writing-entry writing-entry--doc reveal">
+          <span class="w-num">01</span>
+          <div class="w-title">技术文档</div>
+          <div class="w-en">DOCUMENTS</div>
+          <div class="w-sub">近期对最新技术的拆解、分析与学习文档。</div>
+          <div class="doc-preview">
+            <span class="doc-label">ARCHIVE / 01</span>
+            <span class="doc-title">qwen-audio-agent<br>架构深读</span>
+            <span class="doc-meta">AI AGENT · ARCHITECTURE</span>
+            <span class="doc-summary">如何打造一个既能秒回，也能干活的 Agent。</span>
           </div>
-          <span class="arrow">→</span>
+          <span class="arrow">进入文档库 →</span>
         </a>
 
-        <a href="writing-tech-analysis.html" class="writing-entry reveal reveal-d1">
-          <div>
-            <div class="w-title">技术文档 · 分析拆解</div>
-            <div class="w-sub">技术架构、深度调研、拆解和复盘。</div>
-          </div>
-          <span class="arrow">→</span>
+        <a href="writing.html?category=field" class="writing-entry writing-entry--field reveal reveal-d1">
+          <span class="w-num">02</span>
+          <div class="w-title">活动小记</div>
+          <div class="w-en">IN THE FIELD</div>
+          <div class="w-sub">活动 · 实验 · 在路上。记录真的去过、做过、正在发生的科技现场。</div>
+          <span class="arrow">进入活动小记 →</span>
         </a>
 
-        <a href="writing-life.html" class="writing-entry reveal reveal-d2">
-          <div>
-            <div class="w-title">生活杂谈</div>
-            <div class="w-sub">随便写写，不赶时间。</div>
-          </div>
-          <span class="arrow">→</span>
+        <a href="writing.html?category=life" class="writing-entry writing-entry--life reveal reveal-d2">
+          <span class="w-num">03</span>
+          <div class="w-title">生活杂谈</div>
+          <div class="w-en">LIFE</div>
+          <div class="w-sub">路上看到，心里想到。技术之外，也把真实的日子留下来。</div>
+          <span class="arrow">随便看看 →</span>
         </a>
       </div>
     </div>
@@ -1571,6 +1887,77 @@
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // === Life Log 预取：用户接近该区块时缓存下一页，避免点击后的换页卡顿 ===
+    (function() {
+      const lifeSection = document.getElementById('off-screen');
+      if (!lifeSection || !('IntersectionObserver' in window)) return;
+      let prefetched = false;
+      const prefetch = () => {
+        if (prefetched) return;
+        prefetched = true;
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'document';
+        link.href = 'life.html';
+        document.head.appendChild(link);
+      };
+      const lifeObserver = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) {
+          prefetch();
+          lifeObserver.disconnect();
+        }
+      }, { rootMargin: '420px 0px' });
+      lifeObserver.observe(lifeSection);
+    })();
+
+    // === 页边目录：越过扉页后出现，跟随当前章节 ===
+    (function() {
+      const desktopIndex = document.querySelector('.section-index');
+      const menuButton = document.querySelector('.index-menu-toggle');
+      const mobileMenu = document.querySelector('.index-menu');
+      const links = [...document.querySelectorAll('[data-index-target]')];
+      const sections = [...new Set(links.map(link => document.getElementById(link.dataset.indexTarget)))].filter(Boolean);
+      if (!desktopIndex || !menuButton || !mobileMenu || !sections.length) return;
+
+      function setActive(id) {
+        links.forEach(link => link.setAttribute('aria-current', String(link.dataset.indexTarget === id)));
+      }
+      function setVisibility() {
+        const show = window.scrollY > window.innerHeight * 0.55;
+        desktopIndex.classList.toggle('is-visible', show);
+        menuButton.classList.toggle('is-visible', show);
+        if (!show) {
+          mobileMenu.classList.remove('is-open');
+          menuButton.setAttribute('aria-expanded', 'false');
+        }
+      }
+      const sectionObserver = new IntersectionObserver(entries => {
+        const active = entries.filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (active) setActive(active.target.id);
+      }, { rootMargin: '-35% 0px -55% 0px', threshold: [0, 0.15, 0.45] });
+      sections.forEach(section => sectionObserver.observe(section));
+      window.addEventListener('scroll', setVisibility, { passive: true });
+      setVisibility();
+
+      menuButton.addEventListener('click', () => {
+        const open = !mobileMenu.classList.contains('is-open');
+        mobileMenu.classList.toggle('is-open', open);
+        menuButton.setAttribute('aria-expanded', String(open));
+      });
+      links.forEach(link => link.addEventListener('click', () => {
+        mobileMenu.classList.remove('is-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      }));
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && mobileMenu.classList.contains('is-open')) {
+          mobileMenu.classList.remove('is-open');
+          menuButton.setAttribute('aria-expanded', 'false');
+          menuButton.focus();
+        }
+      });
+    })();
 
     // === BETTER CALL MUYU · Kinetic Text（esther #48） ===
     // 鼠标悬停：字符字重 400→900 + 变薄荷色，相邻字符被"牵引"到 600
