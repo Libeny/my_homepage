@@ -11,3 +11,6 @@
 
 # Logs
 *.log
+
+# 字体源文件缓存（build-font-subsets.py 生成，可重新下载）
+.font-cache/

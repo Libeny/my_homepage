@@ -9,9 +9,8 @@
   <meta name="description" content="一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。">
 
   <!-- === esther 锁定 token：薄荷绿 / 淡粉 / 深棕 / 奶油 === -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,400;1,9..144,900&family=Caveat:wght@400;700&family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <!-- 全站字体自托管子集：scripts/build-font-subsets.py 生成，国内可达、零外部依赖 -->
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
 
   <style>
     /* =========================================================
@@ -1911,27 +1910,27 @@
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // === Life Log 预取：用户接近该区块时缓存下一页，避免点击后的换页卡顿 ===
+    // === 子页预取：用户接近对应区块时缓存下一页，避免点击后的换页卡顿 ===
     (function() {
-      const lifeSection = document.getElementById('off-screen');
-      if (!lifeSection || !('IntersectionObserver' in window)) return;
-      let prefetched = false;
-      const prefetch = () => {
-        if (prefetched) return;
-        prefetched = true;
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.as = 'document';
-        link.href = 'life.html';
-        document.head.appendChild(link);
-      };
-      const lifeObserver = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) {
-          prefetch();
-          lifeObserver.disconnect();
-        }
-      }, { rootMargin: '420px 0px' });
-      lifeObserver.observe(lifeSection);
+      if (!('IntersectionObserver' in window)) return;
+      const targets = [
+        { id: 'off-screen', href: 'life.html' },
+        { id: 'writing', href: 'writing.html' },
+      ];
+      targets.forEach(({ id, href }) => {
+        const section = document.getElementById(id);
+        if (!section) return;
+        const sectionObserver = new IntersectionObserver(entries => {
+          if (!entries.some(entry => entry.isIntersecting)) return;
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.as = 'document';
+          link.href = href;
+          document.head.appendChild(link);
+          sectionObserver.disconnect();
+        }, { rootMargin: '420px 0px' });
+        sectionObserver.observe(section);
+      });
     })();
 
     // === 页边目录：越过扉页后出现，跟随当前章节 ===
