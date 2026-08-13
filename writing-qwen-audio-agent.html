@@ -353,19 +353,19 @@
     <div class="meta">
       <span>2026-08</span>
       <span>ARCHITECTURE DEEP-DIVE</span>
-      <span>SOURCE: v1.4.2 ~ v1.7.0</span>
+      <span>SOURCE: v1.4.2</span>
     </div>
-    <p class="lede">通读并实测了 qwen-audio-agent（QwenAudio 团队开源的实时语音 Agent 运行时）的核心源码。它表面上"给 Agent 加了语音"，但真正做的事情深刻得多：<strong>把"对话"和"干活"拆成了两条独立的循环</strong>。本文是我们的完整分析。</p>
+    <p class="lede">通读并实测了 qwen-audio-agent（QwenAudio 团队开源的实时语音 Agent 运行时）的核心源码。它表面上只是"给 Agent 加了语音"，实际做的是<strong>把"对话"和"干活"拆成两条独立的循环</strong>：一套以语音为主线的 Agent 运行系统。</p>
   </header>
 
   <article class="post">
 
     <h2>一、从一个熟悉的坏体验说起</h2>
 
-    <p>用过 IM 里的 Agent（比如把 OpenClaw 接进飞书/钉钉/微信）的人都熟悉这个时刻：你在对话里下达一个任务，然后——长久的沉默。它是在干还是卡住了？不知道。这个对话窗口期间也别想干别的：再问个问题，要么排队，要么和进行中的任务搅在一起。消息发出去石沉大海，你只能盯着屏幕，等那句不知道什么时候来的回复。</p>
+    <p>用过 IM 里的 Agent（比如把 OpenClaw 接进飞书/钉钉/微信）的人都熟悉这个时刻：你在对话里下达一个任务，然后——长久的沉默。它是在干还是卡住了？不知道。这期间，这个对话窗口也别想干别的：再问个问题，要么排队，要么和进行中的任务搅在一起。消息发出去石沉大海，你只能盯着屏幕，等那句不知道什么时候来的回复。</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-0a-silence.jpg" alt="概念插画：一个人盯着聊天窗口，发出的消息像石头一样沉入深色的水底，画面安静、充满等待感" loading="lazy">
+      <img src="assets/fig-qaa-0a-silence.png" alt="概念插画：一个人瘫在沙发上举着手机，聊天记录里两条发出去的消息下面只有对方的正在输入省略号，墙上的钟在走，咖啡凉在一边" loading="lazy">
       <figcaption>
         <span class="hand">silence after the ask</span>
         <span class="fig-no">FIG.00 · 石沉大海</span>
@@ -376,11 +376,11 @@
 
     <ul>
       <li><strong>对话是常驻的</strong>——全双工实时语音，随时可打断，永不阻塞；</li>
-      <li><strong>工作是异步资源</strong>——进队、调度、执行、回报，有完整的生命周期管理；</li>
+      <li><strong>工作是异步资源</strong>——进队、调度、执行、回报，整条生命周期都有人管；</li>
       <li>任务的结果会<strong>挑一个安全时机</strong>自然回到对话里："已经好了。"</li>
     </ul>
 
-    <p>所以准确地说，它不是"给 Agent 装个语音入口"，而是一套<strong>以语音为主线的 Agent 运行系统</strong>：管对话的、管调度的、管执行的各自独立，每层都可替换。</p>
+    <p>所以，它是一套<strong>以语音为主线的 Agent 运行系统</strong>。核心是两件事：<strong>一、把程序写死的消息队列，换成 AI 处理的消息队列。</strong>派单、指代消解、播报合并都交给模型的语义理解——用模型能力换掉规则引擎。<strong>二、把后端的单 Agent，拆成可扩展的多 Agent。</strong>主 Agent 只做决策：下派任务，然后立即处理下一项。管对话的、管调度的、管执行的各自独立，每层都可替换。</p>
 
     <figure class="fig">
       <img src="assets/fig-qaa-0b-front-back.jpg" alt="概念插画：前景前台接待正与访客轻松交谈，背景透过玻璃可见忙碌的小团队在搬运箱子、操作机器" loading="lazy">
@@ -390,27 +390,27 @@
       </figcaption>
     </figure>
 
-    <h2>二、四个角色，各管一段</h2>
+    <h2>二、三个部分，各管一段</h2>
 
-    <p>理解这套系统最好的方式不是分层图，而是角色：</p>
+    <p>这套系统分三个部分：前台语音 Agent、后台干活 Agent，以及串联两者的调度台。</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-1-roles.png" alt="四个角色：用户经全双工语音到前台接待，派工单到调度台，固定身份续接到团队 leader，再派给组员；组员事件流单向同步回调度台，结果在安全窗口播报回前台" loading="lazy">
+      <img src="assets/fig-qaa-2-parts.png" alt="三个部分：用户经全双工语音到前台语音 Agent，派工单到调度台，调度台固定身份续接到后台干活 Agent——leader 常驻协调会话只做决策，组员下游工作会话真正干活；事件流单向同步回调度台，结果在安全窗口播报回前台" loading="lazy">
       <figcaption>
-        <span class="hand">four roles, one mission</span>
-        <span class="fig-no">FIG.01 · 四个角色</span>
+        <span class="hand">front, back, and the dispatcher</span>
+        <span class="fig-no">FIG.02 · 三个部分</span>
       </figcaption>
     </figure>
 
-    <p><strong>前台接待被刻意削权。</strong> 它能做的只有七件事：派任务、取消任务、问进度、问时间、记忆、清单、转达权限决定。它不能做的事同样明确：1. 不能选择或控制后台会话；2. 不能决定任务怎么执行；3. 不能挑工具和子 Agent。前台的全部判断权只有一项——这句话要不要派活。</p>
+    <p><strong>前台语音 Agent：只负责一件事——这句话要不要派活。</strong> 它能做的只有七件事：派任务、取消任务、问进度、问时间、记忆、清单、转达权限决定；不能选择或控制后台会话，不能决定任务怎么执行，不能挑工具和子 Agent。这份清单短，是刻意设计。</p>
 
-    <p><strong>leader 是唯一常驻的后台身份。</strong> 每个用户在调度台手里有一个固定身份的协调会话，每轮请求都续接同一个。所有语音请求的上下文都累积在这一个会话里——这就是为什么"刚才那个"这种指代永远有唯一解。</p>
+    <p><strong>调度台：串联前后的枢纽，也是唯一知道每个任务"走到哪一步"的角色。</strong> 工单的排队、进度、发言权都登记在它这里——后台 Agent 可以换，记录只以调度台为准。它不干活，只做调度：受理、派单、订阅、认定完成、执行取消。</p>
 
-    <p><strong>组员可以同时有很多个，但都不自治。</strong> 下游工作会话由 leader 按需创建、并行干活，但它的状态、完成认定、取消确认全部握在调度台手里。</p>
+    <p><strong>后台干活 Agent 分两种身份。leader 唯一常驻</strong>：每个用户在调度台手里有一个固定身份的协调会话，每轮请求都续接同一个。所有语音请求的上下文都累积在这一个会话里，"刚才那个"这种指代因此永远有唯一解。<strong>组员可以很多，但都不自治</strong>：由 leader 按需创建、并行干活，它的状态、完成认定、取消确认全部握在调度台手里。</p>
 
     <h2>三、四条协同链路</h2>
 
-    <p>架构图只能说明"有谁"，系统真正的功夫在角色之间怎么协同。</p>
+    <p>接下来看三个部分之间是怎么协同的。</p>
 
     <h3><span class="no">3.1</span>前台 ↔ 调度台：发言权与播报</h3>
 
@@ -418,62 +418,57 @@
 
     <ol class="scenes">
       <li>
-        <p class="s-what"><strong>场面</strong>：AI 正在播报结果，用户开口说话，两个声音叠在一起，谁都听不清。</p>
-        <p class="s-so"><strong>因此</strong>：人的轮次永远压过机器的轮次——用户一开口，AI 的播报立即让位（清播放缓冲、停当前生成）。打断不是异常处理，是状态机里的标准迁移；</p>
+        <p class="s-what"><strong>场面</strong>：AI 正在播报结果，用户开口说话，两个声音叠在一起。</p>
+        <p class="s-so"><strong>因此</strong>：人的轮次永远压过机器的轮次——用户一开口，AI 的播报立即让位（清播放缓冲、停当前生成）。每一次打断都对应状态机里的一次标准迁移；</p>
       </li>
       <li>
-        <p class="s-what"><strong>场面</strong>：用户正说到一半，一个结果到了，直接插播打断用户。</p>
+        <p class="s-what"><strong>场面</strong>：用户正说到一半，一个结果到了，直接插播。</p>
         <p class="s-so"><strong>因此</strong>：机器不抢话筒——结果只能在通道完全空闲时进入，否则扣下等待；</p>
       </li>
       <li>
-        <p class="s-what"><strong>场面</strong>：同时派的三个任务前后脚完成，三条播报连珠炮一样砸过来。</p>
+        <p class="s-what"><strong>场面</strong>：三个任务前后脚完成，三条播报连珠炮一样砸过来。</p>
         <p class="s-so"><strong>因此</strong>：通知按信息到达率设计，不按次数设计——相近时间完成的结果合并成一条："三件事都好了：第一……第二……"；</p>
       </li>
       <li>
-        <p class="s-what"><strong>场面</strong>：结果到了但通道一直忙，系统把这条结果弄丢了，用户永远不知道任务做完了。</p>
+        <p class="s-what"><strong>场面</strong>：通道一直忙，系统把这条结果弄丢了，用户永远不知道任务做完了。</p>
         <p class="s-so"><strong>因此</strong>：结果可以晚到，绝不能丢——等待队列 + 有上限的退避重试。丢一条结果，用户对系统的信任就塌一角，这比"晚说几秒"严重得多。</p>
       </li>
     </ol>
 
-    <p>这四条结论画出来，发言权状态机就自己长出来了：</p>
+    <p>这四条规则收敛成一台发言权状态机：</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-2-voice.png" alt="发言权状态机：通道空闲、用户说话中、AI 播报中三个状态及迁移，用户开口立即让位，结果到达扣下等待，合并窗口内并为一条" loading="lazy">
+      <img src="assets/fig-qaa-3-voice.png" alt="发言权状态机：通道空闲、用户说话中、AI 播报中三个状态及迁移，用户开口立即让位，结果到达扣下等待，合并窗口内并为一条" loading="lazy">
       <figcaption>
         <span class="hand">who holds the mic</span>
-        <span class="fig-no">FIG.02 · 发言权状态机</span>
+        <span class="fig-no">FIG.03 · 发言权状态机</span>
       </figcaption>
     </figure>
 
-    <p><strong>拉取方向</strong>（用户主动问"任务怎么样了"）是另一种权衡：调度台直接用自己的看板回答，毫秒级、不惊动后台——任务状态是<strong>系统自己的数据</strong>，问一句"干了没有"不该付出唤醒一个 LLM 的代价。唯一例外是任务已转包给组员，这时才向后台发一条高优先级内部查询（见 3.3）。</p>
+    <p><strong>用户主动问"任务怎么样了"的时候，调度台直接拿自己的看板回答</strong>：毫秒级、不惊动后台——任务状态是<strong>系统自己的数据</strong>，问一句"干了没有"不该付出唤醒一个 LLM 的代价。唯一例外是任务已转包给组员，这时才向后台发一条高优先级内部查询（见 3.3）。</p>
 
     <h3><span class="no">3.2</span>调度台 ↔ leader：派单与唤起</h3>
 
-    <p>先把一句话从你说出口到后台开工的<strong>完整旅程</strong>走一遍——这里有个最关键的设计：<strong>受理即回</strong>。</p>
-
     <figure class="fig">
-      <img src="assets/fig-qaa-3-journey.png" alt="派单旅程时序图：用户说完一句话，前台判断要派活，派单到调度台，调度台立即受理返回，前台一句话收尾，对话继续；工单进入 FIFO 队列，排到队首才唤醒 leader" loading="lazy">
+      <img src="assets/fig-qaa-4-journey.png" alt="派单旅程时序图：用户说完一句话，前台判断要派活，派单到调度台，调度台立即受理返回，前台一句话收尾，对话继续；工单进入 FIFO 队列，排到队首才唤醒 leader" loading="lazy">
       <figcaption>
         <span class="hand">accepted, not finished</span>
-        <span class="fig-no">FIG.03 · 派单旅程</span>
+        <span class="fig-no">FIG.04 · 派单旅程</span>
       </figcaption>
     </figure>
 
     <p>几个要点：</p>
 
     <ul>
-      <li><strong>派单返回的只有"受理"，没有"结果"。</strong> 调度台接单的瞬间前台就解放了——执行要等排队、要等 leader、可能几分钟，但这些都与对话无关；</li>
-      <li><strong>前台的收尾话术有纪律约束</strong>（写在前台提示词里）："已受理"不许说成"已完成"，不许承诺耗时，不许等待或轮询结果，语音交流始终保持可继续；</li>
-      <li><strong>排队发生在调度台，不发生在用户感知里。</strong> 你派三个任务，听到的只是三句"好"，它们在后端排成一队依次处理。</li>
+      <li><strong>派单返回的只有"受理"，没有"结果"</strong>——执行要排队、要等 leader、可能几分钟，但都与对话无关；</li>
+      <li><strong>排队发生在调度台，用户根本感觉不到。</strong> 你派三个任务，听到的只是三句"好"，它们在后端排成一队依次处理。</li>
     </ul>
+
+    <p>这套链路的核心就一句话：<strong>串行的只有决策，并发的全是执行。</strong>（"刚才那个"为什么永远有唯一解，见第 2 节，这里不重复。）</p>
 
     <p>同样先设想坏情况：</p>
 
     <ol class="scenes">
-      <li>
-        <p class="s-what"><strong>场面</strong>：每个任务都新开一个后台会话，"刚才那个改一下"彻底失效，上下文全部断裂。</p>
-        <p class="s-so"><strong>因此</strong>：协调身份唯一且常驻，每轮请求续接同一个会话；</p>
-      </li>
       <li>
         <p class="s-what"><strong>场面</strong>：多个任务同时涌进 leader，指代互相打架，它分不清"那个"是哪个。</p>
         <p class="s-so"><strong>因此</strong>：决策必须串行——FIFO 队列同一时刻只放一张工单进去；</p>
@@ -484,63 +479,54 @@
       </li>
     </ol>
 
-    <p>由此长出派单流程：</p>
+    <p>于是派单流程长这样：</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-4-dispatch.png" alt="派单流程：新工单到达后 leader 判断需要叫人吗——轻活自己干，用户引用了既往工作就让原来那个人续接已有工作会话，全新任务则叫个新人开新工作会话，随后释放 leader 的锁，leader 立即可以接下一单，组员在下游并行执行" loading="lazy">
+      <img src="assets/fig-qaa-5-dispatch.png" alt="派单流程：新工单到达后 leader 判断需要叫人吗——轻活自己干，用户引用了既往工作就让原来那个人续接已有工作会话，全新任务则叫个新人开新工作会话，随后释放 leader 的锁，leader 立即可以接下一单，组员在下游并行执行" loading="lazy">
       <figcaption>
         <span class="hand">delegate, then release the lock</span>
-        <span class="fig-no">FIG.04 · 派单流程</span>
+        <span class="fig-no">FIG.05 · 派单流程</span>
       </figcaption>
     </figure>
 
-    <p>两个决策点值得细说：</p>
+    <p>两处不显然的设计：</p>
 
     <ul>
-      <li><strong>「叫谁」不在代码里，在模型的语义理解里。</strong> 调度台只给 leader 候选人列表（现有工作会话）和一页用人规则，剩下的靠模型看着用户原话自己定——用模型能力换掉规则引擎。副作用是协调者每轮都要过一次 LLM，<strong>所有任务都要经过它，它的速度直接决定系统反应快慢，天然适合快而稳的模型</strong>；</li>
-      <li><strong>「转包即释放」是并发的来源。</strong> 工单一派给组员，leader 的锁和调度通道双双释放——串行的只有决策，并发的全是执行。</li>
+      <li><strong>谁来干活，由 leader 看着用户原话现场决定。</strong> 调度台不写死分发规则，只给 leader 一份候选人列表（现有工作会话）和一页用人规则，剩下的交给模型的语义理解。代价是协调者每轮都要过一次 LLM，<strong>它的速度直接决定系统反应快慢，天然适合快而稳的模型</strong>；</li>
+      <li><strong>工单一派出去，leader 的锁和调度通道双双释放</strong>，转头就能接下一单。</li>
     </ul>
 
     <h3><span class="no">3.3</span>组员 &amp; leader → 调度台：进度回流与完成认定</h3>
 
-    <p>坏情况设想：</p>
+    <p>这里有三个设计纪律：</p>
 
-    <ol class="scenes">
-      <li>
-        <p class="s-what"><strong>场面</strong>：组员要主动写"工作汇报"，每个后台 Agent 都得专门改造才能接入。</p>
-        <p class="s-so"><strong>因此</strong>：进度靠订阅不靠汇报，组员零额外义务；</p>
-      </li>
-      <li>
-        <p class="s-what"><strong>场面</strong>：leader 被问进度时去翻下游的目录、或凭自己的记忆编，用户拿到假进度。</p>
-        <p class="s-so"><strong>因此</strong>：查询只读调度台的本地记录，查不到就老实说查不到；</p>
-      </li>
-      <li>
-        <p class="s-what"><strong>场面</strong>：下游随便一个事件都能宣布"完成了"，用户收到的是别人的结果。</p>
-        <p class="s-so"><strong>因此</strong>：完成必须按转包编号验明正身，忙、空、无关、过期的结果统统不能冒充。</p>
-      </li>
-    </ol>
+    <ul>
+      <li><strong>进度靠订阅不靠汇报</strong>——组员对谁都不用主动汇报：它只按 ACP 标准照常往外推进展事件，调度台在转包那一刻自己挂好订阅。组员不用为接入做任何改造，所以任何按标准实现的后台 Agent 拿来就能用；</li>
+      <li><strong>进度查询只读调度台的本地记录</strong>——leader 不许去翻组员的目录、更不许凭自己的记忆编，查不到就老实说查不到；</li>
+      <li><strong>完成必须按转包编号验明正身</strong>——忙、空、无关、过期的结果统统不能冒充，用户收到的不会是别人的结果。</li>
+    </ul>
 
-    <p>载体是 <strong>ACP（Agent Client Protocol）</strong>：一套"程序使唤 AI Agent"的开放标准——怎么开会话、怎么派任务、怎么收进度、怎么叫停，全都规定死了。任何 Agent 按这套标准实现一遍，调度台拿过来就能用，不需要为每家单独写对接代码。组员干活时按标准持续往外推进展事件，调度台在转包那一刻挂好订阅，把进展沉淀进自己的看板，完成事件也经同一条订阅按编号核对。这就是 Kimi Code、Qoder、OpenCode 等九家后端即插即用的原因（Claude Code、Codex 走适配器）。</p>
+    <p>载体是 <strong>ACP（Agent Client Protocol）</strong>：一套"程序使唤 AI Agent"的开放标准——怎么开会话、怎么派任务、怎么收进度、怎么叫停，全都规定死了。任何 Agent 按这套标准实现一遍，调度台拿过来就能用，不需要为每家单独写对接代码。组员干活时按标准持续往外推进展事件，调度台把进展沉淀进自己的看板，完成事件也经同一条订阅按编号核对。这就是 Kimi Code、Qoder、OpenCode 等九家后端即插即用的原因（Claude Code、Codex 走适配器）。</p>
 
     <h3><span class="no">3.4</span>取消：每个状态都必须有一条"真的能停"的路径</h3>
 
-    <p>取消最容易被做成一个笑话：用户说了"取消"，界面上工单灰了，<strong>但下游的活还在跑</strong>——token 照烧，文件照改。坏情况只有一个，但很致命：<strong>"取消"必须真正让执行停下来，而不是让界面看起来停了。</strong></p>
+    <p>用户说了"取消"，界面上工单灰了，<strong>但组员的活还在跑</strong>——token 照烧，文件照改。<strong>"取消"必须让执行真的停下来，而不是让界面看起来停了。</strong></p>
 
     <p>难的地方在于：取消请求到达时，工单可能处在完全不同的阶段，每个阶段的"停法"不一样：</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-5-cancel.png" alt="取消流程图：用户喊停后按工单所在阶段分发——排队中本地直接作废，协调中中止 leader 当前请求，已转包则 leader 有空就转告组员停止、正忙则调度台绕过 leader 直发取消，最终等待停止被确认后工单落地为已取消" loading="lazy">
+      <img src="assets/fig-qaa-6-cancel.png" alt="取消流程图：用户喊停后按工单所在阶段分发——排队中本地直接作废，协调中中止 leader 当前请求，已转包则 leader 有空就转告组员停止、正忙则调度台绕过 leader 直发取消，最终等待停止被确认后工单落地为已取消" loading="lazy">
       <figcaption>
         <span class="hand">every state can truly stop</span>
-        <span class="fig-no">FIG.05 · 取消路径</span>
+        <span class="fig-no">FIG.06 · 取消路径</span>
       </figcaption>
     </figure>
 
     <p>两个设计点：</p>
 
     <ul>
-      <li><strong>已转包是取消最难的情形</strong>——执行权已经不在 leader 手上了。所以留了两条路：leader 有空就走"正式渠道"转告（保住协调上下文的完整性）；leader 正忙，调度台直接向下游会话发取消（保住取消的及时性）。<strong>两条路都要等下游真正确认停了</strong>，工单才从"取消中"落地为"已取消"；</li>
-      <li>之所以敢让调度台"绕过 leader"，是因为取消是安全管理动作而不是协作动作——但它会事后给 leader 补一条记录，<strong>让协调上下文知道"那件事被用户叫停了"</strong>，避免 leader 下次还在等一个永远不会来的结果。</li>
+      <li><strong>已转包是取消最难的情形</strong>——执行权已经不在 leader 手上了。所以留了两条路：leader 有空就走"正式渠道"转告（协调上下文不断）；leader 正忙，调度台直接向组员会话发取消（图快）。<strong>两条路都要等组员确认停了</strong>，工单才从"取消中"落地为"已取消"；</li>
+      <li><strong>调度台敢"绕过 leader"，是因为取消是安全管理动作，不是协作动作</strong>——但它会事后给 leader 补一条记录，让协调上下文知道"那件事被用户叫停了"，避免 leader 下次还在等一个永远不会来的结果。</li>
     </ul>
 
     <h2>四、一张状态机看全局</h2>
@@ -548,28 +534,31 @@
     <p>把四条链路收拢，每张工单的生命周期是一台显式状态机：</p>
 
     <figure class="fig">
-      <img src="assets/fig-qaa-6-lifecycle.png" alt="工单生命周期状态机：排队中、协调中、已转包、整理中、已完成进入播报管线；排队中可本地作废，协调中与已转包可进入取消中再落地已取消，协调中与已转包也可能失败进入已失败" loading="lazy">
+      <img src="assets/fig-qaa-7-lifecycle.png" alt="工单生命周期状态机：排队中、协调中、已转包、整理中、已完成进入播报管线；排队中可本地作废，协调中与已转包可进入取消中再落地已取消，协调中与已转包也可能失败进入已失败" loading="lazy">
       <figcaption>
         <span class="hand">one ticket, one state machine</span>
-        <span class="fig-no">FIG.06 · 工单生命周期</span>
+        <span class="fig-no">FIG.07 · 工单生命周期</span>
       </figcaption>
     </figure>
 
     <h2>五、设计启示</h2>
 
     <ol class="takeaways">
-      <li><strong>交互循环与工作循环必须分开</strong>。这是全文的核心。任何"干活时对话就死"的 Agent，用过这套架构之后都会感觉像坏了。</li>
-      <li><strong>给前台削权，比给前台加能力更重要</strong>。能做的事越少，行为越可预期、安全越可审计。前台越笨，系统越稳。</li>
-      <li><strong>状态的所有权在调度方，不在执行方</strong>。执行者可替换，状态是系统的。</li>
-      <li><strong>每个生命周期阶段都要回答"此刻怎么停"</strong>。取消不是一个按钮，是一组按状态分发的中止路径。</li>
-      <li><strong>发言权要显式建模</strong>。语音通道是单工稀缺资源，"谁在说、谁在等、谁能插话"必须是一台状态机，而不是散落在各处的时序运气。</li>
-      <li><strong>播报是一门调度学问</strong>。执行可以无限并行，人的注意力不能——什么值得打断用户、什么该合并低语，是下一个差异化战场。</li>
+      <li><strong>交互循环与工作循环必须分开。</strong> 这是全文的核心。任何"干活时对话就死"的 Agent，用过这套架构之后都会感觉像坏了。</li>
+      <li><strong>语音交互设计已经可以当作一种范式。</strong> 语音通道是单工稀缺资源，"谁在说、谁在等、谁能插话"必须是一台显式状态机，而不是散落在各处的时序运气；执行可以无限并行，人的注意力不能——什么值得打断用户、什么该合并低语，是播报要回答的问题。这套"发言权状态机 + 播报调度"的组合，可以直接搬进任何语音产品。</li>
     </ol>
 
+    <h2>六、还能往哪走</h2>
+
+    <p>以下不是项目现状，是顺着它现有机制的两步推演：</p>
+
+    <ul>
+      <li><strong>主 Agent 可以按难易分流，而不只做派发。</strong> 一句话能答的（问进度、问时间、查清单）直接答，要开工作区、跑几分钟的才下派——前台"问一句'干了没有'不该付出唤醒一个 LLM 的代价"，这个原则可以原样下沉一层。</li>
+      <li><strong>主 Agent 可以一次取出消息队列的所有消息，再统一派发。</strong> 现在的 FIFO 同一时刻只放一张工单，"那个"指哪张靠串行硬保住；批量取出后，主 Agent 看着这个人说的所有消息做决策——指代按语义消解，本来就是同一件事的几条合并成一个任务，派发顺序按轻重排，而不只按到达排。</li>
+    </ul>
+
     <div class="ending">
-      <h2 style="border-top:none; padding-top:0;">结语</h2>
-      <p>一句话概括这个项目：<span class="punch">它把 Agent 从"一个聊天对象"变成"被调度的计算资源"，把语音从"一种输入方式"变成"一条永不掉线的指挥频道"。</span></p>
-      <p>如果你在做 Agent 相关产品，这份源码值得完整读一遍——它是目前对"语音 + 异步多任务 Agent"思考得最完整的开源实现。</p>
+      <p>如果你在做 Agent 相关产品，这份源码值得完整读一遍——<strong>它是我读过对"语音 + 异步多任务 Agent"思考得最完整的开源实现</strong>。</p>
     </div>
 
   </article>
@@ -577,7 +566,6 @@
   <footer class="post-foot">
     <div class="foot-card">
       项目地址：<a href="https://github.com/QwenAudio/qwen-audio-agent" target="_blank" rel="noopener">https://github.com/QwenAudio/qwen-audio-agent</a> （Apache-2.0）
-      <p class="src">本文基于 v1.4.2 ~ v1.7.0 源码分析，机制描述以实际实现为准。</p>
     </div>
     <a href="writing-tech-analysis.html" class="back">← 回到 分析拆解</a>
   </footer>
