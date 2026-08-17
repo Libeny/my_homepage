@@ -1,182 +1,105 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026 年了，你的 agent 还在用 @ 或全量消息单独唤起吗？</title>
-<link rel="stylesheet" href="assets/fonts/fonts.css">
-<style>
-  :root {
-    --bg: #FAF6EF;
-    --paper: #FFFDF8;
-    --ink: #3A322B;
-    --ink-soft: #6B5D4F;
-    --ink-faint: #9A8B7C;
-    --teal: #3F7A77;
-    --teal-soft: #E9F6F5;
-    --line: #E5DACA;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "PingFang SC", "Noto Sans SC", -apple-system, sans-serif;
-    line-height: 1.85;
-    font-size: 16.5px;
-    padding: 48px 20px 96px;
-  }
-  main { max-width: 780px; margin: 0 auto; }
-  h1 {
-    font-size: 30px; line-height: 1.4; font-weight: 700;
-    margin-bottom: 10px; letter-spacing: 0.01em;
-  }
-  .subtitle {
-    color: var(--ink-faint); font-size: 17px; margin: 0 0 26px;
-  }
-  h2 {
-    font-size: 22px; font-weight: 700; color: var(--teal);
-    margin: 56px 0 18px; padding-top: 20px;
-    border-top: 1px solid var(--line);
-  }
-  h2:first-of-type { border-top: none; margin-top: 44px; padding-top: 0; }
-  h3 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; color: var(--ink); }
-  p { margin: 14px 0; }
-  strong { color: var(--ink); font-weight: 700; }
-  ul, ol { margin: 14px 0 14px 24px; }
-  li { margin: 10px 0; }
-  code {
-    font-family: "Fira Code", "SF Mono", Menlo, monospace;
-    font-size: 0.88em; background: #F1EADD; border-radius: 5px;
-    padding: 2px 6px; color: #7A5C3E;
-  }
-  table {
-    width: 100%; border-collapse: collapse; margin: 18px 0;
-    background: var(--paper); border-radius: 12px; overflow: hidden;
-    font-size: 15px;
-  }
-  th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { background: var(--teal-soft); color: var(--teal); font-weight: 700; }
-  tr:last-child td { border-bottom: none; }
-  figure { margin: 28px 0; text-align: center; }
-  figure img {
-    max-width: 100%; height: auto; border-radius: 14px;
-    box-shadow: 0 2px 16px rgba(105, 75, 64, 0.10);
-  }
-  a { color: var(--teal); text-decoration: none; border-bottom: 1px dotted var(--teal); }
-  a:hover { border-bottom-style: solid; }
-  .footer { margin-top: 72px; color: var(--ink-faint); font-size: 14px; text-align: center; }
-  @media (max-width: 640px) { body { font-size: 16.5px; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年了，你的 agent 还在用 @ 或全量消息单独唤起吗？ · 木鱼拓哉の写作本</title>
+  <meta name="description" content="从人持续在场的读与说，到回合制 Agent 缺失的批量感知：Raft 消息机制分析。">
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <style>
+    :root { --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5; --yellow:#F4CFD6; --yellow-soft:#FCE8EC; --red:#694B40; --cream:#FBF2E3; --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488; --paper:#FFFDF8; --line:#E7D7C4; --ease-out:cubic-bezier(0.16,1,0.3,1); }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Noto Sans SC',-apple-system,'PingFang SC',sans-serif; background:radial-gradient(ellipse at 22% 8%,var(--yellow-soft) 0%,transparent 52%),radial-gradient(ellipse at 84% 92%,rgba(189,231,229,.3) 0%,transparent 52%),var(--cream); color:var(--ink); line-height:1.9; font-size:17px; -webkit-font-smoothing:antialiased; }
+    .topbar,.post-head,.post,.post-foot { max-width:720px; margin:0 auto; padding-left:1.5rem; padding-right:1.5rem; }
+    .topbar { padding-top:2.2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+    .label,.meta,.fig-no,.back,.foot-card a { font-family:'Fira Code',monospace; }
+    .label { font-size:.72rem; letter-spacing:.18em; color:var(--ink-faint); }
+    .back { font-size:.78rem; color:var(--red); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px; transition:color .2s var(--ease-out); white-space:nowrap; }
+    .back:hover { color:var(--blue-deep); }
+    .post-head { padding-top:3rem; }
+    .post-head h1 { font-family:'Noto Serif SC',serif; font-weight:900; font-size:clamp(1.9rem,5.2vw,2.7rem); line-height:1.35; margin:1.1rem 0 .7rem; }
+    .post-head h1 em,.subtitle em { font-style:normal; background:linear-gradient(to top,var(--blue) 40%,transparent 40%); padding:0 4px; }
+    .subtitle { font-family:'Noto Serif SC',serif; font-weight:700; font-size:clamp(1.05rem,2.6vw,1.32rem); line-height:1.6; color:var(--ink-light); margin-bottom:1.2rem; }
+    .meta { font-size:.75rem; letter-spacing:.1em; color:var(--ink-faint); display:flex; gap:1.2em; flex-wrap:wrap; }
+    .lede { margin-top:2rem; padding:1.4rem 1.6rem; background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--blue-deep); border-radius:4px 14px 14px 4px; color:var(--ink-light); font-size:.98rem; box-shadow:0 2px 12px rgba(105,75,64,.05); }
+    .lede strong,.post strong { color:var(--ink); font-weight:700; }
+    .post { padding-top:1rem; padding-bottom:4rem; }
+    .post p { margin:1.35rem 0; }
+    .post h2 { font-family:'Noto Serif SC',serif; font-weight:900; font-size:clamp(1.45rem,3.6vw,1.8rem); line-height:1.4; margin:3.6rem 0 1.2rem; padding-top:2.2rem; border-top:1px dashed var(--line); position:relative; }
+    .post h2::before { content:''; position:absolute; top:-1px; left:0; width:56px; height:3px; background:var(--blue-deep); border-radius:2px; }
+    .post h3 { font-family:'Noto Serif SC',serif; font-weight:700; font-size:1.18rem; margin:2.6rem 0 .9rem; }
+    .post h3 .no { font-family:'Fira Code',monospace; font-weight:500; font-size:.82em; color:var(--blue-deep); margin-right:.5em; }
+    .post ul,.post ol { margin:1.35rem 0; padding-left:0; list-style:none; }
+    .post ul li { position:relative; padding-left:1.5em; margin:.7rem 0; }
+    .post ul li::before { content:'✦'; position:absolute; left:.2em; color:var(--blue-deep); font-size:.8em; top:.28em; }
+    .scenes { display:flex; flex-direction:column; gap:1.4rem; }
+    .scenes li { position:relative; padding:1.2rem 1.4rem 1.2rem 3.4rem; background:rgba(255,253,248,.72); border:1px solid var(--line); border-radius:12px; counter-increment:scene; }
+    .scenes { counter-reset:scene; }
+    .scenes li::before { content:counter(scene,decimal-leading-zero); position:absolute; left:1.1rem; top:1.28rem; font-family:'Fira Code',monospace; font-size:.78rem; color:var(--blue-deep); }
+    .scenes li p { margin:0; }
+    .scenes .s-so { margin-top:.55rem; }
+    .scenes .s-so strong { color:#3F7A77; background:var(--blue-soft); border:1px solid var(--blue-deep); border-radius:5px; padding:0 .45em; font-size:.85em; margin-right:.2em; }
+    .post ol.steps { list-style:decimal; padding-left:1.5rem; }
+    .post ol.steps li { padding-left:.25rem; margin:.7rem 0; }
+    figure.fig { margin:2.6rem 0; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:10px 10px 8px; box-shadow:0 3px 16px rgba(105,75,64,.08); transform:rotate(-.35deg); transition:transform .35s var(--ease-out),box-shadow .35s var(--ease-out); }
+    figure.fig:nth-of-type(even) { transform:rotate(.35deg); }
+    figure.fig:hover { transform:rotate(0deg) translateY(-2px); box-shadow:0 10px 28px rgba(105,75,64,.12); }
+    figure.fig img { display:block; width:100%; height:auto; border-radius:3px; }
+    figure.fig figcaption { display:flex; align-items:baseline; justify-content:space-between; gap:.8rem; padding:.55rem .4rem .2rem; }
+    .hand { font-family:'Caveat',cursive; font-size:1.15rem; color:var(--blue-deep); }
+    .fig-no { font-size:.68rem; letter-spacing:.14em; color:var(--ink-faint); white-space:nowrap; }
+    code { font-family:'Fira Code',monospace; font-size:.86em; background:var(--blue-soft); border-radius:4px; padding:2px 5px; }
+    .ending { margin:3.6rem 0 0; padding-top:2.2rem; border-top:1px dashed var(--line); }
+    .ending .punch { font-family:'Noto Serif SC',serif; font-weight:700; font-size:1.12rem; line-height:1.8; background:linear-gradient(to top,var(--yellow) 38%,transparent 38%); display:inline; padding:0 2px; }
+    .post-foot { padding-bottom:5rem; }
+    .foot-card { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:1.5rem 1.7rem; box-shadow:0 2px 12px rgba(105,75,64,.05); font-size:.92rem; color:var(--ink-light); }
+    .foot-card a { color:var(--red); font-size:.85rem; word-break:break-all; text-decoration:none; border-bottom:1px solid var(--blue-deep); }
+    .foot-card .src { margin-top:.5rem; color:var(--ink-faint); font-size:.85rem; }
+    .post-foot .back { display:inline-block; margin-top:2.4rem; }
+    @media (max-width:640px) { body { font-size:16.5px; } .scenes li { padding:1.05rem 1.1rem 1.05rem 3rem; } .scenes li::before { left:.95rem; } figure.fig { transform:none; margin:2rem 0; } figure.fig figcaption { flex-direction:column; gap:.15rem; } .lede { padding:1.15rem 1.2rem; } }
+  </style>
 </head>
 <body>
-<main>
-
-<h1>2026 年了，你的 agent 还在用 @ 或全量消息单独唤起吗？</h1>
-<p class="subtitle">—— agent 在群聊里怎么听、怎么说</p>
-
-<figure><img src="assets/raft-message-mechanism/fig0-cover.png" alt="一屋子 agent 同时抢话，数数都数不齐" loading="eager"></figure>
-
-<h2>一、人为什么不容易撞上这个问题</h2>
-
-<p>人在群里有两个持续在场的副产品：读消息时，会先看见“3 条未读”的角标，点开后把几十条一起扫掉；要发言时，会先扫一眼最新对话，有人已经答过就不重复，话题转了就改口。</p>
-
-<table>
-<tr><th>环节</th><th>人</th><th>当前 agent</th><th>缺了什么</th></tr>
-<tr><td>读取</td><td>先只看到“3 条未读”的角标，点开时几十条一起扫，冲突的前提同时在眼前</td><td>整条消息推进上下文，按到达顺序逐条处理；一条消息一次任务</td><td>信号和正文没有分开，也没有“攒一批”这一步</td></tr>
-<tr><td>发言</td><td>说之前扫一眼；有人答过就不重复，话题转了就改口</td><td>写完直接发</td><td>写字期间到的消息，发之前没人再看一眼</td></tr>
-</table>
-
-<p>agent 本身是回合制的：一次被叫醒，读一段上下文，做一次决定。它拿不到人持续在场时自然获得的这两份感知；传统的 @ 接入或全量消息接入，也没有替它补上。</p>
-
-<p>于是开头的事故才会发生：你发出 A，agent 开始处理；你紧接着补发 B、C、D 三条澄清，但它必须处理完 A 才能看见后面的消息。你只能等一份已经失去前提的答案，或手动打断它，让人替系统的串行机制兜底。</p>
-
-<figure><img src="assets/raft-message-mechanism/fig-serial-pain.png" alt="左侧聊天屏中 A、B、C、D 依次发送；右侧 agent 只处理 A，B、C、D 在队列中等待" loading="lazy"></figure>
-
-<h2>二、先换一个心智模型：办公桌和快递</h2>
-
-<p>把上下文想成办公桌，把频道消息想成快递。朴素系统的做法，是每来一个快递就拆开堆到桌上：桌面很快被填满，正在做的事反而被挤掉。</p>
-
-<p>Raft 把“每条快递直接上桌”拆成三个动作：<strong>不拆快递，只留取件单；取件单可以攒一批；要长期记住的东西写进档案柜。</strong></p>
-
-<ol>
-<li>频道里来了一条新消息；</li>
-<li>服务器不给 agent 推送正文，只发一张取件单：几个 ID 和元数据。正文在唤醒入口就被剥掉，取件单本身不会占满上下文；</li>
-<li>agent 正忙时，取件单留在外面；它忙完或空闲时，再一次去问：“我上次取到这里，之后有什么？”</li>
-<li>服务器按这个位置把之后的消息一起交给它。一百条积压消息也是一次拉取，而不是一百次独立唤醒；</li>
-<li>它先决定哪些值得读正文，哪些不值得；只有主动拿来的内容才进入上下文；</li>
-<li>需要长期保留的结论写进 workspace 文件。以后重置 session，只清桌面，不清档案柜。</li>
-</ol>
-
-<h2>三、三件事分别管“叫、拉、记”</h2>
-
-<p>把实现名词放回这套模型，核心不复杂：<strong>唤醒信号</strong>负责叫门，<strong>消息进度指针</strong>负责批量拉取，<strong>workspace</strong>负责跨 session 保存可复用的记忆。</p>
-
-<figure><img src="assets/raft-message-mechanism/fig3-overview.png" alt="方案总览：收消息和发消息两个回路" loading="lazy"></figure>
-
-<h3>3.1 唤醒信号：只说“可能有”，不带正文</h3>
-
-<p>一条 wake hint 就是一张取件单。它带 <code>messageId</code> 等定位信息，不带正文；参考实现会拒绝包含 <code>text</code>、<code>content</code> 或 <code>body</code> 的请求。这样，频道哪怕连续来了很多消息，直接注入 agent 上下文的仍只是固定、很小的一条提醒。</p>
-
-<figure><img src="assets/raft-message-mechanism/fig4-hint-chain.png" alt="唤醒信号从频道插件经信号管理器送至 agent 的链路" loading="lazy"></figure>
-
-<p>信号管理器负责把这声叫门送到、失败时重试；防抖窗口负责在短时间内合并重复叫门。它们解决的是“别丢”和“别吵”，不负责判断消息有几条、值不值得看。</p>
-
-<h3>3.2 消息进度指针：一次取完还没看过的</h3>
-
-<p>真正回答“有几条、从哪开始”的是指针。agent 和服务端都记着一个位置：我已经读到第几号。它执行一次 <code>raft message check</code>，服务端就返回指针之后的全部未读消息，并把位置前移。重启或断网后，仍从这个位置继续，不需要靠记忆猜自己读到哪里。</p>
-
-<figure><img src="assets/raft-message-mechanism/fig1-before-queue.png" alt="之前的消息队列逐条消费" loading="lazy"></figure>
-<figure><img src="assets/raft-message-mechanism/fig2-after-signal.png" alt="之后的系统用信号唤醒，再由指针批量拉取消息" loading="lazy"></figure>
-
-<p><strong>信号只负责把 agent 叫醒；指针才是正确性的来源。</strong>重复信号最多多带来一次空 check，不会重读、更不会漏读。</p>
-
-<h3>3.3 workspace：清 session，不清自己写下的东西</h3>
-
-<p>上下文是办公桌，不适合当档案柜。agent 应把结论、任务状态、后续步骤写进本机 workspace 的文件；这些文件才是可续接的外部记忆。session reset 清掉的是这轮对话上下文，不会清本地目录。下一轮 session 读回自己的文件，就能接上工作。</p>
-
-<p>它不是“自动永久记忆”：是否写、写什么、是否读取，仍是 agent 的工作纪律。但它给了 session 可以放心收缩的前提——重要的东西有明确落点，不必一直挤在上下文里。</p>
-
-<h2>四、看全之后，开口前还要再看一眼</h2>
-
-<p>批量拉取解决的是“听”的新鲜度，但 agent 从读完消息到写好答复之间，房间仍可能继续变化。单靠发送前自己再查一次也关不死这条缝：查完和真正提交之间，仍可能有新消息到来。</p>
-
-<p>所以发送请求带上 <code>seenUpToSeq</code>：我写这份草稿时看到哪一条。服务器在提交的一瞬间比对这个位置和频道当前进度；一致就发送，落后就把草稿暂扣（held），让 agent 先看新增上下文，再决定改写、照发、沉默，或在必要时强发。</p>
-
-<figure><img src="assets/raft-message-mechanism/fig5-freshness-hold.png" alt="发送前新鲜度检查的决策流程" loading="lazy"></figure>
-
-<p>这让“看”和“说”对称起来：先由 agent 自己决定取哪些消息，最后由提交点确认它没有对着已经变化的房间说话。</p>
-
-<h2>五、它究竟省下了什么</h2>
-
-<table>
-<tr><th>原来的负担</th><th>换成什么</th><th>结果</th></tr>
-<tr><td>每条消息都要进队列、进上下文、单独判断</td><td>ID-only 唤醒 + 按指针批量 check</td><td>消息正文按需进入；一批澄清可以一起看</td></tr>
-<tr><td>处理 A 时，对 B/C/D 完全失明</td><td>醒来后从指针一次拉取积压消息</td><td>前提被修正、内容互相冲突时能在同一视野里判断</td></tr>
-<tr><td>上下文一直积累，重置又怕断档</td><td>把可复用结论写进 workspace</td><td>session 可以清理，文件仍能续接</td></tr>
-<tr><td>基于旧房间状态写好了再发送</td><td>提交时的新鲜度检查</td><td>内容过期时先扣下，避免抢话或重复说</td></tr>
-</table>
-
-<p>成本也因此有了边界：服务端的路由和信号管理是确定性代码；LLM 的成本发生在 agent 被叫醒之后，且它能自行决定是否取正文。真正限制无关消息的，不是让模型替你过滤每一句，而是频道成员关系和 agent 自己的拉取判断。</p>
-
-<h2>六、事实边界</h2>
-
-<ul>
-<li>本文基于 Raft 的官方文档、频道插件源码和 CLI 源码交叉核对；代码名如 <code>raft message check</code>、<code>seenUpToSeq</code> 保留原样，方便回查。</li>
-<li>服务端“比对序号并返回 held 或提交”的内部实现未公开；本文对其行为的描述依据是客户端的 held 处理、响应 schema 和官方设计说明。</li>
-<li>workspace 是持久化载体，不等于自动记忆系统。session reset 后能否顺利续接，取决于 agent 是否把关键状态写进并读回这些文件。</li>
-<li>参考版本：<code>@botiverse/raft</code> v0.0.17、raft-channel 插件 0.3.1、wake 端点契约 v1。</li>
-</ul>
-
-<h2>来源</h2>
-
-<ul>
-<li><a href="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/" target="_blank" rel="noopener">Raft Blog — Is Having Agents in the Room Meant to Be Chaotic?</a></li>
-<li><a href="https://docs.raft.build/features/agents/lifecycle/" target="_blank" rel="noopener">Raft Docs — Agent Lifecycle</a> · <a href="https://docs.raft.build/features/agents/external/" target="_blank" rel="noopener">External Agents</a> · <a href="https://docs.raft.build/features/messaging/channels/" target="_blank" rel="noopener">Channels</a></li>
-<li><a href="https://github.com/botiverse/raft-external-agents" target="_blank" rel="noopener">botiverse/raft-external-agents</a> · npm 包 <code>@botiverse/raft</code> v0.0.17</li>
-</ul>
-
-<p class="footer">agent 在群聊里怎么听、怎么说 · 2026-08</p>
-
-</main>
+  <div class="topbar"><span class="label">WRITING · 技术文档 / 分析拆解</span><a href="writing.html?category=tech" class="back">← 技术文章</a></div>
+  <header class="post-head">
+    <h1>2026 年了，你的 agent 还在用 <em>@ 或全量消息</em>单独唤起吗？</h1>
+    <p class="subtitle">人持续在场时自然拥有的感知，<em>回合制 agent 得被机制补上。</em></p>
+    <div class="meta"><span>2026-08</span><span>MESSAGE MECHANISM</span><span>SOURCE: RAFT v0.0.17</span></div>
+    <p class="lede">群聊里的 agent 不是不够聪明，而是它没有人那样持续在场。人会批量扫未读、开口前再扫一眼；agent 每次只处理一段上下文。Raft 做的，是把<strong>“怎么听”与“怎么说”各补上一道机制</strong>。</p>
+  </header>
+  <article class="post">
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig0-cover.png" alt="一屋子 agent 同时抢话，数数都数不齐" loading="eager"><figcaption><span class="hand">too many agents, too little shared context</span><span class="fig-no">FIG.00 · 同时抢话</span></figcaption></figure>
+    <h2>一、两种持续在场的副产品</h2>
+    <p>人在群里有两个持续在场的副产品：读消息时，会先看见“3 条未读”的角标，点开后把几十条一起扫掉；要发言时，会先扫一眼最新对话，有人已经答过就不重复，话题转了就改口。</p>
+    <ol class="scenes">
+      <li><p><strong>读取</strong>：人先看到“3 条未读”的角标，点开时几十条一起扫，冲突的前提同时在眼前。</p><p class="s-so"><strong>当前 agent</strong>整条消息推进上下文，按到达顺序逐条处理；一条消息一次任务。它缺的是信号和正文的分离，也没有“攒一批”。</p></li>
+      <li><p><strong>发言</strong>：人说之前扫一眼；有人答过就不重复，话题转了就改口。</p><p class="s-so"><strong>当前 agent</strong>写完直接发。写字期间到的消息，发之前没人再看一眼。</p></li>
+    </ol>
+    <p>agent 本身是回合制的：一次被叫醒，读一段上下文，做一次决定。它拿不到人持续在场时自然获得的这两份感知；传统的 @ 接入或全量消息接入，也没有替它补上。</p>
+    <p>于是事故发生：你发出 A，agent 开始处理；你紧接着补发 B、C、D 三条澄清，但它必须处理完 A 才能看见后面的消息。你只能等一份已经失去前提的答案，或手动打断它。</p>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig-serial-pain.png" alt="左侧聊天屏中 A、B、C、D 依次发送；右侧 agent 只处理 A，B、C、D 在队列中等待" loading="lazy"><figcaption><span class="hand">B、C、D 已经到了，A 还没做完</span><span class="fig-no">FIG.01 · 串行事故</span></figcaption></figure>
+    <h2>二、先换一个心智模型：办公桌和快递</h2>
+    <p>把上下文想成办公桌，把频道消息想成快递。朴素系统的做法，是每来一个快递就拆开堆到桌上：桌面很快被填满，正在做的事反而被挤掉。</p>
+    <p>Raft 把“每条快递直接上桌”拆成三个动作：<strong>不拆快递，只留取件单；取件单可以攒一批；要长期记住的东西写进档案柜。</strong></p>
+    <ol class="steps"><li>频道里来了一条新消息；</li><li>服务器不给 agent 推送正文，只发一张取件单：几个 ID 和元数据；</li><li>agent 忙完或空闲时，再问：“我上次取到这里，之后有什么？”</li><li>服务器按位置把之后的消息一起交给它；一百条积压消息也是一次拉取；</li><li>只有 agent 主动拿来的正文才进入上下文；</li><li>长期结论写进 workspace 文件。以后重置 session，只清桌面，不清档案柜。</li></ol>
+    <h2>三、三件事分别管“叫、拉、记”</h2>
+    <p>把实现名词放回这套模型：<strong>唤醒信号</strong>负责叫门，<strong>消息进度指针</strong>负责批量拉取，<strong>workspace</strong>负责跨 session 保存可复用的记忆。</p>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig3-overview.png" alt="方案总览：收消息和发消息两个回路" loading="lazy"><figcaption><span class="hand">hear in batches, speak with a final check</span><span class="fig-no">FIG.02 · 总览</span></figcaption></figure>
+    <h3><span class="no">3.1</span>唤醒信号：只说“可能有”，不带正文</h3>
+    <p>一条 wake hint 就是一张取件单。它带 <code>messageId</code> 等定位信息，不带正文；参考实现会拒绝包含 <code>text</code>、<code>content</code> 或 <code>body</code> 的请求。频道连续来了很多消息，直接注入上下文的仍只是固定、很小的一条提醒。</p>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig4-hint-chain.png" alt="唤醒信号从频道插件经信号管理器送至 agent 的链路" loading="lazy"><figcaption><span class="hand">a small signal, not the message itself</span><span class="fig-no">FIG.03 · 唤醒链路</span></figcaption></figure>
+    <h3><span class="no">3.2</span>消息进度指针：一次取完还没看过的</h3>
+    <p>agent 和服务端都记着一个位置：我已经读到第几号。执行一次 <code>raft message check</code>，服务端就返回指针之后的全部未读消息，并把位置前移。重复信号最多多带来一次空 check，不会重读、更不会漏读。</p>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig1-before-queue.png" alt="之前的消息队列逐条消费" loading="lazy"><figcaption><span class="hand">one message, one decision</span><span class="fig-no">FIG.04 · 之前</span></figcaption></figure>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig2-after-signal.png" alt="之后的系统用信号唤醒，再由指针批量拉取消息" loading="lazy"><figcaption><span class="hand">one wake, then drain by cursor</span><span class="fig-no">FIG.05 · 之后</span></figcaption></figure>
+    <h3><span class="no">3.3</span>workspace：清 session，不清自己写下的东西</h3>
+    <p>上下文是办公桌，不适合当档案柜。agent 应把结论、任务状态、后续步骤写进本机 workspace 的文件；这些文件才是可续接的外部记忆。session reset 清掉的是这轮对话上下文，不会清本地目录。</p>
+    <h2>四、看全之后，开口前还要再看一眼</h2>
+    <p>批量拉取解决的是“听”的新鲜度，但从读完消息到写好答复之间，房间仍可能变化。发送请求因此带上 <code>seenUpToSeq</code>：我写草稿时看到哪一条。服务器在提交的一瞬间比对它和频道当前进度；落后就把草稿暂扣（held），让 agent 看完新增上下文，再决定改写、照发、沉默或必要时强发。</p>
+    <figure class="fig"><img src="assets/raft-message-mechanism/fig5-freshness-hold.png" alt="发送前新鲜度检查的决策流程" loading="lazy"><figcaption><span class="hand">the final check happens at commit time</span><span class="fig-no">FIG.06 · 开口检查</span></figcaption></figure>
+    <div class="ending"><p><span class="punch">Raft 的关键不在于替 agent 规定“该回应哪一句”，而在于让它拥有和人相近的两次判断机会：醒来时批量看全，开口时再确认一次。</span></p></div>
+  </article>
+  <footer class="post-foot"><div class="foot-card"><strong>事实边界</strong><p class="src">本文基于 Raft 官方文档、频道插件源码与 CLI 源码交叉核对。服务端“比对 seq、决定 held 或提交”的内部实现未公开，本文依据客户端 held 处理、响应 schema 与官方设计说明描述其行为。</p><p class="src">来源：<a href="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/" target="_blank" rel="noopener">Raft Blog</a> · <a href="https://docs.raft.build/features/agents/lifecycle/" target="_blank" rel="noopener">Raft Docs</a> · <a href="https://github.com/botiverse/raft-external-agents" target="_blank" rel="noopener">raft-external-agents</a></p></div><a href="writing.html?category=tech" class="back">← 回到技术文章</a></footer>
 </body>
 </html>
