@@ -1,105 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 年了，你的 agent 还在用 @ 或全量消息单独唤起吗？ · 木鱼拓哉の写作本</title>
-  <meta name="description" content="从人持续在场的读与说，到回合制 Agent 缺失的批量感知：Raft 消息机制分析。">
-  <link rel="stylesheet" href="assets/fonts/fonts.css">
-  <style>
-    :root { --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5; --yellow:#F4CFD6; --yellow-soft:#FCE8EC; --red:#694B40; --cream:#FBF2E3; --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488; --paper:#FFFDF8; --line:#E7D7C4; --ease-out:cubic-bezier(0.16,1,0.3,1); }
-    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-    html { scroll-behavior:smooth; }
-    body { font-family:'Noto Sans SC',-apple-system,'PingFang SC',sans-serif; background:radial-gradient(ellipse at 22% 8%,var(--yellow-soft) 0%,transparent 52%),radial-gradient(ellipse at 84% 92%,rgba(189,231,229,.3) 0%,transparent 52%),var(--cream); color:var(--ink); line-height:1.9; font-size:17px; -webkit-font-smoothing:antialiased; }
-    .topbar,.post-head,.post,.post-foot { max-width:720px; margin:0 auto; padding-left:1.5rem; padding-right:1.5rem; }
-    .topbar { padding-top:2.2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
-    .label,.meta,.fig-no,.back,.foot-card a { font-family:'Fira Code',monospace; }
-    .label { font-size:.72rem; letter-spacing:.18em; color:var(--ink-faint); }
-    .back { font-size:.78rem; color:var(--red); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px; transition:color .2s var(--ease-out); white-space:nowrap; }
-    .back:hover { color:var(--blue-deep); }
-    .post-head { padding-top:3rem; }
-    .post-head h1 { font-family:'Noto Serif SC',serif; font-weight:900; font-size:clamp(1.9rem,5.2vw,2.7rem); line-height:1.35; margin:1.1rem 0 .7rem; }
-    .post-head h1 em,.subtitle em { font-style:normal; background:linear-gradient(to top,var(--blue) 40%,transparent 40%); padding:0 4px; }
-    .subtitle { font-family:'Noto Serif SC',serif; font-weight:700; font-size:clamp(1.05rem,2.6vw,1.32rem); line-height:1.6; color:var(--ink-light); margin-bottom:1.2rem; }
-    .meta { font-size:.75rem; letter-spacing:.1em; color:var(--ink-faint); display:flex; gap:1.2em; flex-wrap:wrap; }
-    .lede { margin-top:2rem; padding:1.4rem 1.6rem; background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--blue-deep); border-radius:4px 14px 14px 4px; color:var(--ink-light); font-size:.98rem; box-shadow:0 2px 12px rgba(105,75,64,.05); }
-    .lede strong,.post strong { color:var(--ink); font-weight:700; }
-    .post { padding-top:1rem; padding-bottom:4rem; }
-    .post p { margin:1.35rem 0; }
-    .post h2 { font-family:'Noto Serif SC',serif; font-weight:900; font-size:clamp(1.45rem,3.6vw,1.8rem); line-height:1.4; margin:3.6rem 0 1.2rem; padding-top:2.2rem; border-top:1px dashed var(--line); position:relative; }
-    .post h2::before { content:''; position:absolute; top:-1px; left:0; width:56px; height:3px; background:var(--blue-deep); border-radius:2px; }
-    .post h3 { font-family:'Noto Serif SC',serif; font-weight:700; font-size:1.18rem; margin:2.6rem 0 .9rem; }
-    .post h3 .no { font-family:'Fira Code',monospace; font-weight:500; font-size:.82em; color:var(--blue-deep); margin-right:.5em; }
-    .post ul,.post ol { margin:1.35rem 0; padding-left:0; list-style:none; }
-    .post ul li { position:relative; padding-left:1.5em; margin:.7rem 0; }
-    .post ul li::before { content:'✦'; position:absolute; left:.2em; color:var(--blue-deep); font-size:.8em; top:.28em; }
-    .scenes { display:flex; flex-direction:column; gap:1.4rem; }
-    .scenes li { position:relative; padding:1.2rem 1.4rem 1.2rem 3.4rem; background:rgba(255,253,248,.72); border:1px solid var(--line); border-radius:12px; counter-increment:scene; }
-    .scenes { counter-reset:scene; }
-    .scenes li::before { content:counter(scene,decimal-leading-zero); position:absolute; left:1.1rem; top:1.28rem; font-family:'Fira Code',monospace; font-size:.78rem; color:var(--blue-deep); }
-    .scenes li p { margin:0; }
-    .scenes .s-so { margin-top:.55rem; }
-    .scenes .s-so strong { color:#3F7A77; background:var(--blue-soft); border:1px solid var(--blue-deep); border-radius:5px; padding:0 .45em; font-size:.85em; margin-right:.2em; }
-    .post ol.steps { list-style:decimal; padding-left:1.5rem; }
-    .post ol.steps li { padding-left:.25rem; margin:.7rem 0; }
-    figure.fig { margin:2.6rem 0; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:10px 10px 8px; box-shadow:0 3px 16px rgba(105,75,64,.08); transform:rotate(-.35deg); transition:transform .35s var(--ease-out),box-shadow .35s var(--ease-out); }
-    figure.fig:nth-of-type(even) { transform:rotate(.35deg); }
-    figure.fig:hover { transform:rotate(0deg) translateY(-2px); box-shadow:0 10px 28px rgba(105,75,64,.12); }
-    figure.fig img { display:block; width:100%; height:auto; border-radius:3px; }
-    figure.fig figcaption { display:flex; align-items:baseline; justify-content:space-between; gap:.8rem; padding:.55rem .4rem .2rem; }
-    .hand { font-family:'Caveat',cursive; font-size:1.15rem; color:var(--blue-deep); }
-    .fig-no { font-size:.68rem; letter-spacing:.14em; color:var(--ink-faint); white-space:nowrap; }
-    code { font-family:'Fira Code',monospace; font-size:.86em; background:var(--blue-soft); border-radius:4px; padding:2px 5px; }
-    .ending { margin:3.6rem 0 0; padding-top:2.2rem; border-top:1px dashed var(--line); }
-    .ending .punch { font-family:'Noto Serif SC',serif; font-weight:700; font-size:1.12rem; line-height:1.8; background:linear-gradient(to top,var(--yellow) 38%,transparent 38%); display:inline; padding:0 2px; }
-    .post-foot { padding-bottom:5rem; }
-    .foot-card { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:1.5rem 1.7rem; box-shadow:0 2px 12px rgba(105,75,64,.05); font-size:.92rem; color:var(--ink-light); }
-    .foot-card a { color:var(--red); font-size:.85rem; word-break:break-all; text-decoration:none; border-bottom:1px solid var(--blue-deep); }
-    .foot-card .src { margin-top:.5rem; color:var(--ink-faint); font-size:.85rem; }
-    .post-foot .back { display:inline-block; margin-top:2.4rem; }
-    @media (max-width:640px) { body { font-size:16.5px; } .scenes li { padding:1.05rem 1.1rem 1.05rem 3rem; } .scenes li::before { left:.95rem; } figure.fig { transform:none; margin:2rem 0; } figure.fig figcaption { flex-direction:column; gap:.15rem; } .lede { padding:1.15rem 1.2rem; } }
-  </style>
-</head>
-<body>
-  <div class="topbar"><span class="label">WRITING · 技术文档 / 分析拆解</span><a href="writing.html?category=tech" class="back">← 技术文章</a></div>
-  <header class="post-head">
-    <h1>2026 年了，你的 agent 还在用 <em>@ 或全量消息</em>单独唤起吗？</h1>
-    <p class="subtitle">人持续在场时自然拥有的感知，<em>回合制 agent 得被机制补上。</em></p>
-    <div class="meta"><span>2026-08</span><span>MESSAGE MECHANISM</span><span>SOURCE: RAFT v0.0.17</span></div>
-    <p class="lede">群聊里的 agent 不是不够聪明，而是它没有人那样持续在场。人会批量扫未读、开口前再扫一眼；agent 每次只处理一段上下文。Raft 做的，是把<strong>“怎么听”与“怎么说”各补上一道机制</strong>。</p>
-  </header>
-  <article class="post">
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig0-cover.png" alt="一屋子 agent 同时抢话，数数都数不齐" loading="eager"><figcaption><span class="hand">too many agents, too little shared context</span><span class="fig-no">FIG.00 · 同时抢话</span></figcaption></figure>
-    <h2>一、两种持续在场的副产品</h2>
-    <p>人在群里有两个持续在场的副产品：读消息时，会先看见“3 条未读”的角标，点开后把几十条一起扫掉；要发言时，会先扫一眼最新对话，有人已经答过就不重复，话题转了就改口。</p>
-    <ol class="scenes">
-      <li><p><strong>读取</strong>：人先看到“3 条未读”的角标，点开时几十条一起扫，冲突的前提同时在眼前。</p><p class="s-so"><strong>当前 agent</strong>整条消息推进上下文，按到达顺序逐条处理；一条消息一次任务。它缺的是信号和正文的分离，也没有“攒一批”。</p></li>
-      <li><p><strong>发言</strong>：人说之前扫一眼；有人答过就不重复，话题转了就改口。</p><p class="s-so"><strong>当前 agent</strong>写完直接发。写字期间到的消息，发之前没人再看一眼。</p></li>
-    </ol>
-    <p>agent 本身是回合制的：一次被叫醒，读一段上下文，做一次决定。它拿不到人持续在场时自然获得的这两份感知；传统的 @ 接入或全量消息接入，也没有替它补上。</p>
-    <p>于是事故发生：你发出 A，agent 开始处理；你紧接着补发 B、C、D 三条澄清，但它必须处理完 A 才能看见后面的消息。你只能等一份已经失去前提的答案，或手动打断它。</p>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig-serial-pain.png" alt="左侧聊天屏中 A、B、C、D 依次发送；右侧 agent 只处理 A，B、C、D 在队列中等待" loading="lazy"><figcaption><span class="hand">B、C、D 已经到了，A 还没做完</span><span class="fig-no">FIG.01 · 串行事故</span></figcaption></figure>
-    <h2>二、先换一个心智模型：办公桌和快递</h2>
-    <p>把上下文想成办公桌，把频道消息想成快递。朴素系统的做法，是每来一个快递就拆开堆到桌上：桌面很快被填满，正在做的事反而被挤掉。</p>
-    <p>Raft 把“每条快递直接上桌”拆成三个动作：<strong>不拆快递，只留取件单；取件单可以攒一批；要长期记住的东西写进档案柜。</strong></p>
-    <ol class="steps"><li>频道里来了一条新消息；</li><li>服务器不给 agent 推送正文，只发一张取件单：几个 ID 和元数据；</li><li>agent 忙完或空闲时，再问：“我上次取到这里，之后有什么？”</li><li>服务器按位置把之后的消息一起交给它；一百条积压消息也是一次拉取；</li><li>只有 agent 主动拿来的正文才进入上下文；</li><li>长期结论写进 workspace 文件。以后重置 session，只清桌面，不清档案柜。</li></ol>
-    <h2>三、三件事分别管“叫、拉、记”</h2>
-    <p>把实现名词放回这套模型：<strong>唤醒信号</strong>负责叫门，<strong>消息进度指针</strong>负责批量拉取，<strong>workspace</strong>负责跨 session 保存可复用的记忆。</p>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig3-overview.png" alt="方案总览：收消息和发消息两个回路" loading="lazy"><figcaption><span class="hand">hear in batches, speak with a final check</span><span class="fig-no">FIG.02 · 总览</span></figcaption></figure>
-    <h3><span class="no">3.1</span>唤醒信号：只说“可能有”，不带正文</h3>
-    <p>一条 wake hint 就是一张取件单。它带 <code>messageId</code> 等定位信息，不带正文；参考实现会拒绝包含 <code>text</code>、<code>content</code> 或 <code>body</code> 的请求。频道连续来了很多消息，直接注入上下文的仍只是固定、很小的一条提醒。</p>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig4-hint-chain.png" alt="唤醒信号从频道插件经信号管理器送至 agent 的链路" loading="lazy"><figcaption><span class="hand">a small signal, not the message itself</span><span class="fig-no">FIG.03 · 唤醒链路</span></figcaption></figure>
-    <h3><span class="no">3.2</span>消息进度指针：一次取完还没看过的</h3>
-    <p>agent 和服务端都记着一个位置：我已经读到第几号。执行一次 <code>raft message check</code>，服务端就返回指针之后的全部未读消息，并把位置前移。重复信号最多多带来一次空 check，不会重读、更不会漏读。</p>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig1-before-queue.png" alt="之前的消息队列逐条消费" loading="lazy"><figcaption><span class="hand">one message, one decision</span><span class="fig-no">FIG.04 · 之前</span></figcaption></figure>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig2-after-signal.png" alt="之后的系统用信号唤醒，再由指针批量拉取消息" loading="lazy"><figcaption><span class="hand">one wake, then drain by cursor</span><span class="fig-no">FIG.05 · 之后</span></figcaption></figure>
-    <h3><span class="no">3.3</span>workspace：清 session，不清自己写下的东西</h3>
-    <p>上下文是办公桌，不适合当档案柜。agent 应把结论、任务状态、后续步骤写进本机 workspace 的文件；这些文件才是可续接的外部记忆。session reset 清掉的是这轮对话上下文，不会清本地目录。</p>
-    <h2>四、看全之后，开口前还要再看一眼</h2>
-    <p>批量拉取解决的是“听”的新鲜度，但从读完消息到写好答复之间，房间仍可能变化。发送请求因此带上 <code>seenUpToSeq</code>：我写草稿时看到哪一条。服务器在提交的一瞬间比对它和频道当前进度；落后就把草稿暂扣（held），让 agent 看完新增上下文，再决定改写、照发、沉默或必要时强发。</p>
-    <figure class="fig"><img src="assets/raft-message-mechanism/fig5-freshness-hold.png" alt="发送前新鲜度检查的决策流程" loading="lazy"><figcaption><span class="hand">the final check happens at commit time</span><span class="fig-no">FIG.06 · 开口检查</span></figcaption></figure>
-    <div class="ending"><p><span class="punch">Raft 的关键不在于替 agent 规定“该回应哪一句”，而在于让它拥有和人相近的两次判断机会：醒来时批量看全，开口时再确认一次。</span></p></div>
-  </article>
-  <footer class="post-foot"><div class="foot-card"><strong>事实边界</strong><p class="src">本文基于 Raft 官方文档、频道插件源码与 CLI 源码交叉核对。服务端“比对 seq、决定 held 或提交”的内部实现未公开，本文依据客户端 held 处理、响应 schema 与官方设计说明描述其行为。</p><p class="src">来源：<a href="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/" target="_blank" rel="noopener">Raft Blog</a> · <a href="https://docs.raft.build/features/agents/lifecycle/" target="_blank" rel="noopener">Raft Docs</a> · <a href="https://github.com/botiverse/raft-external-agents" target="_blank" rel="noopener">raft-external-agents</a></p></div><a href="writing.html?category=tech" class="back">← 回到技术文章</a></footer>
-</body>
-</html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Raft 消息机制深读：2026年了，你的 agent 还靠每条消息单独唤起吗？ · 木鱼拓哉の写作本</title><meta name="description" content="Raft 消息机制深读：批量地听，检查后再说。"><link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{--blue:#BDE7E5;--blue-deep:#9DD5D3;--blue-soft:#E8F6F5;--yellow:#F4CFD6;--yellow-soft:#FCE8EC;--red:#694B40;--cream:#FBF2E3;--ink:#694B40;--ink-light:#8B6F5C;--ink-faint:#A89488;--paper:#FFFDF8;--line:#E7D7C4;--ease-out:cubic-bezier(.16,1,.3,1)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:'Noto Sans SC',-apple-system,'PingFang SC',sans-serif;background:radial-gradient(ellipse at 22% 8%,var(--yellow-soft) 0%,transparent 52%),radial-gradient(ellipse at 84% 92%,rgba(189,231,229,.3) 0%,transparent 52%),var(--cream);color:var(--ink);line-height:1.9;font-size:17px}.topbar,.post-head,.post,.post-foot{max-width:720px;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem}.topbar{padding-top:2.2rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}.label,.meta,.fig-no,.back,.foot-card a{font-family:'Fira Code',monospace}.label,.meta,.fig-no{color:var(--ink-faint);font-size:.72rem;letter-spacing:.14em}.back{font-size:.78rem;color:var(--red);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}.post-head{padding-top:3rem}.post-head h1{font-family:'Noto Serif SC',serif;font-weight:900;font-size:clamp(1.9rem,5.2vw,2.7rem);line-height:1.35;margin:1.1rem 0 .7rem}.post-head h1 em,.subtitle em{font-style:normal;background:linear-gradient(to top,var(--blue) 40%,transparent 40%);padding:0 4px}.subtitle{font-family:'Noto Serif SC',serif;font-weight:700;font-size:clamp(1.05rem,2.6vw,1.32rem);line-height:1.6;color:var(--ink-light);margin-bottom:1.2rem}.meta{display:flex;gap:1.2em;flex-wrap:wrap;font-size:.75rem}.post{padding-top:1rem;padding-bottom:4rem}.post p{margin:1.35rem 0}.post h2{font-family:'Noto Serif SC',serif;font-weight:900;font-size:clamp(1.45rem,3.6vw,1.8rem);line-height:1.4;margin:3.6rem 0 1.2rem;padding-top:2.2rem;border-top:1px dashed var(--line);position:relative}.post h2::before{content:'';position:absolute;top:-1px;left:0;width:56px;height:3px;background:var(--blue-deep)}.post h3{font-family:'Noto Serif SC',serif;font-weight:700;font-size:1.18rem;margin:2.6rem 0 .9rem}.post ol{margin:1.35rem 0;padding-left:1.5rem}.post li{margin:.7rem 0;padding-left:.25rem}.post table{width:100%;margin:1.6rem 0;border-collapse:separate;border-spacing:0;overflow:hidden;background:rgba(255,253,248,.72);border:1px solid var(--line);border-radius:12px;font-size:.92rem}.post th,.post td{padding:.9rem 1rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}.post th{background:var(--blue-soft);font-family:'Noto Serif SC',serif}.post tr:last-child td{border-bottom:0}figure.fig{margin:2.6rem 0;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 10px 8px;box-shadow:0 3px 16px rgba(105,75,64,.08);transform:rotate(-.35deg)}figure.fig:nth-of-type(even){transform:rotate(.35deg)}figure.fig img{display:block;width:100%;height:auto;border-radius:3px}figure.fig figcaption{display:flex;justify-content:space-between;gap:.8rem;padding:.55rem .4rem .2rem}.hand{font-family:'Caveat',cursive;font-size:1.15rem;color:var(--blue-deep)}.post-foot{padding-bottom:5rem}.foot-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.7rem;box-shadow:0 2px 12px rgba(105,75,64,.05);font-size:.92rem;color:var(--ink-light)}.foot-card a{color:var(--red);font-size:.85rem;word-break:break-all}.src{margin-top:.5rem}@media(max-width:640px){body{font-size:16.5px}figure.fig{transform:none;margin:2rem 0}figure.fig figcaption{flex-direction:column;gap:.15rem}.post th,.post td{padding:.75rem;font-size:.86rem}}
+</style></head>
+<body><div class="topbar"><span class="label">WRITING · 技术文档 / 分析拆解</span><a href="writing.html?category=tech" class="back">← 技术文章</a></div><header class="post-head"><h1>Raft 消息机制深读：<em>2026年了，你的 agent 还靠每条消息单独唤起吗？</em></h1><div class="meta"><span>2026-08</span><span>MESSAGE MECHANISM</span><span>SOURCE: RAFT v0.0.17</span></div></header>
+<article class="post"><h2>一、一个你大概遇过的事故</h2><p>你在群里发 A，agent 开始干活。你立刻补三条澄清 B、C、D——前提变了，方向也变了。它抱着 A 一路做到底才看见后面三条，交回来一份答案：逻辑自洽，前提作废。你只能手动打断，替系统的串行机制兜底。</p><figure class="fig"><img src="assets/raft-message-mechanism/fig-serial-pain.png" alt="B、C、D 已经到了，agent 还在处理 A" loading="eager"><figcaption><span class="hand">B、C、D 已经到了，A 还没做完</span><span class="fig-no">FIG.01 · 串行事故</span></figcaption></figure><p>市面上的做法都会掉进这个坑：把每条消息都推进 agent 的队列，一条消息一次任务，闲聊也要逐条判断。</p>
+<h2>二、为什么 agent 显得这么不智能？拿人当参照</h2><p>人在群里是怎么表现的：</p><table><tr><th>环节</th><th>人</th><th>当前 agent</th><th>缺了什么</th></tr><tr><td>读取</td><td>先只看到“x 条未读”的角标，点开时 x 条一起扫</td><td>按到达顺序逐条处理</td><td>就是开头那个事故</td></tr><tr><td>发言</td><td>说之前扫一眼，有变化就调整或者沉默</td><td>写完直接发</td><td>写完到发出之间没人复查，对着已经变化的频道说话</td></tr></table><p>根因是运行模型的差异：人是持续在场的，不用刻意读每条消息也知道群里发生了什么；agent 是回合制的，只在每次调用时读一次快照，中间发生的一律看不见。</p><p>把回合制改造成持续感知，三步即可：</p><ol><li><strong>通知</strong>：信号标记有新消息，不带正文；</li><li><strong>拉取</strong>：将上次读取以来的所有消息一次取走，整体来看；</li><li><strong>开口检查</strong>：发送前比一次版本，确认频道没在它写字的时候变过。</li></ol><p>1 和 2 代替一条一条读取，3 代替直接发送。</p><figure class="fig"><img src="assets/raft-message-mechanism/fig3-overview.png" alt="批量地听，检查后再说的方案总览" loading="lazy"><figcaption><span class="hand">hear in batches, speak with a final check</span><span class="fig-no">FIG.02 · 批量地听，检查后再说</span></figcaption></figure>
+<h2>三、具体怎么做：架构流程</h2><p>游标记录 agent 当前读到的最新消息位置。有新消息就给 agent 一个信号，它拿着游标，把之后的所有消息一次取走。处理完成后，开口前做一次检查：频道有新变化就说明白，再决定要不要调整。</p>
+<h2>四、进一步：多 agent 群聊</h2><p>Raft 官方文档给出的协作面很明确：两个 agent 可以共同加入频道，跟随自己所在频道的对话；需要定向时用 @mention。一个常见组织方式是按工作分道建频道，让负责数据、内容等不同方向的 agent 各自跟随对应频道。</p><p>它们在同一个房间里通过 @mention、线程和任务协作：一个 agent 可以把工作交给另一个、提问或审阅产出。任务有 owner 和状态，当前 owner 负责推进；每个 agent 保留自己的 workspace 和 memory。</p><p>官方文档没有定义自动的认领冲突仲裁，也没有把“各自独立的游标”描述为多 agent 协作机制；这两项不能在这里写成 Raft 已提供的能力。</p>
+<h2>五、边界</h2><p>机制描述基于 Raft 官方文档、官方博客与 CLI 源码（<code>@botiverse/raft</code> v0.0.17）交叉核对，代码名保留原样方便回查。服务端“比对版本、决定 held 还是提交”的内部实现未公开，这里依据的是客户端行为和官方设计说明；频道插件的端点契约未逐字核对。</p></article>
+<footer class="post-foot"><div class="foot-card"><strong>来源</strong><p class="src"><a href="https://docs.raft.build/build-your-agent-team/" target="_blank" rel="noopener">Raft Docs · Build your agent team</a> · <a href="https://docs.raft.build/features/messaging/channels/" target="_blank" rel="noopener">Channels</a> · <a href="https://docs.raft.build/hand-off-your-first-task/" target="_blank" rel="noopener">Hand off your first task</a> · <a href="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/" target="_blank" rel="noopener">Raft Blog</a></p></div><a href="writing.html?category=tech" class="back">← 回到技术文章</a></footer></body></html>
