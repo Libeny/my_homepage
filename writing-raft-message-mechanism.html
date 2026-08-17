@@ -16,6 +16,15 @@
     .map-lane{padding:1rem;border-radius:6px}.map-lane + .map-lane{margin-top:1rem}.map-lane.old{background:var(--pink-soft)}.map-lane.new{background:var(--blue-soft)}.lane-head{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin-bottom:.8rem}.lane-head strong{font-family:'Noto Serif SC',serif;font-size:1.05rem}.lane-head span{font-family:'Fira Code',monospace;font-size:.68rem;letter-spacing:.08em;color:var(--ink-light)}.map-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;align-items:stretch}.map-step{position:relative;padding:.7rem .55rem;background:rgba(255,253,248,.78);border:1px solid var(--line);border-radius:5px;font-size:.84rem;line-height:1.5}.map-step:not(:last-child)::after{content:'→';position:absolute;right:-.54rem;top:50%;transform:translateY(-50%);z-index:1;color:var(--ink-light);font-family:serif;font-size:1.15rem}.map-step strong{display:block;font-family:'Noto Serif SC',serif;margin-bottom:.16rem}.map-step small{display:block;color:var(--ink-light);font-size:.76rem;line-height:1.45}.map-note{font-size:.88rem;line-height:1.7;color:var(--ink-light);margin:.9rem .25rem .1rem}
     @media(max-width:640px){.map-steps{grid-template-columns:1fr 1fr}.map-step:nth-child(2)::after{display:none}.lane-head{display:block}.lane-head span{display:block;margin-top:.18rem}}
   </style>
+  <style>
+    /* Components carried over from the canonical writing page. */
+    .post strong{font-weight:700;color:var(--ink)}
+    .mechanism-lead{margin:2rem 0 2.4rem;padding:1.4rem 1.6rem;background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--blue-deep);border-radius:4px 14px 14px 4px;color:var(--ink-light);font-family:'Noto Sans SC',sans-serif;font-size:.98rem;box-shadow:0 2px 12px rgba(105,75,64,.05)}
+    figure figcaption{align-items:baseline}.fig-no{white-space:nowrap}
+    .takeaways{margin:1.6rem 0;padding-left:0;list-style:none;counter-reset:take;display:flex;flex-direction:column;gap:1.1rem}.takeaways li{counter-increment:take;position:relative;padding-left:2.6rem;margin:0}.takeaways li::before{content:counter(take);position:absolute;left:0;top:.32em;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--blue-soft);border:1px solid var(--blue-deep);color:var(--ink);font-family:'Fira Code',monospace;font-size:.72rem;display:flex;align-items:center;justify-content:center}.takeaways li strong{display:block;margin-bottom:.15rem}.takeaways li br{display:none}
+    .mechanism-map{transform:rotate(.35deg);transition:transform .35s ease,box-shadow .35s ease}.mechanism-map:hover{transform:rotate(0deg) translateY(-2px);box-shadow:0 10px 28px rgba(105,75,64,.12)}
+    @media(max-width:640px){.mechanism-lead{padding:1.15rem 1.2rem}.mechanism-map{transform:none}.takeaways li{padding-left:2.6rem}}
+  </style>
 </head>
 <body>
   <div class="topbar"><span class="label">WRITING · 技术文档 / 分析拆解</span><a href="writing.html?category=tech" class="back">← 技术文章</a></div>
@@ -40,7 +49,7 @@
     <h2>四、进一步：多 agent 群聊</h2>
     <p>把 agent 放进同一间群聊后，问题会被放大。Raft 官方博客用「报数且不能重复」做实验：同一批 agent 在普通共享房间里，会<strong>同时读到旧快照、同时抢答</strong>，于是三个“1”、两个“2”很快出现。</p>
     <figure class="raft-compare"><div class="raft-kicker">FIG.04 · RAFT 官方动态演示（嵌入原图）</div><div class="raft-grid"><section class="raft-panel"><h3>常规共享房间 · 立即冲突</h3><iframe src="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/counting-game-typical-room.html" title="Raft 官方：常规共享房间的报数冲突演示" loading="lazy" scrolling="no"></iframe></section><section class="raft-panel"><h3>Raft 房间 · 逐次推进</h3><iframe src="https://raft.build/resources/blog/is-having-agents-in-the-room-meant-to-be-chaotic/counting-game-raft-room.html" title="Raft 官方：Raft 共享房间的报数演示" loading="lazy" scrolling="no"></iframe></section></div><figcaption><span class="hand">same agents, a different room</span><span class="fig-no">SOURCE · RAFT BLOG</span></figcaption></figure>
-    <ol><li><strong>1. 先解决「看见什么」。</strong><br>Raft 的收件箱把 @ 提及、线程更新等变化留成可拉取的条目。agent 在有带宽时统一取回，再决定哪些进入自己的上下文。</li><li><strong>2. 再解决「说出去时还对不对」。</strong><br>agent 提交草稿时带上版本；房间已变化，草稿就被搁置并带回新上下文。它可以修改、直接发送、保持沉默，或在必要时强制发送。</li><li><strong>3. 结果是少了一个编排者。</strong><br>同样一批 agent 在 Raft 里能干净数到 20，不需要有人指定轮次；共享房间不再迫使它们基于同一份旧快照同时行动。</li></ol>
+    <ol class="takeaways"><li><strong>先解决「看见什么」。</strong>Raft 的收件箱把 @ 提及、线程更新等变化留成可拉取的条目。agent 在有带宽时统一取回，再决定哪些进入自己的上下文。</li><li><strong>再解决「说出去时还对不对」。</strong>agent 提交草稿时带上版本；房间已变化，草稿就被搁置并带回新上下文。它可以修改、直接发送、保持沉默，或在必要时强制发送。</li><li><strong>结果是少了一个编排者。</strong>同样一批 agent 在 Raft 里能干净数到 20，不需要有人指定轮次；共享房间不再迫使它们基于同一份旧快照同时行动。</li></ol>
   </article>
 </body>
 </html>
