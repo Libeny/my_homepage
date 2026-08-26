@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi 学习探索：为什么它是搞懂 Agent 底层与面试的最佳代码库 · 木鱼拓哉の写作本</title>
+  <meta name="description" content="以 Pi-Mono 为模板，深入拆解 Agent Runtime 底座：从极简的 while(true) 到工业级 Agent 运行时，全面掌握流式分流、保序写回、双层循环调度与上下文压缩。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue: #BDE7E5;
+      --blue-deep: #9DD5D3;
+      --blue-soft: #E8F6F5;
+      --pink: #F4CFD6;
+      --pink-soft: #FCE8EC;
+      --yellow: #F4CFD6;
+      --yellow-soft: #FCE8EC;
+      --red: #694B40;
+      --cream: #FBF2E3;
+      --cream-dark: #F5E6D3;
+      --ink: #694B40;
+      --ink-light: #8B6F5C;
+      --ink-faint: #A89488;
+      --paper: #FFFDF8;
+      --line: #E7D7C4;
+      /* 代码编辑器手账暖白调配色 */
+      --editor-bg: #FCF9F2;
+      --editor-bar: #F5EEDB;
+      --editor-border: #E5D5C2;
+      --editor-text: #4A352D;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.9;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ---------- 顶部条 ---------- */
+    .topbar {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+    }
+    .back {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+    .back:hover { color: var(--blue-deep); }
+
+    /* ---------- 文章头 ---------- */
+    .post-head {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.85rem, 5vw, 2.6rem);
+      line-height: 1.35;
+      margin: 1.1rem 0 0.7rem;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
+      padding: 0 4px;
+    }
+    .subtitle {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+      line-height: 1.6;
+      color: var(--ink-light);
+      margin-bottom: 1.2rem;
+    }
+    .subtitle em {
+      font-style: normal;
+      color: var(--ink);
+      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
+      padding: 0 3px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+    }
+    .lede {
+      margin-top: 2rem;
+      padding: 1.4rem 1.6rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 0.98rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .lede strong { color: var(--ink); }
+
+    /* ---------- 正文 ---------- */
+    .post {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+    }
+    .post p { margin: 1.35rem 0; }
+    .post strong { font-weight: 700; color: var(--ink); }
+
+    .post h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.45rem, 3.6vw, 1.8rem);
+      line-height: 1.4;
+      margin: 4.2rem 0 1.2rem;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+      position: relative;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .post h2::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0;
+      width: 56px; height: 3px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+    }
+    .post h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 2.6rem 0 0.9rem;
+      color: var(--ink);
+    }
+    .post h3 .no {
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+      font-size: 0.82em;
+      color: #3F7A77;
+      margin-right: 0.5em;
+    }
+
+    .post code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88em;
+      background: rgba(232, 246, 245, 0.7);
+      border: 1px solid rgba(157, 213, 211, 0.45);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      color: #2F5654;
+    }
+
+    /* ---------- 痛点翻车场景卡片 (Pain Card) ---------- */
+    .pain-card {
+      background: #FFFDF8;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      margin: 1.6rem 0 2rem;
+      box-shadow: 0 4px 16px rgba(105,75,64,0.06);
+    }
+    .pain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px dashed var(--line);
+      margin-bottom: 1rem;
+    }
+    .pain-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #A34E45;
+      background: var(--pink-soft);
+      border: 1px solid #EAC0C7;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .pain-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: var(--ink-faint);
+    }
+    .chat-simulation {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .chat-bubble {
+      max-width: 90%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .chat-bubble.agent {
+      align-self: flex-start;
+      background: rgba(232, 246, 245, 0.7);
+      border: 1px solid #D2ECEB;
+      color: #2F5654;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: rgba(252, 232, 236, 0.85);
+      border: 1px solid #EAC0C7;
+      color: #7D3F37;
+    }
+    .chat-bubble.system-alert {
+      align-self: center;
+      background: #FFF1F0;
+      border: 1px dashed #FFA39E;
+      color: #CF1322;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      text-align: center;
+      width: 100%;
+    }
+    .bubble-author {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      opacity: 0.8;
+      display: block;
+    }
+    .pain-summary {
+      margin-top: 1rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed var(--line);
+      font-size: 0.88rem;
+      color: var(--ink-light);
+    }
+
+    /* ---------- 代码编辑器组件 (暖白纸张质感) ---------- */
+    .code-editor {
+      background: var(--editor-bg);
+      border: 1px solid var(--editor-border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1.6rem 0 2rem;
+      box-shadow: 0 4px 18px rgba(105,75,64,0.06);
+    }
+    .editor-header {
+      background: var(--editor-bar);
+      border-bottom: 1px solid var(--editor-border);
+      padding: 0.55rem 0.9rem;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .editor-dots {
+      display: flex;
+      gap: 6px;
+      z-index: 2;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-red { background: #E67A73; }
+    .dot-yellow { background: #E5B358; }
+    .dot-green { background: #68BA7F; }
+    .editor-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.74rem;
+      color: var(--ink);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-align: center;
+      width: calc(100% - 100px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .code-editor pre {
+      margin: 0;
+      padding: 1rem 1.2rem;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .code-editor pre code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.83rem;
+      line-height: 1.45;
+      color: var(--editor-text);
+      background: transparent;
+      border: 0;
+      padding: 0;
+      display: block;
+    }
+
+    /* 代码语法高亮修饰（暖白背景适配色） */
+    .c-kw { color: #A8382A; font-weight: 600; }
+    .c-fn { color: #2C6E6A; font-weight: 600; }
+    .c-str { color: #785232; }
+    .c-cm { color: #A89587; font-style: italic; }
+    .c-num { color: #8F4E24; }
+    .c-add {
+      background: rgba(189, 231, 229, 0.4);
+      border-left: 3px solid #3F7A77;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* ---------- SVG 流程与状态机图表容器 ---------- */
+    figure.diagram-fig {
+      margin: 2.2rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.07);
+      transform: rotate(-0.2deg);
+      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    }
+    figure.diagram-fig:nth-of-type(even) { transform: rotate(0.2deg); }
+    figure.diagram-fig:hover {
+      transform: rotate(0deg) translateY(-2px);
+      box-shadow: 0 10px 28px rgba(105,75,64,0.12);
+    }
+    figure.diagram-fig svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    figure.diagram-fig figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.65rem 0.4rem 0.2rem;
+      border-top: 1px dashed var(--line);
+      margin-top: 10px;
+    }
+    figure.diagram-fig .hand {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      color: var(--blue-deep);
+    }
+    figure.diagram-fig .fig-no {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+
+    /* 列表 */
+    .post ul {
+      margin: 1.35rem 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .post ul li {
+      position: relative;
+      padding-left: 1.5em;
+      margin: 0.75rem 0;
+    }
+    .post ul li::before {
+      content: '✦';
+      position: absolute;
+      left: 0.2em;
+      color: var(--blue-deep);
+      font-size: 0.8em;
+      top: 0.28em;
+    }
+
+    /* 启示列表 */
+    .takeaways {
+      margin: 1.8rem 0;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: take;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .takeaways li {
+      counter-increment: take;
+      position: relative;
+      padding-left: 2.6rem;
+    }
+    .takeaways li::before {
+      content: counter(take);
+      position: absolute;
+      left: 0; top: 0.32em;
+      width: 1.7rem; height: 1.7rem;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      color: var(--ink);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* 结语 */
+    .ending {
+      margin: 3.8rem 0 0;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+    }
+    .ending .punch {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.12rem;
+      line-height: 1.8;
+      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
+      display: inline;
+      padding: 0 2px;
+    }
+
+    /* 文末 */
+    .post-foot {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+    .foot-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.5rem 1.7rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+      font-size: 0.92rem;
+      color: var(--ink-light);
+    }
+    .foot-card a {
+      color: var(--red);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      text-decoration: none;
+      border-bottom: 1px solid var(--blue-deep);
+      transition: color 0.2s var(--ease-out);
+    }
+    .foot-card a:hover { color: var(--blue-deep); }
+    .foot-card .src { margin-top: 0.5rem; color: var(--ink-faint); font-size: 0.85rem; }
+    .post-foot .back { display: inline-block; margin-top: 2.4rem; }
+
+    @media (max-width: 640px) {
+      body { font-size: 16.5px; }
+      .post-head, .post, .post-foot { padding-left: 1rem; padding-right: 1rem; }
+      .post-head h1 { font-size: 1.8rem; line-height: 1.42; }
+      .lede { padding: 1.15rem 1.2rem; }
+      .code-editor pre { padding: 0.9rem 1rem; }
+      figure.diagram-fig { transform: none; margin: 1.8rem 0; }
+      figure.diagram-fig figcaption { flex-direction: column; gap: 0.15rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="label">WRITING · 技术架构 / 深度推导</span>
+    <a href="writing.html?category=tech" class="back">← 技术文章</a>
+  </div>
+
+  <header class="post-head">
+    <h1>Pi 学习探索：<em>为什么它是搞懂 Agent 底层与面试的最佳代码库</em></h1>
+    <p class="subtitle">以 Pi-Mono 为模板，深入拆解 Agent Runtime 底座</p>
+    <div class="meta">
+      <span>2026-08</span>
+      <span>AGENT SYSTEM DESIGN & RUNTIME</span>
+      <span>SOURCE: PI-MONO</span>
+    </div>
+    <p class="lede">
+      在 Agent 系统设计与面试中，最常见的瓶颈是“概念听过很多，但一落地就卡在细节”：网上的极简 <code>while (true)</code> 无法应对打断、插话、流式半截 JSON 和长程爆窗；而成熟产品又被深度封装成黑盒。开源的 <strong>pi-mono</strong> 恰好处在一个极佳的位置——源码干净透明，却完整实现了工业级 Agent 该有的核心调度机制。从最简循环出发，我们将顺着真实的工程问题，一步步推导出它的完整形态。
+    </p>
+  </header>
+
+  <article class="post">
+
+    <h2>一、原点：Coding Agent 最纯粹的心脏</h2>
+
+    <p>无论是 Claude Code、Codex，还是其他自主智能体，底层都有一个很简单的 Agent Loop：<strong>模型先判断下一步，再调用工具行动；工具结果回来后，模型根据新信息继续判断。</strong></p>
+
+    <div class="pain-card">
+      <div class="pain-header">
+        <span class="pain-badge" style="color:#2F5654; background:var(--blue-soft); border-color:#9DD5D3;">STEP 0 · 核心闭环</span>
+        <span class="pain-tag">AGENT LOOP</span>
+      </div>
+      <p style="margin:0.2rem 0; font-size:0.95rem;">
+        <strong>思考 → 行动 → 观察 → 再思考</strong><br>
+        <span style="font-family:'Fira Code',monospace; font-size:0.84rem; color:var(--ink-light);">Think → Act → Observe → Repeat</span><br>
+        当模型不再需要调用工具时，它给出当前回复，这一轮通常就结束了。
+      </p>
+    </div>
+
+    <!-- Code Editor Step 0 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <div class="editor-title">01-基础循环.ts</div>
+
+      </div>
+      <pre><code><span class="c-cm">// Step 0: 最简状态的 Agent Loop 骨架</span>
+<span class="c-kw">async function</span> <span class="c-fn">runMinimalAgent</span>(messages, tools) {
+  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {
+    <span class="c-cm">// 1. 思考：模型判断下一步 (Think)</span>
+    <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> llm.<span class="c-fn">call</span>(messages, tools);
+    messages.<span class="c-fn">push</span>(assistant);
+
+    <span class="c-cm">// 2. 判断：若不需要调用工具，给出最终回复，本轮结束</span>
+    <span class="c-kw">if</span> (!assistant.toolCalls || assistant.toolCalls.length === <span class="c-num">0</span>) {
+      <span class="c-kw">break</span>;
+    }
+
+    <span class="c-cm">// 3. 行动：调用工具执行 (Act)</span>
+    <span class="c-kw">const</span> toolResults = [];
+    <span class="c-kw">for</span> (<span class="c-kw">const</span> call <span class="c-kw">of</span> assistant.toolCalls) {
+      <span class="c-kw">const</span> result = <span class="c-kw">await</span> <span class="c-fn">executeTool</span>(call);
+      toolResults.<span class="c-fn">push</span>(result);
+    }
+
+    <span class="c-cm">// 4. 观察：拿到新信息，写回历史准备再思考 (Observe ➔ Repeat)</span>
+    messages.<span class="c-fn">push</span>(...toolResults);
+  }
+}</code></pre>
+    </div>
+
+    <!-- SVG State Machine Step 0 -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 175" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M1 1L7 4L1 7" stroke="#694B40" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M1 1L7 4L1 7" stroke="#3F7A77" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </marker>
+        </defs>
+        <rect x="20" y="55" width="130" height="50" rx="8" fill="#FFFDF8" stroke="#E7D7C4" stroke-width="1.5"/>
+        <text x="85" y="78" font-family="Noto Serif SC, serif" font-size="14" font-weight="700" fill="#694B40" text-anchor="middle">思考</text>
+        <text x="85" y="96" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Think</text>
+
+        <path d="M150 80H220" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <rect x="220" y="55" width="140" height="50" rx="8" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="290" y="78" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#694B40" text-anchor="middle">需要调用工具?</text>
+        <text x="290" y="96" font-family="Fira Code" font-size="11" fill="#A34E45" text-anchor="middle">Need Tools?</text>
+
+        <!-- No Branch (Final Message) -->
+        <path d="M290 55V25H440" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="320" y="38" font-family="Noto Sans SC" font-size="11" fill="#8B6F5C">No (无需工具)</text>
+        <rect x="440" y="8" width="200" height="40" rx="6" fill="#FFFDF8" stroke="#C8B8AB" stroke-width="1.5"/>
+        <text x="540" y="26" font-family="Noto Sans SC" font-size="11" font-weight="700" fill="#694B40" text-anchor="middle">给出当前回复，本轮结束</text>
+        <text x="540" y="40" font-family="Fira Code" font-size="10" fill="#8B6F5C" text-anchor="middle">break; 退出循环</text>
+
+        <!-- Yes Branch (Act & Observe) -->
+        <path d="M360 80H430" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+        <text x="395" y="73" font-family="Fira Code" font-size="12" fill="#3F7A77">Yes</text>
+
+        <rect x="430" y="55" width="130" height="50" rx="8" fill="#E8F6F5" stroke="#9DD5D3" stroke-width="1.5"/>
+        <text x="495" y="78" font-family="Noto Serif SC, serif" font-size="14" font-weight="700" fill="#3F7A77" text-anchor="middle">行动</text>
+        <text x="495" y="96" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Act (Tools)</text>
+
+        <path d="M560 80H620" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+        <rect x="620" y="55" width="120" height="50" rx="8" fill="#E8F6F5" stroke="#9DD5D3" stroke-width="1.5"/>
+        <text x="680" y="78" font-family="Noto Serif SC, serif" font-size="14" font-weight="700" fill="#3F7A77" text-anchor="middle">观察</text>
+        <text x="680" y="96" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Observe</text>
+
+        <!-- Loop Back -->
+        <path d="M680 105V145H85V105" stroke="#3F7A77" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-blue)"/>
+        <text x="380" y="160" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#3F7A77" text-anchor="middle">再思考 (Repeat) ➔ 携带新信息进入下一轮</text>
+      </svg>
+      <figcaption>
+        <span class="hand">思考 → 行动 → 观察 → 再思考 (Think → Act → Observe → Repeat)</span>
+        <span class="fig-no">FIG.01 · STEP 0 基础闭环</span>
+      </figcaption>
+    </figure>
+
+    <p>
+      尽管这段极简循环在概念上完全跑得通，然而在真实使用中，人机协作和工程运行会有截然不同的诉求：用户会想实时纠偏、随时喊停、连续排队，系统还需要流式打字与长期记忆防爆窗。下面，我们就跟随这些真实诉求，一步步把代码演进出来。
+    </p>
+
+    <h2>二、第一步演进：给循环装上“刹车”与“方向盘”（人类介入）</h2>
+
+    <p>在实际使用中，人类绝不会只是在旁边当观众。人类与 Agent 的交互主要有两种行为：<strong>“踩刹车”</strong> 与 <strong>“打方向盘”</strong>。</p>
+
+    <!-- 诉求 1：踩刹车 -->
+    <div class="pain-card">
+      <div class="pain-header">
+        <span class="pain-badge" style="color:#A34E45;">诉求 1 · 踩刹车 (Abort)</span>
+        <span class="pain-tag">COOPERATIVE CANCELLATION</span>
+      </div>
+      <div class="chat-simulation">
+        <div class="chat-bubble agent">
+          <span class="bubble-author">🤖 AGENT [Tool: bash("npm run test:all")]</span>
+          正在执行全量测试套件（预计耗时 5 分钟）...
+        </div>
+        <div class="chat-bubble user">
+          <span class="bubble-author">👤 人类用户</span>
+          [按下了 Ctrl+C / 点击了界面的 🛑 停止生成 按钮]
+        </div>
+        <div class="chat-bubble system-alert">
+          ⚠️ 翻车时刻：虽然 UI 界面显示已停止，但后台子进程并没有收到退出信号，CPU 依然 100% 狂转，模型还在后台持续吐 Token 扣费...
+        </div>
+      </div>
+      <p class="pain-summary">
+        <strong>解法</strong>：取消不是前端改个状态，必须全链路贯穿标准 <code>AbortSignal</code>，穿透打断 HTTP 客户端与底层工具子进程。
+      </p>
+    </div>
+
+    <!-- SVG State Machine Abort -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="55" width="150" height="55" rx="8" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="95" y="80" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#A34E45" text-anchor="middle">用户取消动作</text>
+        <text x="95" y="98" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Ctrl+C / Stop Button</text>
+
+        <path d="M170 82H250" stroke="#A34E45" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="250" y="45" width="180" height="75" rx="8" fill="#FFFDF8" stroke="#A34E45" stroke-width="2"/>
+        <text x="340" y="75" font-family="Fira Code" font-size="14" font-weight="700" fill="#A34E45" text-anchor="middle">AbortController</text>
+        <text x="340" y="98" font-family="Fira Code" font-size="12" fill="#8B6F5C" text-anchor="middle">signal.abort() 广播</text>
+
+        <!-- Branch 1: HTTP -->
+        <path d="M430 65H530" stroke="#A34E45" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="530" y="40" width="200" height="42" rx="6" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="630" y="65" font-family="Noto Sans SC" font-size="12" font-weight="700" fill="#694B40" text-anchor="middle">立即切断 LLM HTTP 连接</text>
+
+        <!-- Branch 2: Child Process -->
+        <path d="M430 100H530" stroke="#A34E45" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="530" y="95" width="200" height="42" rx="6" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="630" y="120" font-family="Noto Sans SC" font-size="12" font-weight="700" fill="#694B40" text-anchor="middle">通知 Tool 子进程 Kill 退出</text>
+      </svg>
+      <figcaption>
+        <span class="hand">cooperative cancellation across the entire runtime</span>
+        <span class="fig-no">FIG.02 · 踩刹车：信号级联取消机制</span>
+      </figcaption>
+    </figure>
+
+    <!-- 诉求 2：打方向盘 -->
+    <div class="pain-card">
+      <div class="pain-header">
+        <span class="pain-badge" style="color:#2F5654; background:var(--blue-soft); border-color:#9DD5D3;">诉求 2 · 打方向盘 (Steering)</span>
+        <span class="pain-tag">IN-FLIGHT STEERING</span>
+      </div>
+      <div class="chat-simulation">
+        <div class="chat-bubble agent">
+          <span class="bubble-author">🤖 AGENT</span>
+          收到！我将分 5 步重构认证模块：1. 读代码 2. 改全局配置文件 3. 改登录路由... 正在执行第 1 步...
+        </div>
+        <div class="chat-bubble agent">
+          <span class="bubble-author">🤖 AGENT [Tool: read_file]</span>
+          第 1 步完成。紧接着开始第 2 步，准备修改全局 config/app.yaml...
+        </div>
+        <div class="chat-bubble user">
+          <span class="bubble-author">👤 人类用户（焦急打字中）</span>
+          等等！千万别动全局 config！只改模块局部的参数传参就行！
+        </div>
+        <div class="chat-bubble system-alert">
+          ⚠️ 翻车时刻：Agent 在 while(true) 中自顾自狂奔，完全没看用户的插话，直接把全局配置给覆盖了...
+        </div>
+      </div>
+      <p class="pain-summary">
+        <strong>解法</strong>：在<strong>工具执行完毕后、下一次调用模型之前</strong>设置拦截检查点，把用户实时的纠偏指令（Steering）注入 Context，让模型在下一轮思考时自然调整航向。
+      </p>
+    </div>
+
+    <!-- SVG State Machine Steering -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="160" height="60" rx="8" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="100" y="45" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#694B40" text-anchor="middle">用户实时插话 (方向盘)</text>
+        <text x="100" y="65" font-family="Fira Code" font-size="11" fill="#A34E45" text-anchor="middle">Steering Queue</text>
+
+        <path d="M180 50H260" stroke="#A34E45" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <rect x="260" y="20" width="220" height="60" rx="8" fill="#FFFDF8" stroke="#3F7A77" stroke-width="2"/>
+        <text x="370" y="45" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#3F7A77" text-anchor="middle">Steering 拦截检查点</text>
+        <text x="370" y="65" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">注入 pendingMessages</text>
+
+        <path d="M480 50H560" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <rect x="560" y="20" width="180" height="60" rx="8" fill="#E8F6F5" stroke="#9DD5D3" stroke-width="1.5"/>
+        <text x="650" y="45" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#3F7A77" text-anchor="middle">带纠偏意图的 LLM</text>
+        <text x="650" y="65" font-family="Noto Sans SC" font-size="11" fill="#8B6F5C" text-anchor="middle">看到最新指令调整计划</text>
+
+        <path d="M650 80V130H370V80" stroke="#3F7A77" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-blue)"/>
+        <text x="510" y="145" font-family="Fira Code" font-size="12" fill="#3F7A77" text-anchor="middle">上一批工具执行完毕 ➔ 优先进入检查点</text>
+      </svg>
+      <figcaption>
+        <span class="hand">intercept before thinking, not during execution</span>
+        <span class="fig-no">FIG.03 · 打方向盘：Steering 插桩拦截流</span>
+      </figcaption>
+    </figure>
+
+    <!-- Code Editor Step 1 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <div class="editor-title">02-刹车与方向盘.ts</div>
+
+      </div>
+      <pre><code><span class="c-kw">async function</span> <span class="c-fn">runInteractiveAgent</span>(context, config, signal: AbortSignal) {
+  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {
+<span class="c-add">    <span class="c-cm">// 【刹车】：检查取消信号</span></span>
+<span class="c-add">    <span class="c-kw">if</span> (signal.aborted) {</span>
+<span class="c-add">      <span class="c-fn">emit</span>(<span class="c-str">"agent_aborted"</span>);</span>
+<span class="c-add">      <span class="c-kw">return</span>;</span>
+<span class="c-add">    }</span>
+
+<span class="c-add">    <span class="c-cm">// 【方向盘】：在模型思考前，优先注入用户的实时纠偏指令</span></span>
+<span class="c-add">    <span class="c-kw">const</span> steeringMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];</span>
+<span class="c-add">    <span class="c-kw">if</span> (steeringMessages.length > <span class="c-num">0</span>) {</span>
+<span class="c-add">      context.messages.<span class="c-fn">push</span>(...steeringMessages);</span>
+<span class="c-add">    }</span>
+
+    <span class="c-cm">// 将 signal 穿透传递给大模型（可中断 HTTP 请求）</span>
+    <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> llm.<span class="c-fn">call</span>(context.messages, config.tools, { signal });
+    context.messages.<span class="c-fn">push</span>(assistant);
+
+    <span class="c-kw">if</span> (assistant.stopReason === <span class="c-str">"aborted"</span> || assistant.stopReason === <span class="c-str">"error"</span>) {
+      <span class="c-kw">return</span>;
+    }
+
+    <span class="c-kw">if</span> (!assistant.toolCalls?.length) <span class="c-kw">break</span>;
+
+    <span class="c-cm">// 将 signal 穿透传递给工具（可中断底层子进程/网络任务）</span>
+    <span class="c-kw">const</span> toolResults = <span class="c-kw">await</span> <span class="c-fn">executeTools</span>(assistant.toolCalls, { signal });
+    context.messages.<span class="c-fn">push</span>(...toolResults);
+  }
+}</code></pre>
+    </div>
+
+    <p style="margin-top:1.8rem; color:var(--ink-light); font-size:0.95rem;">
+      现在，我们已经有了在单次任务中随时<strong>“喊停（Abort）”</strong>和<strong>“微调方向（Steering）”</strong>的能力。但如果用户在 Agent 干活时不是想就地纠偏，而是想<strong>排队安排下一个完全不同的任务</strong>呢？单层循环在语义上就无法区分了——这引出了下一步：<strong>双层循环的诞生</strong>。
+    </p>
+
+    <h2>三、第二步演进：任务串联与排队（双层循环的诞生）</h2>
+
+    <!-- Pain Point 2: 任务排队 -->
+    <div class="pain-card">
+      <div class="pain-header">
+        <span class="pain-badge">认知升级 · 消息性格分流</span>
+        <span class="pain-tag">STEERING VS FOLLOW-UP</span>
+      </div>
+      <div class="chat-simulation">
+        <div class="chat-bubble user" style="border-left: 4px solid #A34E45;">
+          <span class="bubble-author">💬 消息类型 A：实时插话 (Steering - 当前任务纠偏)</span>
+          “等等，改完函数顺便把入参校验加上。” ➔ <strong>期望：立即介入当前这一轮修改！</strong>
+        </div>
+        <div class="chat-bubble user" style="border-left: 4px solid #3F7A77;">
+          <span class="bubble-author">💬 消息类型 B：后续排队 (Follow-up - 下一工单)</span>
+          “等上面所有修改和测试都跑通后，帮我给群里发个部署完成卡片。” ➔ <strong>期望：当前任务彻底收敛结束后再开始！</strong>
+        </div>
+      </div>
+      <p class="pain-summary">
+        如果只有一层 <code>while (true)</code>，很难表达“当前任务完全收敛后，再消费下一个任务”的排队语义。<strong>Pi 在这里设计了非常优雅的双层循环结构</strong>：<br>
+        • <strong>内层循环（单任务工单冲刺）</strong>：专心把当前这件事干完（连续 Tool Calls + Steering 纠偏）；<br>
+        • <strong>外层循环（任务调度派发台）</strong>：内层自然结束后，检查有没有排队的 Follow-up，有则重新唤醒内层。
+      </p>
+    </div>
+
+    <!-- Code Editor Step 2 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <div class="editor-title">03-双层循环调度.ts</div>
+
+      </div>
+      <pre><code><span class="c-kw">async function</span> <span class="c-fn">runDualLoopAgent</span>(context, config, signal) {
+  <span class="c-kw">let</span> pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+
+<span class="c-add">  <span class="c-cm">// 【外层循环】：负责拉取后续排队的 Follow-up 任务</span></span>
+<span class="c-add">  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {</span>
+    <span class="c-kw">let</span> hasMoreToolCalls = <span class="c-kw">true</span>;
+
+<span class="c-add">    <span class="c-cm">// 【内层循环】：当前任务冲刺（消费连续 Tool Calls 与 Steering 插话）</span></span>
+<span class="c-add">    <span class="c-kw">while</span> (hasMoreToolCalls || pendingMessages.length > <span class="c-num">0</span>) {</span>
+      <span class="c-kw">if</span> (signal.aborted) <span class="c-kw">return</span>;
+
+      <span class="c-kw">if</span> (pendingMessages.length > <span class="c-num">0</span>) {
+        context.messages.<span class="c-fn">push</span>(...pendingMessages);
+        pendingMessages = [];
+      }
+
+      <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> llm.<span class="c-fn">call</span>(context.messages, config.tools, { signal });
+      context.messages.<span class="c-fn">push</span>(assistant);
+
+      <span class="c-kw">if</span> (assistant.stopReason === <span class="c-str">"error"</span> || assistant.stopReason === <span class="c-str">"aborted"</span>) <span class="c-kw">return</span>;
+
+      <span class="c-kw">const</span> calls = assistant.toolCalls ?? [];
+      <span class="c-kw">let</span> toolResults = [];
+      hasMoreToolCalls = <span class="c-kw">false</span>;
+
+      <span class="c-kw">if</span> (calls.length > <span class="c-num">0</span>) {
+        toolResults = <span class="c-kw">await</span> <span class="c-fn">executeTools</span>(calls, { signal });
+        context.messages.<span class="c-fn">push</span>(...toolResults);
+        hasMoreToolCalls = !toolResults.<span class="c-fn">every</span>(r => r.terminate);
+      }
+
+<span class="c-add">      <span class="c-cm">// 内层工具批次跑完，下一次思考前优先检查 Steering 实时纠偏！</span></span>
+<span class="c-add">      pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];</span>
+    }
+
+<span class="c-add">    <span class="c-cm">// 内层结束了（当前任务已彻底完成）</span></span>
+<span class="c-add">    <span class="c-cm">// 此时外层检查是否有排队的后续任务（Follow-up）</span></span>
+<span class="c-add">    <span class="c-kw">const</span> followUps = <span class="c-kw">await</span> config.getFollowUpMessages?.() ?? [];</span>
+<span class="c-add">    <span class="c-kw">if</span> (followUps.length > <span class="c-num">0</span>) {</span>
+<span class="c-add">      pendingMessages = followUps;</span>
+<span class="c-add">      <span class="c-kw">continue</span>; <span class="c-cm">// 重新唤醒内层循环！</span></span>
+<span class="c-add">    }</span>
+
+    <span class="c-kw">break</span>; <span class="c-cm">// 既无内层任务，也无 follow-up，彻底收工</span>
+  }
+}</code></pre>
+    </div>
+
+    <!-- SVG State Machine Step 2 (Dual Loop) -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer Loop Box -->
+        <rect x="20" y="15" width="720" height="180" rx="12" fill="rgba(252, 232, 236, 0.35)" stroke="#EAC0C7" stroke-width="1.5" stroke-dasharray="6 6"/>
+        <text x="40" y="40" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#A34E45">外层循环：消费 Follow-up 队列</text>
+
+        <!-- Inner Loop Box -->
+        <rect x="50" y="55" width="460" height="120" rx="10" fill="#FFFDF8" stroke="#9DD5D3" stroke-width="2"/>
+        <text x="70" y="80" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#3F7A77">内层狂奔循环 (Tool Calls & Steering)</text>
+
+        <rect x="70" y="95" width="90" height="38" rx="6" fill="#E8F6F5" stroke="#9DD5D3"/>
+        <text x="115" y="118" font-family="Fira Code" font-size="11" fill="#3F7A77" text-anchor="middle">Steering?</text>
+
+        <path d="M160 114H200" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+        <rect x="200" y="95" width="90" height="38" rx="6" fill="#E8F6F5" stroke="#9DD5D3"/>
+        <text x="245" y="118" font-family="Fira Code" font-size="11" fill="#3F7A77" text-anchor="middle">LLM Call</text>
+
+        <path d="M290 114H330" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+        <rect x="330" y="95" width="90" height="38" rx="6" fill="#E8F6F5" stroke="#9DD5D3"/>
+        <text x="375" y="118" font-family="Fira Code" font-size="11" fill="#3F7A77" text-anchor="middle">Run Tools</text>
+
+        <!-- Inner Loop Arrow -->
+        <path d="M375 133V155H115V133" stroke="#3F7A77" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-blue)"/>
+
+        <!-- Exit Inner to Outer -->
+        <path d="M510 114H560" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="535" y="105" font-family="Noto Sans SC" font-size="10" fill="#8B6F5C" text-anchor="middle">内层收敛</text>
+
+        <rect x="560" y="85" width="160" height="60" rx="8" fill="#FFFDF8" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="640" y="110" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#A34E45" text-anchor="middle">拉取 Follow-up 队列</text>
+        <text x="640" y="130" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">有任务则唤醒内层</text>
+      </svg>
+      <figcaption>
+        <span class="hand">inner sprint loop + outer orchestration loop</span>
+        <span class="fig-no">FIG.04 · STEP 2 双层循环架构</span>
+      </figcaption>
+    </figure>
+
+    <p style="margin-top:1.8rem; color:var(--ink-light); font-size:0.95rem;">
+      双层循环让 Agent 具备了<strong>持续自主推进多任务</strong>的能力。但随之而来的代价是：随着工具连续调用和任务串联，消息历史（Transcript）迅速膨胀。如果不做干预，几十轮后就会直接<strong>撑爆模型的 Context Window</strong>。如何在不中断任务的前提下进行记忆压缩？这引出了下一步：<strong>上下文压缩机制（Compaction）</strong>。
+    </p>
+
+        <h2>四、第三步演进：长程运转的防爆窗机制（Compaction 压缩）</h2>
+
+    <p>
+      当 Agent 围绕双层循环连续跑了数十轮后，累积的会话历史（Transcript）会迅速逼近模型的 Context Window 上限（例如 128k）。如果不做干预，API 请求将直接因超长而报错挂掉。
+    </p>
+
+    <p>
+      很多人的第一反应是“把旧消息直接删掉”或者“发一句‘请总结以上对话’”。但生产级 Agent 的 Compaction 是一套非常严谨的<strong>记忆预算与安全置换机制</strong>，包含四个核心精髓：
+    </p>
+
+    <ul style="margin: 1.4rem 0;">
+      <li>
+        <strong>1. 检查与留足空间（Context Budget）</strong>：<br>
+        不是每轮都盲目压缩，而是为模型本轮输出与工具调用预留足够的安全余量（<code>reserveTokens</code>，如 16k）。当 <code>CurrentTokens &gt; ContextWindow - ReserveTokens</code> 时才触发压缩。
+      </li>
+      <li>
+        <strong>2. 安全切分线（Safe Boundary）</strong>：<br>
+        从后向前保留最近一段活跃原文（<code>keepRecentTokens</code>，如 20k），确保当前任务细节不丢。<strong>核心铁律：切分点绝不能落在 Tool Result 上</strong>，严禁切断 Tool Call 与 Result 的成对关系。
+      </li>
+      <li>
+        <strong>3. 结构化增量摘要（Incremental Summary）</strong>：<br>
+        旧历史被序列化为紧凑纯文本，摘要请求<strong>显式关闭工具</strong>，且将上一次的旧摘要放入 <code>&lt;previous-summary&gt;</code> 要求模型增量更新，防止多轮后信息退化。
+      </li>
+      <li>
+        <strong>4. 压缩后的有效上下文结构</strong>：<br>
+        压缩完成后，替换 <code>context.messages</code>，下一轮主模型看到的有效历史为：<br>
+        <code>System Prompt + Compaction Summary + 最近保留的活跃原始消息</code>。
+      </li>
+    </ul>
+
+    <!-- SVG Step 3 Compaction -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="440" height="50" rx="8" fill="#FCE8EC" stroke="#EAC0C7" stroke-width="1.5"/>
+        <text x="240" y="45" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#A34E45" text-anchor="middle">较早的历史消息 (超额部分)</text>
+        <text x="240" y="62" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Msg 1 ~ Msg 40</text>
+
+        <rect x="480" y="20" width="260" height="50" rx="8" fill="#E8F6F5" stroke="#9DD5D3" stroke-width="1.5"/>
+        <text x="610" y="45" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#3F7A77" text-anchor="middle">保留最近消息 (keepRecentTokens)</text>
+        <text x="610" y="62" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">Msg 41 ~ Msg 50 (原样保留)</text>
+
+        <path d="M240 70V105" stroke="#A34E45" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="250" y="93" font-family="Noto Sans SC" font-size="11" fill="#8B6F5C">独立文本摘要模型</text>
+
+        <rect x="130" y="105" width="220" height="45" rx="6" fill="#FFFDF8" stroke="#A34E45" stroke-width="1.5"/>
+        <text x="240" y="132" font-family="Fira Code" font-size="12" font-weight="700" fill="#A34E45" text-anchor="middle">[Compaction Summary]</text>
+
+        <!-- Merge to New Context -->
+        <path d="M350 127H480" stroke="#3F7A77" stroke-width="1.5"/>
+        <path d="M610 70V127H480" stroke="#3F7A77" stroke-width="1.5"/>
+        <path d="M480 127H500" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+        <rect x="500" y="105" width="240" height="45" rx="6" fill="#FFFDF8" stroke="#3F7A77" stroke-width="2"/>
+        <text x="620" y="132" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#3F7A77" text-anchor="middle">新 Context = 摘要 + 最近原文</text>
+      </svg>
+      <figcaption>
+        <span class="hand">safe compaction without breaking tool pairs</span>
+        <span class="fig-no">FIG.05 · STEP 3 上下文预算切分机制</span>
+      </figcaption>
+    </figure>
+
+    <!-- 04.1 核心压缩切分函数 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="editor-title">04.1-上下文预算切分.ts</div>
+      </div>
+      <pre><code><span class="c-cm">// 【核心函数】：接近窗口上限时，进行安全切分与置换</span>
+<span class="c-kw">async function</span> <span class="c-fn">ensureContextBudget</span>(context, config, signal) {
+  <span class="c-kw">const</span> contextTokens = <span class="c-fn">countTokens</span>(context.messages);
+
+  <span class="c-cm">// 1. 检查：快到上限时才触发压缩</span>
+  <span class="c-kw">if</span> (contextTokens &lt;= config.contextWindow - config.reserveTokens) <span class="c-kw">return</span>;
+
+  <span class="c-cm">// 2. 安全切分：从后向前保留最近消息，绝不切断 Tool Call 与 Result 的成对关系</span>
+  <span class="c-kw">const</span> { oldHistory, recentMessages } = <span class="c-fn">splitAtSafeBoundary</span>(
+    context.messages,
+    config.keepRecentTokens
+  );
+
+  <span class="c-cm">// 3. 独立摘要：纯文本输入，显式关闭 tools，带入旧摘要增量合并</span>
+  <span class="c-kw">const</span> summary = <span class="c-kw">await</span> <span class="c-fn">summarize</span>({
+    transcript: <span class="c-fn">serializeForSummary</span>(oldHistory),
+    previousSummary: <span class="c-fn">findPreviousSummary</span>(oldHistory),
+    tools: [],
+    signal,
+  });
+
+  <span class="c-cm">// 4. 组装新 Context：摘要 + 最近保留原文</span>
+  context.messages = [<span class="c-fn">makeCompactionMessage</span>(summary), ...recentMessages];
+}</code></pre>
+    </div>
+
+    <!-- 04.2 压缩策略与Prompt -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="editor-title">04.2-压缩策略与Prompt.ts</div>
+      </div>
+      <pre><code><span class="c-cm">// Pi coding-agent 的默认预算常量</span>
+<span class="c-kw">const</span> COMPACTION = {
+  reserveTokens: <span class="c-num">16_384</span>,       <span class="c-cm">// 留给下一次模型输出、工具调用和安全余量</span>
+  keepRecentTokens: <span class="c-num">20_000</span>,    <span class="c-cm">// 从后向前保留的活跃原文预算</span>
+  summaryMaxTokens: <span class="c-fn">floor</span>(<span class="c-num">0.8</span> * reserveTokens), <span class="c-cm">// 约 13,107 tokens</span>
+};
+
+<span class="c-cm">// 给独立摘要模型的输入：旧对话包进 conversation；旧摘要带入做增量更新</span>
+<span class="c-kw">const</span> prompt = <span class="c-str">`
+&lt;conversation&gt;[User] ... [Assistant tool calls] ... [Tool result] ...&lt;/conversation&gt;
+&lt;previous-summary&gt;...&lt;/previous-summary&gt;  // 增量合并上一次的旧摘要
+
+Use this EXACT format:
+## Goal
+## Constraints &amp; Preferences
+## Progress
+### Done / ### In Progress / ### Blocked
+## Key Decisions
+## Next Steps
+## Critical Context
+
+Keep it concise. Preserve exact file paths, function names, and errors.
+`</span>;</code></pre>
+    </div>
+
+    <!-- 04.3 Pi双层循环接入 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="editor-title">04.3-Pi双层循环接入.ts</div>
+      </div>
+      <pre><code><span class="c-add"><span class="c-cm">// 基于 03-双层循环调度.ts：在思考前插入 ensureContextBudget()</span></span>
+<span class="c-kw">async function</span> <span class="c-fn">runDualLoopAgent</span>(context, config, signal) {
+  <span class="c-kw">let</span> pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+
+  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {
+    <span class="c-kw">let</span> hasMoreToolCalls = <span class="c-kw">true</span>;
+
+    <span class="c-kw">while</span> (hasMoreToolCalls || pendingMessages.length &gt; <span class="c-num">0</span>) {
+      <span class="c-kw">if</span> (signal.aborted) <span class="c-kw">return</span>;
+
+      <span class="c-kw">if</span> (pendingMessages.length &gt; <span class="c-num">0</span>) {
+        context.messages.<span class="c-fn">push</span>(...pendingMessages);
+        pendingMessages = [];
+      }
+
+<span class="c-add">      <span class="c-cm">// 【新增】：下一次模型思考前，先检查并确保上下文空间充足</span></span>
+<span class="c-add">      <span class="c-kw">await</span> <span class="c-fn">ensureContextBudget</span>(context, config, signal);</span>
+
+      <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> llm.<span class="c-fn">call</span>(context.messages, config.tools, { signal });
+      context.messages.<span class="c-fn">push</span>(assistant);
+
+      <span class="c-kw">if</span> (assistant.stopReason === <span class="c-str">"error"</span> || assistant.stopReason === <span class="c-str">"aborted"</span>) <span class="c-kw">return</span>;
+
+      <span class="c-kw">const</span> calls = assistant.toolCalls ?? [];
+      <span class="c-kw">let</span> toolResults = [];
+      hasMoreToolCalls = <span class="c-kw">false</span>;
+
+      <span class="c-kw">if</span> (calls.length &gt; <span class="c-num">0</span>) {
+        toolResults = <span class="c-kw">await</span> <span class="c-fn">executeTools</span>(calls, { signal });
+        context.messages.<span class="c-fn">push</span>(...toolResults);
+        hasMoreToolCalls = !toolResults.<span class="c-fn">every</span>(r =&gt; r.terminate);
+      }
+
+      pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+    }
+
+    <span class="c-kw">const</span> followUps = <span class="c-kw">await</span> config.getFollowUpMessages?.() ?? [];
+    <span class="c-kw">if</span> (followUps.length &gt; <span class="c-num">0</span>) {
+      pendingMessages = followUps;
+      <span class="c-kw">continue</span>;
+    }
+
+    <span class="c-kw">break</span>;
+  }
+}</code></pre>
+    </div>
+
+    <p style="margin-top:1.8rem; color:var(--ink-light); font-size:0.95rem;">
+      解决了循环控制、任务调度和长程记忆防爆窗之后，Agent 的逻辑骨架已经相当完整。但在真实的生产环境中，还有最后两个影响体验与稳定性的深水区问题需要跨越：<strong>前端打字机的流式体验</strong>与<strong>多工具并发时的时序确定性</strong>。
+    </p>
+
+    <h2>五、第四步演进：体验与稳定性的深水区（流式打字与保序写回）</h2>
+
+    <p>
+      在交互进入工程深水区后，我们需要解决最后两个关键矛盾：
+    </p>
+    <ul>
+      <li><strong>流式打字 vs 参数完整性</strong>：前端需要逐字打字（SSE 流），但工具必须拿到完整合法的 JSON 后才能执行；</li>
+      <li><strong>并发吞吐 vs 历史确定性</strong>：并发执行 3 个只读工具以提升速度，但如果按网络返回时间先后 push 进 Transcript，会导致历史乱序，破坏重放测试与单测断言。</li>
+    </ul>
+
+    <!-- 05.1 流式响应 -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="editor-title">05.1-流式响应.ts</div>
+      </div>
+      <pre><code><span class="c-kw">async function</span> <span class="c-fn">streamAssistantResponse</span>(context, config, signal) {
+  <span class="c-kw">let</span> partial = <span class="c-fn">createEmptyAssistantMessage</span>();
+
+  <span class="c-kw">for await</span> (<span class="c-kw">const</span> delta <span class="c-kw">of</span> llm.<span class="c-fn">stream</span>(context, { tools: config.tools, signal })) {
+    partial = <span class="c-fn">mergeDelta</span>(partial, delta); <span class="c-cm">// 持续累积 text、thinking 与 tool-call 参数</span>
+    <span class="c-fn">emit</span>(<span class="c-str">"message_update"</span>, partial); <span class="c-cm">// 实时派发事件供 UI 逐字渲染</span>
+  }
+
+  <span class="c-kw">return</span> partial; <span class="c-cm">// 流结束后返回完整消息，参数完全闭合可校验</span>
+}</code></pre>
+    </div>
+
+    <!-- 05.2 调用流式响应 (基于 04.3) -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="editor-title">05.2-调用流式响应.ts</div>
+      </div>
+      <pre><code><span class="c-add"><span class="c-cm">// 基于 04.3-Pi双层循环接入.ts：将 llm.call 升级为流式调用</span></span>
+<span class="c-kw">async function</span> <span class="c-fn">runDualLoopAgent</span>(context, config, signal) {
+  <span class="c-kw">let</span> pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+
+  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {
+    <span class="c-kw">let</span> hasMoreToolCalls = <span class="c-kw">true</span>;
+
+    <span class="c-kw">while</span> (hasMoreToolCalls || pendingMessages.length &gt; <span class="c-num">0</span>) {
+      <span class="c-kw">if</span> (signal.aborted) <span class="c-kw">return</span>;
+
+      <span class="c-kw">if</span> (pendingMessages.length &gt; <span class="c-num">0</span>) {
+        context.messages.<span class="c-fn">push</span>(...pendingMessages);
+        pendingMessages = [];
+      }
+
+      <span class="c-kw">await</span> <span class="c-fn">ensureContextBudget</span>(context, config, signal);
+
+<span class="c-add">      <span class="c-cm">// 【升级】：流式调用模型（内部实时 emit 打字，此处 await 组装终态）</span></span>
+<span class="c-add">      <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> <span class="c-fn">streamAssistantResponse</span>(context, config, signal);</span>
+      context.messages.<span class="c-fn">push</span>(assistant);
+
+      <span class="c-kw">if</span> (assistant.stopReason === <span class="c-str">"error"</span> || assistant.stopReason === <span class="c-str">"aborted"</span>) <span class="c-kw">return</span>;
+
+      <span class="c-kw">const</span> calls = assistant.toolCalls ?? [];
+      <span class="c-kw">let</span> toolResults = [];
+      hasMoreToolCalls = <span class="c-kw">false</span>;
+
+      <span class="c-kw">if</span> (calls.length &gt; <span class="c-num">0</span>) {
+        toolResults = <span class="c-kw">await</span> <span class="c-fn">executeTools</span>(calls, { signal });
+        context.messages.<span class="c-fn">push</span>(...toolResults);
+        hasMoreToolCalls = !toolResults.<span class="c-fn">every</span>(r =&gt; r.terminate);
+      }
+
+      pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+    }
+
+    <span class="c-kw">const</span> followUps = <span class="c-kw">await</span> config.getFollowUpMessages?.() ?? [];
+    <span class="c-kw">if</span> (followUps.length &gt; <span class="c-num">0</span>) {
+      pendingMessages = followUps;
+      <span class="c-kw">continue</span>;
+    }
+
+    <span class="c-kw">break</span>;
+  }
+}</code></pre>
+    </div>
+
+    <!-- SVG Step 4 Stream Decoupling -->
+    <figure class="diagram-fig">
+      <svg viewBox="0 0 760 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="65" width="150" height="60" rx="8" fill="#FFFDF8" stroke="#E7D7C4" stroke-width="1.5"/>
+        <text x="95" y="90" font-family="Noto Serif SC, serif" font-size="13" font-weight="700" fill="#694B40" text-anchor="middle">LLM SSE 流式吐字</text>
+        <text x="95" y="110" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">逐个 Chunk / Delta</text>
+
+        <!-- Branch Up: UI -->
+        <path d="M170 80L250 40" stroke="#3F7A77" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+        <rect x="250" y="15" width="220" height="50" rx="8" fill="#E8F6F5" stroke="#9DD5D3" stroke-width="1.5"/>
+        <text x="360" y="38" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#3F7A77" text-anchor="middle">实时 emit("message_update")</text>
+        <text x="360" y="55" font-family="Noto Sans SC" font-size="11" fill="#8B6F5C" text-anchor="middle">UI 界面无延迟逐字渲染</text>
+
+        <!-- Branch Down: Runtime Complete -->
+        <path d="M170 110L250 140" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="250" y="115" width="220" height="55" rx="8" fill="#FFFDF8" stroke="#E7D7C4" stroke-width="1.5"/>
+        <text x="360" y="138" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#694B40" text-anchor="middle">流结束：组装 AssistantMessage</text>
+        <text x="360" y="155" font-family="Noto Sans SC" font-size="11" fill="#8B6F5C" text-anchor="middle">Schema 校验闭合 JSON 参数</text>
+
+        <!-- Tool Concurrent & Order Push -->
+        <path d="M470 142H540" stroke="#694B40" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="540" y="115" width="200" height="55" rx="8" fill="#FFFDF8" stroke="#3F7A77" stroke-width="2"/>
+        <text x="640" y="138" font-family="Noto Serif SC, serif" font-size="12" font-weight="700" fill="#3F7A77" text-anchor="middle">并发执行 ➔ 严格保序写回</text>
+        <text x="640" y="155" font-family="Fira Code" font-size="11" fill="#8B6F5C" text-anchor="middle">[A, B] 顺序永远与 Call 一致</text>
+      </svg>
+      <figcaption>
+        <span class="hand">ephemeral rendering vs committed state</span>
+        <span class="fig-no">FIG.06 · STEP 4 流式解耦与确定性保序</span>
+      </figcaption>
+    </figure>
+
+    <h2>六、最终形态：Pi-Mono 工业级控制流全景</h2>
+
+    <p>至此，最初那段 20 行的极简循环，可以抽象为下面这份 <strong>Pi 风格的工程化等价伪代码</strong>：</p>
+
+    <!-- Code Editor Final Loop -->
+    <div class="code-editor">
+      <div class="editor-header">
+        <div class="editor-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <div class="editor-title">06-完整循环.ts</div>
+
+      </div>
+      <pre><code><span class="c-cm">// 最终形态：Pi 风格的工程化 Agent Loop（等价伪代码）</span>
+<span class="c-kw">async function</span> <span class="c-fn">runLoop</span>(context: AgentContext, config: AgentConfig, signal: AbortSignal) {
+  <span class="c-kw">let</span> pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+  <span class="c-kw">let</span> firstTurn = <span class="c-kw">true</span>;
+
+  <span class="c-cm">// 【外层循环】：消费 Follow-up 队列</span>
+  <span class="c-kw">while</span> (<span class="c-kw">true</span>) {
+    <span class="c-kw">let</span> hasMoreToolCalls = <span class="c-kw">true</span>;
+
+    <span class="c-cm">// 【内层循环】：消费 Steering 队列与连续工具调用</span>
+    <span class="c-kw">while</span> (hasMoreToolCalls || pendingMessages.length > <span class="c-num">0</span>) {
+      <span class="c-fn">emit</span>(<span class="c-str">"turn_start"</span>);
+      firstTurn = <span class="c-kw">false</span>;
+
+      <span class="c-cm">// 1. 注入排队消息 (Steering / Follow-up)</span>
+      <span class="c-kw">if</span> (pendingMessages.length > <span class="c-num">0</span>) {
+        <span class="c-kw">for</span> (<span class="c-kw">const</span> message <span class="c-kw">of</span> pendingMessages) {
+          <span class="c-fn">emit</span>(<span class="c-str">"message_start"</span>, message);
+          <span class="c-fn">emit</span>(<span class="c-str">"message_end"</span>, message);
+          context.messages.<span class="c-fn">push</span>(message);
+        }
+        pendingMessages = [];
+      }
+
+      <span class="c-cm">// 2. 下一次模型调用前，先保证 context 留有回答与工具调用的空间</span>
+      <span class="c-kw">await</span> <span class="c-fn">ensureContextBudget</span>(context, config, signal);
+
+      <span class="c-cm">// 3. 流式调用模型（内部派发 delta，此处 await 组装终态）</span>
+      <span class="c-kw">const</span> assistant = <span class="c-kw">await</span> <span class="c-fn">streamAssistantResponse</span>(context, config, signal);
+
+      <span class="c-kw">if</span> (assistant.stopReason === <span class="c-str">"error"</span> || assistant.stopReason === <span class="c-str">"aborted"</span>) {
+        <span class="c-fn">emit</span>(<span class="c-str">"agent_end"</span>);
+        <span class="c-kw">return</span>;
+      }
+
+      <span class="c-kw">const</span> calls = assistant.toolCalls;
+      <span class="c-kw">let</span> toolResults = [];
+      hasMoreToolCalls = <span class="c-kw">false</span>;
+
+      <span class="c-cm">// 4. 安全执行工具</span>
+      <span class="c-kw">if</span> (calls.length > <span class="c-num">0</span>) {
+        toolResults = assistant.stopReason === <span class="c-str">"length"</span>
+          ? <span class="c-fn">failTruncatedToolCalls</span>(calls)
+          : <span class="c-kw">await</span> <span class="c-fn">executeToolCalls</span>(calls, { signal });
+
+        hasMoreToolCalls = !toolResults.<span class="c-fn">every</span>(result => result.terminate);
+        <span class="c-cm">// 严格按照原始模型调用顺序写入 Transcript</span>
+        context.messages.<span class="c-fn">push</span>(...toolResults);
+      }
+
+      <span class="c-fn">emit</span>(<span class="c-str">"turn_end"</span>, { assistant, toolResults });
+      <span class="c-kw">await</span> config.prepareNextTurn?.({ assistant, toolResults, context });
+
+      <span class="c-kw">if</span> (<span class="c-kw">await</span> config.shouldStopAfterTurn?.({ assistant, toolResults, context })) {
+        <span class="c-fn">emit</span>(<span class="c-str">"agent_end"</span>);
+        <span class="c-kw">return</span>;
+      }
+
+      <span class="c-cm">// 5. 工具批次执行完毕，下一次思考前优先检查 Steering</span>
+      pendingMessages = <span class="c-kw">await</span> config.getSteeringMessages?.() ?? [];
+    }
+
+    <span class="c-cm">// 6. 内层结束，检查 Follow-up 队列</span>
+    <span class="c-kw">const</span> followUps = <span class="c-kw">await</span> config.getFollowUpMessages?.() ?? [];
+    if (followUps.length > <span class="c-num">0</span>) {
+      pendingMessages = followUps;
+      <span class="c-kw">continue</span>;
+    }
+
+    <span class="c-kw">break</span>;
+  }
+
+  <span class="c-fn">emit</span>(<span class="c-str">"agent_end"</span>);
+}</code></pre>
+    </div>
+
+    <h2>七、总结：从演进中理解架构</h2>
+
+    <ol class="takeaways">
+      <li><strong>一切始于 <code>while (true)</code></strong>：Agent 的基石是“大模型决定下一步行动，直到无工具调用或显式结束”。</li>
+      <li><strong>演进线清晰自然</strong>：
+        人类要介入 ➔ 引入 <strong>AbortSignal 刹车</strong> 与 <strong>Steering 方向盘</strong>；<br>
+        任务要排队 ➔ 引入 <strong>内层冲刺 + 外层调度 双层循环</strong>；<br>
+        长程不爆窗 ➔ 引入 <strong>带安全切分边界的 Compaction 压缩</strong>；<br>
+        体验与稳定 ➔ 引入 <strong>流式分流与严格保序写回</strong>。
+      </li>
+      <li><strong>把握了这条生长线，就看透了所有 Agent 架构的调度内核。</strong></li>
+    </ol>
+
+    <div class="ending">
+      <p class="punch">
+        在下一篇中，我们将探讨在拥有了这样一个健壮底座后，如何通过替换 <em>System Prompt + Compaction Prompt + Domain Tools + Durable State</em> 以及多分支树状 Session，将它打造成完全属于你自己的垂直 Agent。
+      </p>
+    </div>
+
+  </article>
+
+  <footer class="post-foot">
+    <div class="foot-card">
+      <div><strong>参考实现与源码出处</strong></div>
+      <div class="src">
+        • Pi-Mono Agent Loop: <a href="https://github.com/earendil-works/pi/blob/main/packages/agent/src/agent-loop.ts" target="_blank" rel="noopener">packages/agent/src/agent-loop.ts</a><br>
+        • Pi-Mono Compaction: <a href="https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/core/compaction/compaction.ts" target="_blank" rel="noopener">packages/coding-agent/src/core/compaction/compaction.ts</a><br>
+        • Pi-Mono Sessions: <a href="https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sessions.md" target="_blank" rel="noopener">packages/coding-agent/docs/sessions.md</a>
+      </div>
+    </div>
+    <a href="writing.html?category=tech" class="back">← 回文章目录</a>
+  </footer>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.closest('.code-editor').querySelector('pre');
+      const text = pre.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.querySelector('span').innerText;
+        btn.classList.add('copied');
+        btn.querySelector('span').innerText = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.querySelector('span').innerText = originalText;
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
