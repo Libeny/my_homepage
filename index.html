@@ -1000,11 +1000,11 @@
     }
 
     /* =========================================================
-       §5  写作 —— 最近三篇，悬停聚焦
+       §5  写作 —— 分类目录册
        ========================================================= */
     .writing-grid {
-      display: flex;
-      min-height: 405px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border-top: 1px solid rgba(105,75,64,0.18);
       border-bottom: 1px solid rgba(105,75,64,0.18);
     }
@@ -1012,88 +1012,113 @@
       --writing-accent: var(--blue-deep);
       position: relative;
       display: flex;
-      flex: 1 1 0;
-      min-width: 0;
+      min-height: 480px;
       flex-direction: column;
-      justify-content: space-between;
       padding: clamp(24px, 3vw, 38px);
       border-left: 1px solid rgba(105,75,64,0.18);
       text-decoration: none;
       color: var(--ink);
       overflow: hidden;
-      background: rgba(255,255,255,0.18);
-      transition: flex 420ms var(--ease-out), background var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+      transition: background var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
     }
     .writing-entry:first-child { border-left: 0; }
     .writing-entry::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 5px;
+      height: 6px;
       background: var(--writing-accent);
-      transform: scaleX(0.3);
+      transform: scaleX(0.28);
       transform-origin: left;
-      transition: transform 420ms var(--ease-out);
-    }
-    .writing-entry[data-category="field"] { --writing-accent: var(--red); }
-    .writing-entry[data-category="life"] { --writing-accent: #C56B7B; }
-    .writing-entry .w-meta {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.7rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.09em;
-      color: var(--ink-faint);
-    }
-    .writing-entry .w-kind { color: var(--writing-accent); }
-    .writing-entry .w-title {
-      margin-top: 2.2rem;
-      font-family: 'Noto Serif SC', serif;
-      font-size: clamp(1.3rem, 2.15vw, 1.82rem);
-      font-weight: 900;
-      line-height: 1.3;
-      overflow-wrap: anywhere;
-    }
-    .writing-entry .w-sub {
-      display: -webkit-box;
-      margin-top: 1rem;
-      overflow: hidden;
-      color: var(--ink-light);
-      font-size: 0.88rem;
-      line-height: 1.8;
-      opacity: 0.82;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3;
-      transition: opacity var(--dur-med) var(--ease-out);
-    }
-    .writing-entry .arrow {
-      margin-top: 2rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.74rem;
-      color: var(--writing-accent);
       transition: transform var(--dur-med) var(--ease-out);
     }
-    @media (hover: hover) and (min-width: 1081px) {
-      .writing-grid:has(.writing-entry:hover) .writing-entry { flex-grow: 0.78; }
-      .writing-entry:hover,
-      .writing-entry:focus { flex-grow: 1.75; background: rgba(255,255,255,0.58); }
-      .writing-entry:hover::before,
-      .writing-entry:focus::before { transform: scaleX(1); }
-      .writing-entry:hover .w-sub,
-      .writing-entry:focus .w-sub { opacity: 1; }
-      .writing-entry:hover .arrow,
-      .writing-entry:focus .arrow { transform: translateX(7px); }
+    .writing-entry:hover { background: rgba(255,255,255,0.4); transform: translateY(-5px); }
+    .writing-entry:hover::before { transform: scaleX(1); }
+    .writing-entry--life { --writing-accent: #C56B7B; }
+    .writing-entry--doc { min-height: 570px; }
+    .writing-entry .w-num {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.7rem, 5vw, 4.5rem);
+      font-style: italic;
+      font-weight: 900;
+      line-height: 0.9;
+      color: var(--writing-accent);
+      opacity: 0.72;
+      margin-bottom: 28px;
     }
+    .writing-entry .w-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.45rem, 2.4vw, 2rem);
+      font-weight: 900;
+      line-height: 1.2;
+    }
+    .writing-entry .w-en {
+      margin-top: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+    }
+    .writing-entry .w-sub {
+      margin-top: 22px;
+      color: var(--ink-light);
+      font-size: 0.9rem;
+      line-height: 1.85;
+    }
+    .writing-entry .doc-preview {
+      display: block;
+      margin-top: 28px;
+      padding: 18px;
+      border: 1px solid rgba(105,75,64,0.16);
+      border-left: 4px solid var(--writing-accent);
+      background: rgba(255,255,255,0.56);
+      box-shadow: 5px 6px 0 rgba(189,231,229,0.24);
+      transform: translate(5px, 4px) rotate(0.55deg);
+      transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), background var(--dur-med) var(--ease-out);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .writing-entry .doc-preview + .doc-preview { margin-top: 14px; }
+    .writing-entry .doc-preview:hover {
+      transform: translate(0, -6px) rotate(0deg);
+      background: rgba(255,255,255,0.86);
+      box-shadow: 8px 10px 0 rgba(189,231,229,0.42);
+    }
+    .writing-entry .doc-preview:focus-visible { outline: 2px solid var(--writing-accent); outline-offset: 3px; }
+    .doc-preview .doc-label { display: block; font-family: 'Fira Code', monospace; font-size: 0.61rem; letter-spacing: 0.12em; color: var(--writing-accent); margin-bottom: 7px; }
+    .doc-preview .doc-title { display: block; font-family: 'Noto Serif SC', serif; font-size: 1rem; font-weight: 900; line-height: 1.45; }
+    .doc-preview .doc-meta { display: block; margin-top: 7px; font-family: 'Fira Code', monospace; font-size: 0.59rem; letter-spacing: 0.06em; color: var(--ink-faint); }
+    .doc-preview .doc-summary {
+      display: block;
+      max-height: 0;
+      margin-top: 0;
+      overflow: hidden;
+      color: var(--ink-light);
+      font-size: 0.75rem;
+      line-height: 1.65;
+      opacity: 0;
+      transition: max-height var(--dur-med) var(--ease-out), margin var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+    }
+    .writing-entry .doc-preview:hover .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
+    .writing-entry .arrow {
+      display: inline-block;
+      margin-top: 2rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      color: var(--writing-accent);
+      text-decoration: none;
+      transition: transform var(--dur-med) var(--ease-out);
+    }
+    .writing-entry:hover .arrow { transform: translateX(7px); }
     .writing-entry:focus-visible { outline: 2px solid var(--writing-accent); outline-offset: -4px; }
 
     @media (max-width: 1080px) {
-      .writing-grid { display: grid; grid-template-columns: 1fr; min-height: 0; }
+      .writing-grid { grid-template-columns: 1fr; }
       .writing-entry { min-height: 0; border-left: 0; border-top: 1px solid rgba(105,75,64,0.18); }
       .writing-entry:first-child { border-top: 0; }
-      .writing-entry .w-title { margin-top: 1.35rem; }
-      .writing-entry .w-sub { -webkit-line-clamp: unset; opacity: 1; }
+      .writing-entry .w-num { margin-bottom: 16px; }
+      .writing-entry .doc-preview { margin-top: 28px; }
+      .doc-preview .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
     }
 
     /* blog 空列表（笔记本空白行） */
@@ -1759,30 +1784,39 @@
         <p class="sec-sub">把做过的、在场的、生活里的，都留下一点。</p>
       </div>
 
-      <div class="writing-grid reveal" id="latestWriting" aria-live="polite">
-        <a href="writing-pi-agent-runtime.html" class="writing-entry" data-category="tech">
-          <div>
-            <div class="w-meta"><time datetime="2026-08-26">2026-08</time><span class="w-kind">AGENT SYSTEM DESIGN</span></div>
-            <h3 class="w-title">Pi 学习探索：为什么它是搞懂 Agent 底层与面试的最佳代码库</h3>
-            <p class="w-sub">以 Pi-Mono 为模板，深入拆解 Agent Runtime 底座：从一段极简的 while(true) 到工业级 Agent 运行时。</p>
-          </div>
-          <span class="arrow">阅读全文 →</span>
-        </a>
-        <a href="writing-raft-message-mechanism.html" class="writing-entry" data-category="tech">
-          <div>
-            <div class="w-meta"><time datetime="2026-08-18">2026-08</time><span class="w-kind">MESSAGE MECHANISM</span></div>
-            <h3 class="w-title">2026 年了，你的 Agent 还在用 @ 或全量消息单独唤起吗？</h3>
-            <p class="w-sub">别让 Agent 被每条消息单独唤起：先聚合新消息，再在回复前确认频道没有变化。</p>
-          </div>
-          <span class="arrow">阅读全文 →</span>
-        </a>
-        <a href="writing-qwen-audio-agent.html" class="writing-entry" data-category="tech">
-          <div>
-            <div class="w-meta"><time datetime="2026-08-12">2026-08</time><span class="w-kind">ARCHITECTURE DEEP-DIVE</span></div>
-            <h3 class="w-title">qwen-audio-agent 架构深读：如何打造一个既能秒回，也能干活的 Agent</h3>
-            <p class="w-sub">它真正做的事，是把“对话”和“干活”拆成两条独立的循环。</p>
-          </div>
-          <span class="arrow">阅读全文 →</span>
+      <div class="writing-grid">
+        <div class="writing-entry writing-entry--doc reveal">
+          <span class="w-num">01</span>
+          <div class="w-title">技术文档</div>
+          <div class="w-en">DOCUMENTS</div>
+          <div class="w-sub">近期对最新技术的拆解、分析与学习文档。</div>
+          <a href="writing-pi-agent-runtime.html" class="doc-preview">
+            <span class="doc-label">ARCHIVE / 03</span>
+            <span class="doc-title">Pi Agent Runtime<br>深读</span>
+            <span class="doc-meta">AGENT SYSTEM DESIGN</span>
+            <span class="doc-summary">从一段极简的 while(true) 出发，拆解流式、工具调用、队列与上下文压缩如何长成完整运行时。</span>
+          </a>
+          <a href="writing-raft-message-mechanism.html" class="doc-preview">
+            <span class="doc-label">ARCHIVE / 02</span>
+            <span class="doc-title">Raft 消息机制<br>深读</span>
+            <span class="doc-meta">AI AGENT · MESSAGING</span>
+            <span class="doc-summary">别让 Agent 被每条消息单独唤起：先聚合新消息，再在回复前确认频道没有变化。</span>
+          </a>
+          <a href="writing-qwen-audio-agent.html" class="doc-preview">
+            <span class="doc-label">ARCHIVE / 01</span>
+            <span class="doc-title">qwen-audio-agent<br>架构深读</span>
+            <span class="doc-meta">AI AGENT · ARCHITECTURE</span>
+            <span class="doc-summary">如何打造一个既能秒回，也能干活的 Agent。</span>
+          </a>
+          <a href="writing.html?category=tech" class="arrow">进入文档库 →</a>
+        </div>
+
+        <a href="writing.html?category=life" class="writing-entry writing-entry--life reveal reveal-d1">
+          <span class="w-num">02</span>
+          <div class="w-title">生活杂谈</div>
+          <div class="w-en">LIFE</div>
+          <div class="w-sub">路上看到，心里想到。技术之外，也把真实的日子留下来。</div>
+          <span class="arrow">随便看看 →</span>
         </a>
       </div>
     </div>
@@ -1871,60 +1905,6 @@
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // === 最新文章：文章目录与首页共用 articles.json，按发布日期取前三篇 ===
-    (async function() {
-      const list = document.getElementById('latestWriting');
-      if (!list) return;
-
-      try {
-        const response = await fetch('articles.json', { cache: 'no-store' });
-        if (!response.ok) throw new Error(`articles.json: ${response.status}`);
-        const articles = await response.json();
-        const latest = articles
-          .filter(article => article.slug && article.title && article.publishedAt)
-          .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-          .slice(0, 3);
-        if (!latest.length) return;
-
-        const fragment = document.createDocumentFragment();
-        latest.forEach(article => {
-          const entry = document.createElement('a');
-          entry.className = 'writing-entry';
-          entry.href = article.slug;
-          entry.dataset.category = article.category || 'tech';
-
-          const content = document.createElement('div');
-          const meta = document.createElement('div');
-          meta.className = 'w-meta';
-          const time = document.createElement('time');
-          time.dateTime = article.publishedAt;
-          time.textContent = article.publishedAt.slice(0, 7);
-          const kind = document.createElement('span');
-          kind.className = 'w-kind';
-          kind.textContent = article.categoryLabel || 'WRITING';
-          meta.append(time, kind);
-
-          const title = document.createElement('h3');
-          title.className = 'w-title';
-          title.textContent = article.title;
-          const summary = document.createElement('p');
-          summary.className = 'w-sub';
-          summary.textContent = article.summary || '';
-          const arrow = document.createElement('span');
-          arrow.className = 'arrow';
-          arrow.textContent = '阅读全文 →';
-
-          content.append(meta, title, summary);
-          entry.append(content, arrow);
-          fragment.append(entry);
-        });
-        list.replaceChildren(fragment);
-      } catch (error) {
-        // 静态兜底卡片保留在 HTML 中，articles.json 加载失败时首页仍可访问最新文章。
-        console.warn('无法加载最新文章目录', error);
-      }
-    })();
 
     // === 子页预取：用户接近对应区块时缓存下一页，避免点击后的换页卡顿 ===
     (function() {

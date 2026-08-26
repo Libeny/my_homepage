@@ -126,9 +126,9 @@
 <body>
   <span class="label">WRITING</span>
   <h1>文章目录</h1>
-  <p class="lede">技术学习 / 活动小记 / 生活杂谈</p>
+  <p class="lede">技术学习 / 生活杂谈</p>
   <div class="filters" role="tablist" aria-label="文章筛选">
-    <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="tech">最新技术拆解</button><button class="filter" data-filter="field">活动小记</button><button class="filter" data-filter="life">生活杂谈</button>
+    <button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="tech">最新技术拆解</button><button class="filter" data-filter="life">生活杂谈</button>
   </div>
   <div class="post-list">
     <a href="writing-pi-agent-runtime.html" class="post-entry" data-category="tech">
@@ -153,7 +153,7 @@
   <script>
     const filters=[...document.querySelectorAll('.filter')], posts=[...document.querySelectorAll('.post-entry')], empty=document.getElementById('empty');
     function select(category){ filters.forEach(b=>b.classList.toggle('active',b.dataset.filter===category)); let count=0; posts.forEach(p=>{const show=category==='all'||p.dataset.category===category;p.hidden=!show;if(show)count++});empty.hidden=count>0; history.replaceState(null,'','?category='+category); }
-    const initial=new URLSearchParams(location.search).get('category')||'all'; select(['all','tech','field','life'].includes(initial)?initial:'all'); filters.forEach(b=>b.addEventListener('click',()=>select(b.dataset.filter)));
+    const initial=new URLSearchParams(location.search).get('category')||'all'; select(['all','tech','life'].includes(initial)?initial:'all'); filters.forEach(b=>b.addEventListener('click',()=>select(b.dataset.filter)));
   </script>
 </body>
 </html>
