@@ -16,3 +16,10 @@ python3 -m venv /tmp/mupath-fonts-venv  # 首次需要
 - `assets/fonts/fonts.css`
 
 不要手动编辑 `assets/fonts/fonts.css`。字体脚本与完整说明见 `scripts/build-font-subsets.py` 和 `assets/fonts/README.md`。
+
+# 多 Agent 分工约定
+
+- **Kimi（本会话）**：与用户高强度对齐、脑暴、产品与品味把关、验收
+- **codex**：干重活、排查问题
+- **agy（Antigravity CLI）**：文案写作 + 图像生成（imagen）。非交互用法：`agy -p "<prompt>" --dangerously-skip-permissions --print-timeout 240s`，生图时在 prompt 里直接指定保存路径。认证偶发抖动，批量任务需串行 + 重试
+- **herdr**：多 agent 终端工作台，用于需要并行看管多个交互式 agent 长会话的场景

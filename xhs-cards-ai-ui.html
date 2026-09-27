@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>小红书卡片 · 5 个让 Claude Code 抄作业的封神 UI 库</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+  :root {
+    --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+    --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+    --red:#694B40; --cream:#FBF2E3;
+    --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+    --paper:#FFFDF8; --line:#E7D7C4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #555; font-family: 'Noto Sans SC', 'PingFang SC', sans-serif; padding-bottom: 60px; }
+  .card {
+    width: 1080px; height: 1440px;
+    margin: 40px auto;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 20% 6%, var(--yellow-soft) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(189,231,229,0.35) 0%, transparent 55%),
+      var(--cream);
+    color: var(--ink);
+    padding: 64px 76px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .c-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Fira Code', monospace; font-size: 21px; letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 22px;
+  }
+  .c-body { flex: 1; padding-top: 36px; display: flex; flex-direction: column; justify-content: space-between; }
+  .c-foot {
+    font-family: 'Fira Code', monospace; font-size: 20px; letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 1px dashed var(--line);
+    padding-top: 20px;
+  }
+  .c-foot .hand { font-family: 'Caveat', cursive; font-size: 32px; color: var(--blue-deep); letter-spacing: 0; }
+
+  h1.cardtitle {
+    font-family: 'Noto Serif SC', serif; font-weight: 900;
+    font-size: 64px; line-height: 1.3; color: var(--ink);
+  }
+  h1.cardtitle em, h2 em, .hl {
+    font-style: normal;
+    background: linear-gradient(to top, var(--blue) 42%, transparent 42%);
+    padding: 0 6px;
+  }
+  .subtitle {
+    font-family: 'Noto Serif SC', serif; font-weight: 700;
+    font-size: 32px; color: var(--ink-light); margin-top: 20px; line-height: 1.5;
+  }
+  .lede {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 8px solid var(--blue-deep);
+    border-radius: 6px 22px 22px 6px;
+    padding: 28px 34px;
+    font-size: 26px; line-height: 1.85; color: var(--ink-light);
+    box-shadow: 0 4px 18px rgba(105,75,64,0.06);
+    margin: 24px 0;
+  }
+  .lede strong { color: var(--ink); }
+
+  h2 {
+    font-family: 'Noto Serif SC', serif; font-weight: 900;
+    font-size: 46px; line-height: 1.35; margin-bottom: 18px;
+  }
+  p { font-size: 26px; line-height: 1.8; color: var(--ink); margin: 14px 0; }
+  p.dim { color: var(--ink-light); }
+
+  .box {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 18px; padding: 26px 32px; margin: 18px 0;
+    box-shadow: 0 3px 14px rgba(105,75,64,0.06);
+    font-size: 25px; line-height: 1.85;
+  }
+  .box .tag {
+    display: inline-block; font-family: 'Fira Code', monospace; font-size: 20px;
+    letter-spacing: 0.12em; color: #3F7A77; background: var(--blue-soft);
+    border: 1px solid var(--blue-deep); border-radius: 8px; padding: 2px 14px;
+    margin-bottom: 12px;
+  }
+
+  .card-img-wrap {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: 0 8px 24px rgba(105,75,64,0.08);
+    background: #111;
+    margin: 16px 0;
+  }
+  .card-img-wrap img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+
+  .badge-row {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px;
+  }
+  .badge {
+    background: rgba(244,207,214,0.3);
+    border: 1px solid rgba(244,207,214,0.8);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 20px;
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  pre {
+    font-family: 'Fira Code', monospace; font-size: 22px; line-height: 1.7;
+    background: #251c19; border-radius: 14px;
+    padding: 24px 28px; margin: 18px 0; color: #fdfaf6;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- P1: 封面 -->
+<div class="card">
+  <div class="c-top">
+    <span>FRONTEND TASTE · AGENT GUIDE</span>
+    <span>P1 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <div style="font-family:'Fira Code',monospace; font-size:24px; color:var(--red); letter-spacing:0.12em; margin-bottom:12px;">✦ AI 编程审美自救指南</div>
+      <h1 class="cardtitle">5 个让 Claude Code<br><em>抄作业</em> 的封神 UI 库</h1>
+      <div class="subtitle">写代码通常不难，界面审美才容易卡人</div>
+    </div>
+
+    <div class="lede">
+      大家都感觉得到：<strong>AI 写的界面塑料感极强</strong>。不是你的提示词不够细，而是大模型没有感性审美，默认只出平均值。<br><br>
+      学会把顶尖开源库当作 <strong>Agent 的设计母体</strong>，让它找组件、抄实现、剥离颜色变量，直接放进你的项目。
+    </div>
+
+    <div class="badge-row">
+      <span class="badge">#BeautifulUI</span>
+      <span class="badge">#beUI</span>
+      <span class="badge">#RareUI</span>
+      <span class="badge">#Transitions</span>
+      <span class="badge">#shadcn</span>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>MUYU TAKUYA · GITHUB SKILL</span>
+    <span class="hand">taste matters</span>
+  </div>
+</div>
+
+<!-- P2: Beautiful UI -->
+<div class="card">
+  <div class="c-top">
+    <span>01 · AI-NATIVE PRIMITIVES</span>
+    <span>P2 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>01 · Beautiful UI<br><em>AI 原生界面</em> 的设计原语</h2>
+      <p class="dim">beautifului.dev ✦ 专为 Agent 和大模型交互打造</p>
+    </div>
+
+    <div class="card-img-wrap">
+      <img src="assets/ui-curation/beautifului-preview.png" alt="Beautiful UI 截图">
+    </div>
+
+    <div class="box">
+      <span class="tag">AGENT 核心组件清单</span>
+      <p>• <strong>Thinking State</strong>：可折叠推理链与耗时计时器<br>
+      • <strong>Streaming Text</strong>：流式输出与内联 Sources 来源<br>
+      • <strong>Approval Card</strong>：Agent 执行高危动作前的人类审批<br>
+      • <strong>Tool Chips</strong>：工具调用/代码修改的紧凑胶囊状态条</p>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>CLAUDE CODE 抄作业清单</span>
+    <span class="hand">ai-native</span>
+  </div>
+</div>
+
+<!-- P3: beUI -->
+<div class="card">
+  <div class="c-top">
+    <span>02 · FRAMER MOTION &amp; TAILWIND</span>
+    <span>P3 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>02 · beUI<br>丝滑到极致的 <em>现代 React 动效</em></h2>
+      <p class="dim">beui.dev ✦ 125+ 动效组件 · shadcn CLI 直拷</p>
+    </div>
+
+    <div class="card-img-wrap">
+      <img src="assets/ui-curation/beui-preview.png" alt="beUI 截图">
+    </div>
+
+    <div class="box">
+      <span class="tag">高级微交互亮点</span>
+      <p>• <strong>Dynamic Island</strong>：灵动岛胶囊弹性变形与展开<br>
+      • <strong>Morphing Modal</strong>：无感多步骤形变弹窗，自适应高度<br>
+      • <strong>macOS Dock</strong>：带光标弹性指示器的悬浮应用坞<br>
+      • <strong>Animated Toast</strong>：手势物理滑动与空间堆叠通知</p>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>CLAUDE CODE 抄作业清单</span>
+    <span class="hand">pure motion</span>
+  </div>
+</div>
+
+<!-- P4: Rare UI -->
+<div class="card">
+  <div class="c-top">
+    <span>03 · SIGNATURE &amp; CREATIVE</span>
+    <span>P4 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>03 · Rare UI<br>拒绝千篇一律的 <em>稀有创意库</em></h2>
+      <p class="dim">rareui.com ✦ 打造一眼记住的产品记忆点</p>
+    </div>
+
+    <div class="card-img-wrap">
+      <img src="assets/ui-curation/rareui-showcase-complete.png" alt="Rare UI 截图">
+    </div>
+
+    <div class="box">
+      <span class="tag">打破同质化核心组件</span>
+      <p>• <strong>folder-component</strong>：极具拟物感的 3D 折叠交互文件夹<br>
+      • <strong>proximity-sidebar</strong>：按光标距离动态感应吸附的侧边栏<br>
+      • <strong>family-drawer</strong>：如流体般细腻的交互式抽屉<br>
+      • <strong>gravity-letters</strong>：重力碰撞物理文字效果</p>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>CLAUDE CODE 抄作业清单</span>
+    <span class="hand">stand out</span>
+  </div>
+</div>
+
+<!-- P5: Transitions.dev -->
+<div class="card">
+  <div class="c-top">
+    <span>04 · MOTION TOKENS</span>
+    <span>P5 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>04 · Transitions.dev<br>专治动效僵硬的 <em>物理缓动系统</em></h2>
+      <p class="dim">transitions.dev ✦ 专为 AI Agent 调教的转场曲线</p>
+    </div>
+
+    <div class="card-img-wrap">
+      <img src="assets/ui-curation/transitions-preview.png" alt="Transitions 截图">
+    </div>
+
+    <div class="box">
+      <span class="tag">直接丢给 AGENT 的物理参数</span>
+      <p>• <strong>Ease Bounce</strong>：<code>cubic-bezier(0.34, 1.36, 0.64, 1)</code><br>
+      • <strong>Smooth Out</strong>：<code>cubic-bezier(0.22, 1, 0.36, 1)</code><br>
+      • <strong>Stagger</strong>：<code>40ms</code> 逐项阶梯微延迟消除机械感<br>
+      • <strong>Micro Blur</strong>：<code>4px ~ 8px</code> 位移配合 <code>2px</code> 高斯模糊</p>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>CLAUDE CODE 抄作业清单</span>
+    <span class="hand">smooth easing</span>
+  </div>
+</div>
+
+<!-- P6: shadcn/ui -->
+<div class="card">
+  <div class="c-top">
+    <span>05 · ACCESSIBILITY &amp; PRIMITIVES</span>
+    <span>P6 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>05 · shadcn/ui<br>工业级标准与 <em>代码所有权底座</em></h2>
+      <p class="dim">ui.shadcn.com ✦ Copy-Paste 哲学的母体生态</p>
+    </div>
+
+    <div class="card-img-wrap">
+      <img src="assets/ui-curation/shadcn-preview.png" alt="shadcn/ui 截图">
+    </div>
+
+    <div class="box">
+      <span class="tag">为什么它是地基？</span>
+      <p>• <strong>Radix UI 内核</strong>：最严谨的键盘导航与无障碍标准（a11y）<br>
+      • <strong>无黑盒依赖</strong>：代码 100% 在你的工程里，随意重构<br>
+      • <strong>Agent 认知度最高</strong>：所有编程模型都对它掌握最透彻</p>
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>CLAUDE CODE 抄作业清单</span>
+    <span class="hand">solid foundation</span>
+  </div>
+</div>
+
+<!-- P7: GitHub Skill 与总结 -->
+<div class="card">
+  <div class="c-top">
+    <span>06 · GITHUB SKILL &amp; WORKFLOW</span>
+    <span>P7 / P7</span>
+  </div>
+  <div class="c-body">
+    <div>
+      <h2>如何让 Agent 自动选型？<br><em>开箱即用 GitHub Skill</em></h2>
+      <p class="dim">无需死记硬背，把路由规则配置进 Agent</p>
+    </div>
+
+    <pre><code># 意图分流决策树 (Intent Routing)
+1. AI/Agent 原生界面  → 选 Beautiful UI
+2. 丝滑现代动效与微交互 → 选 beUI
+3. 破除同质化/记忆点卡片 → 选 Rare UI
+4. 动效僵硬/调校缓动曲线 → 抄 Transitions
+5. 通用工业级组件底座   → 选 shadcn/ui</code></pre>
+
+    <div class="lede">
+      <strong>在线独立主页 &amp; Prompt 示例：</strong><br>
+      访问 <code>ai-ui-taste-skill.html</code> 可一键复制完整规则。<br>
+      “请参考 ai-ui-taste 规则，用 beUI 的 Morphing Modal 动效逻辑重构当前设置弹窗，保持现有项目配色变量。”
+    </div>
+  </div>
+  <div class="c-foot">
+    <span>独立 Skill 网址已上线 · 欢迎体验</span>
+    <span class="hand">by MuYu</span>
+  </div>
+</div>
+
+</body>
+</html>

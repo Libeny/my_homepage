@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在虚拟书架上做一本真实的实体书：旅册与我们的装帧执念 · 木鱼拓哉の写作本</title>
+  <meta name="description" content="从魔法书跳动、红顶与居中的美学思辨，到让 AI 真正为旅人“装订”一本有温度的书。记录一次关于实体质感、极客浪漫与产品品味的双人探索。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --accent-red:#b64036;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.95;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部导航条 */
+    .topbar {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+    }
+    .back {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+    .back:hover { color: var(--blue-deep); }
+
+    /* 文章头部 */
+    .post-head {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3.2rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5.4vw, 2.85rem);
+      line-height: 1.38;
+      margin: 1.1rem 0 0.8rem;
+      letter-spacing: -0.01em;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--yellow) 42%, transparent 42%);
+      padding: 0 6px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+    .lede {
+      margin-top: 2.2rem;
+      padding: 1.5rem 1.8rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent-red);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 1rem;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.06);
+    }
+
+    /* 正文 */
+    article {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.8rem 1.5rem 5rem;
+    }
+    article h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.62rem;
+      line-height: 1.4;
+      margin: 3.2rem 0 1.2rem;
+      padding-top: 1.8rem;
+      border-top: 1px dashed var(--line);
+      color: var(--ink);
+    }
+    article h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin: 2rem 0 0.8rem;
+      color: var(--ink);
+    }
+    article p {
+      margin-bottom: 1.6rem;
+      color: #553c32;
+      text-align: justify;
+    }
+    article p strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* 视觉插画与卡片 */
+    .figure-card {
+      margin: 2.6rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(105,75,64,0.08);
+    }
+    .figure-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .figure-card figcaption {
+      padding: 1rem 1.4rem;
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      border-top: 1px solid var(--line);
+      background: rgba(251,242,227,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .figure-card figcaption span.tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      background: rgba(189,231,229,0.3);
+      color: var(--ink-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* 诗意引用卡 */
+    blockquote {
+      margin: 2rem 0;
+      padding: 1.4rem 1.8rem;
+      background: rgba(255, 253, 248, 0.7);
+      border-left: 3px solid var(--blue-deep);
+      border-radius: 0 12px 12px 0;
+      font-style: italic;
+      color: var(--ink-light);
+    }
+    blockquote p {
+      margin-bottom: 0 !important;
+    }
+
+    /* 细节思辨框 */
+    .callout {
+      margin: 2.2rem 0;
+      padding: 1.5rem 1.8rem;
+      background: #FFFDF8;
+      border: 1px solid #E7D7C4;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.04);
+    }
+    .callout-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--ink);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* 底部收尾 */
+    .post-footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-note {
+      font-family: 'Caveat', cursive;
+      font-size: 1.35rem;
+      color: var(--blue-deep);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="label">WRITING · 生活杂谈 / CREATIVE LOG</span>
+    <a href="writing.html?category=life" class="back">← 回到生活杂谈</a>
+  </div>
+
+  <header class="post-head">
+    <div class="meta">
+      <span>2026.09.14</span>
+      <span>TRAVEL BOOK ESSAY</span>
+      <span>PRODUCT & CRAFT</span>
+    </div>
+    <h1>在虚拟书架上做一本真实的实体书：<em>旅册与我们的装帧执念</em></h1>
+    <div class="lede">
+      从魔法书跳动、红顶与居中的美学思辨，到让 AI 真正为旅人“装订”一本有温度的书。记录这段时间与搭档一起，关于实体质感、极客浪漫与产品品味的一场深度探索。
+    </div>
+  </header>
+
+  <article>
+
+    <figure class="figure-card">
+      <img src="assets/travel-book-craft.jpg" alt="阳光洒在开本旅行书上，边上有手冲咖啡与钢笔">
+      <figcaption>
+        <span>桌角、午后斜阳与一本有体温的书。这是我们从第一天起就想找回的感觉。</span>
+        <span class="tag">PHOTO ESSAY</span>
+      </figcaption>
+    </figure>
+
+    <h2>一、 起意：为什么是一本“书”，而不是又一张碎片卡片？</h2>
+
+    <p>
+      今天的互联网并不缺旅行攻略。打开手机，小红书上充斥着饱和度拉满的九宫格、大众点评上是密密麻麻的排队榜单与千篇一律的网红打卡点。算法把城市的呼吸切成了数以百计的碎屑，催促着人赶场、拍照、比耶、离开。
+    </p>
+    <p>
+      但在旅途结束、关掉电脑回到家的某个深夜，当你偶然想起厦门环岛路凌晨的潮声，或是西安城墙下老人在槐树下下棋的清脆落子声时，你真的想去刷那些卡片流吗？
+    </p>
+    <p>
+      不。人类对记忆最深层的本能，是有重量的。它是书架上那本带着布纹肌理的书脊，是微黄宣纸间的水彩印迹，是翻开时带着淡淡油墨香气的阻尼感。这就是我们做<strong>「旅册 · Travel Book」</strong>的原点：<strong>不要让 AI 吐出一堆流水账卡片，而是让它成为一个数字书匠，为每一个旅人真正“装订”一本专属实体书。</strong>
+    </p>
+
+    <blockquote>
+      <p>“技术越是走向虚无与云端，人越是在潜意识里渴求那些沉甸甸的、可以摩挲、可以翻开的实体温度。”</p>
+    </blockquote>
+
+    <h2>二、 执念：书脊是书的脸，红顶是定海神针</h2>
+
+    <p>
+      在真正动手造这架“3D 数字书架”时，我们遇到了无数看似细微、却几乎决定灵魂的细节。
+    </p>
+    <p>
+      比如书脊。最开始的方案，把书脊做成了一个平平无奇的竖条，鼠标悬浮时简单拉伸。但只要你站在真实的木质书架前看过一眼就会明白：<strong>书脊就是书的脸。</strong> 在光线下，装订布面有纵向的微小经纬反光，顶端会露出一段用于标记与抽出书籍的红色织带——那是传统装帧里的“红顶印”。
+    </p>
+
+    <div class="callout">
+      <div class="callout-title">✦ 一次关于审美直觉的拉扯：贴顶，还是居中？</div>
+      <p>
+        在探索书脊文字排版时，我们经历过一段很有意思的较劲。直觉上，中式竖排自然是“自上而下”书写，我们曾尝试把书名首字死死贴在书脊顶端。
+      </p>
+      <p>
+        但当真正把书摆到书架上那一瞬间，眼光敏锐的搭档立刻指出了不对劲：像“待揭晓”只有三个字，如果强行贴顶，文字下方会留下整整 70% 的大片空白，显得空荡、仓促、头重脚轻；而长书名又排得满满当当，整个书架杂乱无章。
+      </p>
+      <p>
+        <strong>那一刻我们顿悟了：红顶印就是方向的锚！</strong> 正因为书脊顶端已经有那一抹朱红色的书签织带，眼睛在看到它的第一毫秒，就已经自然确立了“从上到下”的方位感；而书名本身，必须安稳、从容地<strong>垂直居中</strong>于书脊的黄金视觉中心。对称带来的呼吸感与留白，才是书籍装帧数百年沉淀下来的秩序美。
+      </p>
+    </div>
+
+    <h2>三、 物理的重量：铰链与光流的仪式感</h2>
+
+    <p>
+      我们对“物理感”的苛求并没有止步于此。在虚拟书架上，书是怎么被打开的？
+    </p>
+    <p>
+      很多产品喜欢用简单的弹窗遮罩（Modal Pop-up），但在我们看来，那破坏了整座书房的连续性。一本真正被抽出来的书，应当有着真实的铰链物理轴心（Hinge Geometry）：
+    </p>
+    <ul>
+      <li>书脊以右边缘为轴，逆时针转出 -65 度，展现出布面侧缘的厚度；</li>
+      <li>封面以同一接缝为轴顺时针展开，与书脊形成自然的合页夹角；</li>
+      <li>书架的轨道如丝般向两侧延展，给这本书让出物理空间，底部的阴影随之拉长加深。</li>
+    </ul>
+
+    <figure class="figure-card">
+      <img src="assets/agent-workshop-flow.jpg" alt="数字装订工坊流水线概念插画">
+      <figcaption>
+        <span>Agent 不再是黑盒，而是有条不紊的数字工坊：规划、撰写、水彩作画与装订台。</span>
+        <span class="tag">ATELIER ARCHITECTURE</span>
+      </figcaption>
+    </figure>
+
+    <p>
+      而对于那本正在由 AI 生成、尚在成型中的“待揭晓书”，我们赋予了它如同《哈利·波特》魔法书般的生命：它在书架上带着微光调皮地轻轻一跳，当旅人按捺不住好奇点击它时，一缕温暖的神圣金光不是像气泡一样从腰部胀开，而是<strong>自天灵如流光瀑布般自顶向下席卷而下</strong>。金光所过之处，水彩封面与金色书名逐字揭晓，仿佛刚从装订机上揭下防尘纸那一刻的屏息。
+    </p>
+
+    <h2>四、 Agent 作为手艺人：技术退后，生活向前</h2>
+
+    <p>
+      在打造整个系统的幕后，我们把庞杂的 Agent 工作流拆解成了一个优雅的工坊流水线：
+    </p>
+    <p>
+      有的智能体负责如老向导般考据风土民情，梳理不落俗套的漫步路线；有的智能体专注以文学散文的笔触描摹市井烟火；有的智能体则像水彩画家一样，根据文字情绪渲染出质感颗粒温润的配图；最后由排版引擎将一切规整成册。
+    </p>
+    <p>
+      在探索的整个过程中，我们越来越清晰地感受到：<strong>好的 AI 产品绝不是向用户炫耀大模型的参数规模或 Prompt 的精巧，而是把技术的轰鸣声全部藏在后台，只把最平静、最有温度、最触手可及的生活器物递到用户面前。</strong>
+    </p>
+    <p>
+      那一刻，代码不再是冷冰冰的字符，而是一场写给远方、也写给每一个认真生活的人的温情答卷。
+    </p>
+
+  </article>
+
+  <footer class="post-footer">
+    <span class="footer-note">不赶时间 ✦ 想到了就写</span>
+    <a href="index.html#writing" class="back">← 回到主页</a>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear 架构深读：Agent 跑了八分钟，刷新一下就没了？ · 木鱼拓哉の写作本</title>
+  <meta name="description" content="聊聊 AI 时代的端云协同基本功。从 Linear 同步引擎借三件事：本地事务队列、全局序号增量同步、按需加载，把一次脆弱的长连接请求改写为可恢复、可对账的端云协同状态流。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.9;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- 顶部条 ---------- */
+    .topbar {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+    }
+    .back {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+    .back:hover { color: var(--blue-deep); }
+
+    /* ---------- 文章头 ---------- */
+    .post-head {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.9rem, 5.2vw, 2.7rem);
+      line-height: 1.35;
+      margin: 1.1rem 0 0.7rem;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
+      padding: 0 4px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+    }
+    .lede {
+      margin-top: 2rem;
+      padding: 1.4rem 1.6rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 0.98rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+    }
+    .lede strong { color: var(--ink); }
+
+    /* ---------- 正文 ---------- */
+    .post {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+    }
+    .post p { margin: 1.35rem 0; }
+    .post strong { font-weight: 700; color: var(--ink); }
+
+    .post h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.45rem, 3.6vw, 1.8rem);
+      line-height: 1.4;
+      margin: 3.6rem 0 1.2rem;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+      position: relative;
+    }
+    .post h2::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0;
+      width: 56px; height: 3px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+    }
+    .post h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.18rem;
+      margin: 2.6rem 0 0.9rem;
+    }
+
+    /* 普通列表 */
+    .post ul:not(.scenes):not(.takeaways) {
+      margin: 1.35rem 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .post ul:not(.scenes):not(.takeaways) > li {
+      position: relative;
+      padding-left: 1.6em;
+      margin: 0.7rem 0;
+    }
+    .post ul:not(.scenes):not(.takeaways) > li::before {
+      content: '✦';
+      position: absolute;
+      left: 0.2em;
+      color: var(--blue-deep);
+      font-size: 0.8em;
+      top: 0.28em;
+    }
+
+    /* 场景卡片 */
+    .post .scenes {
+      margin: 1.6rem 0;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: scene;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .post .scenes > li {
+      counter-increment: scene;
+      position: relative;
+      padding: 1.2rem 1.4rem 1.2rem 3.4rem;
+      background: rgba(255,253,248,0.72);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .post .scenes > li::before {
+      content: counter(scene, decimal-leading-zero);
+      position: absolute;
+      left: 1.1rem; top: 1.28rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--blue-deep);
+      letter-spacing: 0.05em;
+    }
+    .post .scenes > li strong { color: var(--ink); }
+    .post .scenes > li p { margin: 0; }
+    .post .scenes .s-so { margin-top: 0.55rem; }
+    .post .scenes .s-so strong {
+      color: #3F7A77;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      border-radius: 5px;
+      padding: 0 0.45em;
+      font-size: 0.85em;
+      margin-right: 0.2em;
+    }
+
+    /* 检查清单 */
+    .post .takeaways {
+      margin: 1.8rem 0;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: take;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .post .takeaways > li {
+      counter-increment: take;
+      position: relative;
+      padding-left: 2.85rem;
+      line-height: 1.8;
+      min-height: 1.8rem;
+    }
+    .post .takeaways > li::before {
+      content: counter(take);
+      position: absolute;
+      left: 0; top: 0.15rem;
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      border: 1.5px solid var(--blue-deep);
+      color: #2F635E;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 0.76rem;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      box-shadow: 0 1px 4px rgba(105,75,64,0.06);
+    }
+
+    .subtitle {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1.05rem, 2.6vw, 1.32rem);
+      line-height: 1.6;
+      color: var(--ink-light);
+      margin-bottom: 1.2rem;
+    }
+
+    /* 配图卡片 */
+    figure.fig {
+      margin: 2.6rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.08);
+      transform: rotate(-0.35deg);
+      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    }
+    figure.fig:nth-of-type(even) { transform: rotate(0.35deg); }
+    figure.fig:hover {
+      transform: rotate(0deg) translateY(-2px);
+      box-shadow: 0 10px 28px rgba(105,75,64,0.12);
+    }
+    figure.fig img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 3px;
+    }
+    figure.fig figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.55rem 0.4rem 0.2rem;
+    }
+    figure.fig .hand {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      color: var(--blue-deep);
+    }
+    figure.fig .fig-no {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+
+    /* 代码与 ASCII 框 */
+    .post pre {
+      margin: 1.6rem 0;
+      padding: 1.1rem 1.3rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 12px 12px 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--ink);
+      overflow-x: auto;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+    }
+
+    /* 结语 */
+    .ending {
+      margin: 3.6rem 0 0;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+    }
+    .ending .punch {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.12rem;
+      line-height: 1.8;
+      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
+      display: inline;
+      padding: 0 2px;
+    }
+
+    /* 文末 */
+    .post-foot {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+    .foot-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.5rem 1.7rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+      font-size: 0.92rem;
+      color: var(--ink-light);
+    }
+    .foot-card a {
+      color: var(--red);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      text-decoration: none;
+      border-bottom: 1px solid var(--blue-deep);
+      transition: color 0.2s var(--ease-out);
+    }
+    .foot-card a:hover { color: var(--blue-deep); }
+    .foot-card .src { margin-top: 0.5rem; color: var(--ink-faint); font-size: 0.85rem; }
+    .post-foot .back { display: inline-block; margin-top: 2.4rem; }
+
+    @media (max-width: 640px) {
+      body { font-size: 16.5px; }
+      figure.fig { transform: none; margin: 2rem 0; }
+      figure.fig figcaption { flex-direction: column; gap: 0.15rem; }
+      .lede { padding: 1.15rem 1.2rem; }
+      .scenes li { padding-left: 2.6rem; }
+      .scenes li::before { left: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="label">WRITING · 系统架构 / 端云协同</span>
+    <a href="writing.html?category=tech" class="back">← 技术文章</a>
+  </div>
+
+  <header class="post-head">
+    <h1>Linear 架构深读：<em>Agent 跑了八分钟，刷新一下就没了？</em></h1>
+    <div class="subtitle">聊聊 AI 时代的端云协同基本功</div>
+    <p class="lede">
+      当我们在 AI 时代大谈 Agent、长程推理与多智能体工作流时，无数真实产品却在最基础的环节轰然倒地：Agent 跑了五分钟用户手滑刷新全丢、多设备登录状态无法对账、网络颠簸造成重复调度。通读 Linear 逆向文档，拆解它如何在端侧用本地事务队列兜住所有断点，在云端用单调递增序号统领全局对账。这是一份写给所有端侧与系统架构工程师的必修底座指南。
+    </p>
+    <div class="meta">
+      <span>2026-09</span>
+      <span>SYNC ENGINE &amp; LOCAL-FIRST</span>
+      <span>SOURCE: WZHUDEV / REVERSE-LSE</span>
+    </div>
+  </header>
+
+  <article class="post">
+
+    <h2>一、传统端侧架构的断点死穴</h2>
+
+    <p>做端侧（Web、Desktop、Mobile）开发，我们每天都在跟以下事故搏斗：</p>
+
+    <p>电脑上刚改完，手机拿出来看还是旧的；地铁里断网改了几条数据，到了有网的地方一刷新全丢了；两个人同一秒改一个字段，后保存的直接覆盖先保存的，谁都没收到任何冲突提示；或者网络抖了一下，请求还在空中飞，用户急躁地又点了三次保存，数据库里多出三条重复记录。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-lse-0-refresh.jpg" alt="概念插画：一个人对着笔记本电脑扶额，屏幕上的应用停在加载圈" loading="lazy">
+      <figcaption>
+        <span class="hand">waiting on the network, again</span>
+        <span class="fig-no">FIG.00 · 传统网络架构的无休止等待</span>
+      </figcaption>
+    </figure>
+
+    <p>这些问题的根源是传统架构的默认假设：<strong>状态的唯一真源只在服务端，端侧只是个无状态的薄渲染层，任何操作都必须等一次完整的网络往返。</strong></p>
+
+    <p>只要网络一发生抖动，这个假设就会在端侧制造出无数个致命断点。Linear 的答案不是去祈祷网络变好，而是彻底重构了端云协同的契约：<strong>Local-First（本地优先）</strong>。浏览器本地（IndexedDB）保留完整的可读写状态副本，用户操作 0 毫秒在本地生效，网络被降级为后台的数据同步管道。代价是本地副本会分叉，需要一套严密的端云协同引擎来对账——LSE（Linear Sync Engine）就是这套引擎。</p>
+
+    <h2>二、端云协同花名册：四个角色各管一段</h2>
+
+    <p>面对多客户端高频修改，LSE 没有引入学术界沉重复杂的去中心化 CRDT，而是建立了一个中心化服务端仲裁下的**端云协同分工体系**。它拆解为清晰的四个角色：</p>
+
+    <ul>
+      <li><strong>本地事务队列（Transaction Queue）</strong>：管上行。端侧用户的所有操作打包为可逆事务，持久化并批量向云端提交。</li>
+      <li><strong>全局递增序号（syncId）</strong>：管下行。服务端为全系统变更建立单调递增数轴，多端依据游标增量对账补齐。</li>
+      <li><strong>意图重放机制（Rebase）</strong>：管交错。端侧本地修改未上报前如果收到云端推送，自动重放意图，化解端侧视图冲突。</li>
+      <li><strong>按需加载网络（Sync Scope &amp; Load Strategy）</strong>：管流量。精细控制元数据加载策略，几十万个对象不卡死端侧内存。</li>
+    </ul>
+
+    <h2>三、端侧事务队列：如何兜住 6 种操作断点？</h2>
+
+    <p>在端侧，改个状态、拖拽一个任务，如果每次都要等几百毫秒的网络返回，一天下来光等待就要耗费几十分钟。Linear 的原则是：<strong>界面交互响应绝对不能等网络。</strong></p>
+
+    <p>当用户把 Issue 负责人改成 Bob 时，端侧内存模型立刻修改，界面同步显示 Bob；同时，一条 Transaction 写入本地 IndexedDB 的 <code>_transactions</code> 队列，随后批量发往云端。</p>
+
+    <pre>用户操作
+   ↓
+【内存模型立刻变更】     ← 用户肉眼看到的世界（0ms 乐观响应）
+   ↓
+【Transaction 写入队列】  ← IndexedDB 本地持久化，抵御断网与闪退
+   ↓
+【批量上传服务端】        ← 后台静默通道，网络抖动不影响端侧继续工作</pre>
+
+    <p>打开浏览器的 DevTools，IndexedDB 的 <code>_transactions</code> 表里躺着的就是这样一个真实对象：</p>
+
+    <pre>{ id: 1, type: "update", modelClass: "Issue",
+  modelId: "bda1a998-…", changeSnapshot: { changes: … } }</pre>
+
+    <figure class="fig">
+      <img src="assets/lse-cached-transactions.png" alt="DevTools 截图：IndexedDB 的 _transactions 表中一条真实的缓存 Transaction，type 为 update，modelClass 为 Issue" loading="lazy">
+      <figcaption>
+        <span class="hand">the queue is real, check DevTools</span>
+        <span class="fig-no">FIG.01 · IndexedDB 中真实的事务缓存队列</span>
+      </figcaption>
+    </figure>
+
+    <p>这条队列是化解端侧断点的第一道防线。在实际生产中，一次用户点击绝对不会只有“发出去、成功了”这一条开心路径，网络环境会让现实分裂出 **6 种端侧断点走法**：</p>
+
+    <ul class="scenes">
+      <li>
+        <strong>断网没发出去 / 网络超时丢包</strong>
+        <p class="s-so"><strong>结局：走 Retry</strong>Transaction 已经持久化在本地数据库，即使用户关掉标签页或重启应用也不会丢失。联网后自动重试，断网期间用户依然可以连续处理几十个任务。</p>
+      </li>
+      <li>
+        <strong>服务端处理完了，但下行响应丢了</strong>
+        <p class="s-so"><strong>结局：幂等对账</strong>客户端不知道成功没，重试时带同样 Transaction ID，云端自动幂等处理，避免重复插入。</p>
+      </li>
+      <li>
+        <strong>响应太慢，用户焦躁狂点</strong>
+        <p class="s-so"><strong>结局：队列合并</strong>多次对同一属性的连续修改在入队时自动合并（Debounce / Coalesce），只发最新状态。</p>
+      </li>
+      <li>
+        <strong>请求还在空中飞，别人的修改先到了</strong>
+        <p class="s-so"><strong>结局：走 Rebase</strong>云端推来了别人的新状态，如果直接覆盖，用户刚改的内容会被冲掉。端侧引擎把你那条「从 Tom 改成 Bob」的事务，重新在最新基线上解释为「从 Alice 改成 Bob」，保住你的修改意图。</p>
+      </li>
+      <li>
+        <strong>服务端权限不足或业务校验失败，直接拒绝</strong>
+        <p class="s-so"><strong>结局：走 Rollback</strong>这是业务层面的明确拒绝。因为本地 IndexedDB 只存储经过服务端确认的事实，乐观更新只动了内存；Transaction 内部完整记录了旧值镜像，执行 rollback 即可干净撤回内存，无需艰难修补本地数据库。</p>
+      </li>
+    </ul>
+
+    <figure class="fig">
+      <img src="assets/fig-lse-1-offline.jpg" alt="概念插画：火车上一个人用笔记本电脑工作，窗外贴着断网图标，电脑上方一叠信封排队等待发出" loading="lazy">
+      <figcaption>
+        <span class="hand">offline? keep typing, queue it</span>
+        <span class="fig-no">FIG.02 · 离线断点：静默排队，绝不中断工作</span>
+      </figcaption>
+    </figure>
+
+    <p>这个设计的另一大红利：因为 Transaction 按可逆（Reversible）设计，天生保存了 <code>changeSnapshot</code> 和旧值，Linear 的全局 Undo / Redo 功能完全是这套队列机制顺带奉送的。</p>
+
+    <h2>四、全局单调序号：多客户端怎么增量对账？</h2>
+
+    <p>换了一台电脑、或者手机几个星期没打开，客户端怎么知道自己遗漏了什么变更？</p>
+
+    <p>很多系统的做法是“重新全量拉取一次”，这在数据量大时会造成可怕的白屏和带宽压力。Linear 的端云协同核心就在于：<strong>服务端为每一个变更分配一个全局单调递增的整数：<code>syncId</code>。客户端只需要记住一个数字：<code>lastSyncId</code>。</strong></p>
+
+    <pre>Server:  100 ─ 101 ─ 102 ─ 103 ─ 104 ─ 105
+                ↑
+Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
+
+    <p>无论离线了 5 秒还是半年，重新连网后的请求永远只有一句话：<strong>向云端拉取 <code>lastSyncId</code> 之后的所有变更</strong>。实时推送走 WebSocket，网络断线重连后也是靠这个序号对账补漏。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-lse-2-syncid.jpg" alt="概念插画：一条带有刻度的全局递增时间轴，多台设备依据各自的游标向同一条数轴对齐" loading="lazy">
+      <figcaption>
+        <span class="hand">one monotonic ruler for all clients</span>
+        <span class="fig-no">FIG.03 · 一条全局递增数轴统领多端对账</span>
+      </figcaption>
+    </figure>
+
+    <p>在 wzhudev 的逆向工程手绘图里，清晰记录了真实系统里的 <code>syncId</code> 规模——序号已经排到了 23466457：</p>
+
+    <figure class="fig">
+      <img src="assets/lse-lastsyncid.png" alt="逆向文档手绘图：Client A 与 Client B 的时间轴，transaction response 与 delta packets 携带真实序号 23466457 与 23466463" loading="lazy">
+      <figcaption>
+        <span class="hand">one number line for everyone</span>
+        <span class="fig-no">FIG.04 · 真实的 syncId 时间轴（图源：逆向工程文档）</span>
+      </figcaption>
+    </figure>
+
+    <p>这里有两个至关重要的架构细节：</p>
+
+    <ul>
+      <li><strong>Delta 广播包含发起者自己</strong>：Transaction 代表客户端的**主观意图**（“我想把任务标为完成”），而 Delta 代表服务端的**客观事实**（“任务被标为完成，并触发了通知和历史动态”）。服务端执行事务时会产生额外的业务副作用，因此 Delta 会广播给全量在线客户端，发起端最终也以云端返回的 Delta 为准更新本地状态。</li>
+      <li><strong>全局序号是一条全系统共用的数轴</strong>：同一个数据库里其他团队的修改也在消耗这个序号。客户端根据 Sync Scope 过滤属于自己的事件，一旦发现收到的序号跳过了数字，立刻知道中间有包丢失，迅速触发补课请求。</li>
+    </ul>
+
+    <h2>五、并发冲突谁说了算？云端中心仲裁</h2>
+
+    <p>两个人同时改同一个 Issue 的标题，冲突怎么解？</p>
+
+    <p>Linear 的选择极其务实：<strong>以请求到达服务端的物理时间为准，采用 Last Writer Wins（后写入者胜出）。</strong></p>
+
+    <p>必须强调：这里的“后”指的是**抵达服务端的绝对时间**，而不是端侧的点击时间。客户端 A 在 10:00:00 点击修改，客户端 B 在 10:00:01 点击修改，但如果因为网络原因 B 的事务先到达服务端，B 会分配到 syncId=100，A 到达后分配到 syncId=101。最终状态由 A 覆盖 B。</p>
+
+    <p>云端是唯一的裁判，客户端的 Rebase 只是在最终仲裁结果返回之前，让用户的本地界面不至于乱掉。这种折中对于任务协作工具而言极具智慧：字段级并发修改在现实中发生概率极低，用极简的中心仲裁避开了 CRDT 几十倍的元数据膨胀。</p>
+
+    <h2>六、几十万个对象，如何不卡死端侧内存？</h2>
+
+    <p>大型团队的工作区往往拥有几十万个实体对象，如果全量装进端侧浏览器，IndexedDB 和内存瞬间撑爆。LSE 在两个维度上收拢数据流向：</p>
+
+    <ul>
+      <li><strong>Sync Scope（权限与范围隔离）</strong>：按工作区、团队、用户权限圈定同步范围，不在授权范围内的数据变更绝不下发。</li>
+      <li><strong>Load Strategy（加载策略）</strong>：每个模型在代码元数据中明确声明自己的加载级别。Issue 标题和状态声明为 <code>instant</code>（启动即同步加载），评论和历史记录声明为 <code>explicitlyRequested</code>（点开详情页才向云端拉取），某些临时视图标记为 <code>local</code>（纯端侧状态不下发）。</li>
+    </ul>
+
+    <figure class="fig">
+      <img src="assets/lse-bootstrapping.png" alt="逆向文档架构图：LSE 启动流程，ApplicationStore、SyncClient、StoreManager、ObjectStore 与 IndexedDB 各表的关系" loading="lazy">
+      <figcaption>
+        <span class="hand">this is what you sign up for</span>
+        <span class="fig-no">FIG.05 · LSE 客户端启动全景图（图源：逆向工程文档）</span>
+      </figcaption>
+    </figure>
+
+    <p>这就把 Sync Engine 与 Lazy Loading 划清了界限：<strong>同步引擎只管“哪些数据必须实时对齐一致”，而懒加载网络负责“哪些数据当下值得装进内存”。</strong></p>
+
+    <h2>七、AI 时代的一记警钟：同样的断点，同一副药</h2>
+
+    <p>顺带一句延伸：这套机制虽然脱胎于日常协作软件，但<strong>长时间运行的 AI Agent 应用，恰好最欠缺的就是这套端云协同的基本功</strong>。一个复杂的 Agent 任务跑了五分钟、调度了八次外部工具，整个执行现场（状态树、工具入参及结果、推理中间态）往往只活在前端一条脆弱的长连接里。用户手滑刷新了页面，或者切到手机上去看，连接一断，现场彻底灰飞烟灭，只能重新烧着 token 从头跑起。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-lse-3-agent-events.jpg" alt="概念插画：一个小机器人守着一条传送带，传送带上是带序号的纸条，纸条流向笔记本电脑和手机，多端保持严格相同的运行历史" loading="lazy">
+      <figcaption>
+        <span class="hand">same illness, same medicine</span>
+        <span class="fig-no">FIG.06 · AI Agent 状态流与端云对账</span>
+      </figcaption>
+    </figure>
+
+    <p>同样的断点病，需要的是同一副端云协同的药：别把 Agent Run 当成普通单次请求，把它改写为带全局递增序号的持久化事件流。网络断线、页面刷新、换设备登录，全凭序号增量对账，从断点处继续推进。</p>
+
+    <h2>八、写给端侧开发工程师的工程自检清单</h2>
+
+    <p>端云协同不是让客户端变成简单的“接口搬运工”，而是要求端侧工程师用数据库客户端的严谨度来组织前端代码。在设计协作类应用时，请对照以下 6 条基准自检：</p>
+
+    <ul class="takeaways">
+      <li><strong>交互响应是否与网络彻底解耦？</strong>用户的操作是否能在 0ms 内在内存和本地存储中生效？</li>
+      <li><strong>端侧异常是否分类处理？</strong>网络失败是否走 Retry 静默排队？服务端业务拒绝是否走 Rollback 精确回滚？</li>
+      <li><strong>本地队列是否落盘持久化？</strong>断网时连续操作，关掉网页或强退 App 后重开，队列里的修改还在不在？</li>
+      <li><strong>并发拉取是否具备防冲能力？</strong>在本地修改未确认前收到远端推送，是否具备 Rebase 重新对齐机制？</li>
+      <li><strong>多端对账是否基于递增游标？</strong>断线重连、换设备登录，是粗暴拉取全量接口，还是靠一条递增 syncId 增量补课？</li>
+      <li><strong>数据加载是否做了范围与策略分级？</strong>首屏渲染是否只加载了关键字段，将巨量历史记录隔绝在按需加载之外？</li>
+    </ul>
+
+    <div class="ending">
+      <p><span class="punch">优秀的端云协同架构，不是为了在完美网络下跑得更快，而是为了在现实世界充满断点、颠簸与并发的网络泥潭里，依然能保持绝对的优雅与从容。</span></p>
+    </div>
+
+  </article>
+
+  <footer class="post-foot">
+    <div class="foot-card">
+      逆向文档开源出处：<a href="https://github.com/wzhudev/reverse-linear-sync-engine" target="_blank" rel="noopener">github.com/wzhudev/reverse-linear-sync-engine</a>。
+      <div class="src">Linear 联合创始人兼 CTO Tuomas Artman 称赞其为「现存最完整准确的 LSE 文档」；FIG.01 / FIG.03 / FIG.04 来源于该逆向工程图解；本文提炼为端侧与前端架构视角下的端云协同设计范式。</div>
+    </div>
+    <a href="writing.html?category=tech" class="back">← 回文章目录</a>
+  </footer>
+
+</body>
+</html>

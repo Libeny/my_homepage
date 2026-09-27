@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>为什么绝大多数 AI 产品用起来都让人难受？ · 木鱼拓哉の写作本</title>
+  <meta name="description" content="从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面。大模型把响应拉长到了 400ms 到 30 秒，等待不再是边缘状态，而是 80% 的交互现场。一份写给所有 AI UX 设计师、产品经理与前端工程师的等待设计实战手册。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.9;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- 顶部条 ---------- */
+    .topbar {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+    }
+    .back {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+    .back:hover { color: var(--blue-deep); }
+
+    /* ---------- 文章头 ---------- */
+    .post-head {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.9rem, 5.2vw, 2.7rem);
+      line-height: 1.35;
+      margin: 1.1rem 0 0.7rem;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
+      padding: 0 4px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+    }
+    .lede {
+      margin-top: 2rem;
+      padding: 1.4rem 1.6rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 0.98rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+    }
+    .lede strong { color: var(--ink); }
+
+    /* ---------- 正文 ---------- */
+    .post {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 4rem;
+    }
+    .post p { margin: 1.35rem 0; }
+    .post strong { font-weight: 700; color: var(--ink); }
+
+    .post h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.45rem, 3.6vw, 1.8rem);
+      line-height: 1.4;
+      margin: 3.6rem 0 1.2rem;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+      position: relative;
+    }
+    .post h2::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0;
+      width: 56px; height: 3px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+    }
+    .post h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.18rem;
+      margin: 2.6rem 0 0.9rem;
+    }
+
+    /* 普通列表 */
+    .post ul:not(.scenes):not(.takeaways) {
+      margin: 1.35rem 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .post ul:not(.scenes):not(.takeaways) > li {
+      position: relative;
+      padding-left: 1.6em;
+      margin: 0.7rem 0;
+    }
+    .post ul:not(.scenes):not(.takeaways) > li::before {
+      content: '✦';
+      position: absolute;
+      left: 0.2em;
+      color: var(--blue-deep);
+      font-size: 0.8em;
+      top: 0.28em;
+    }
+
+    /* 场景卡片 */
+    .post .scenes {
+      margin: 1.6rem 0;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: scene;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .post .scenes > li {
+      counter-increment: scene;
+      position: relative;
+      padding: 1.2rem 1.4rem 1.2rem 3.4rem;
+      background: rgba(255,253,248,0.72);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .post .scenes > li::before {
+      content: counter(scene, decimal-leading-zero);
+      position: absolute;
+      left: 1.1rem; top: 1.28rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--blue-deep);
+      letter-spacing: 0.05em;
+    }
+    .post .scenes > li strong { color: var(--ink); }
+    .post .scenes > li p { margin: 0; }
+    .post .scenes .s-so { margin-top: 0.55rem; }
+    .post .scenes .s-so strong {
+      color: #3F7A77;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      border-radius: 5px;
+      padding: 0 0.45em;
+      font-size: 0.85em;
+      margin-right: 0.2em;
+    }
+
+    /* 检查清单 */
+    .post .takeaways {
+      margin: 1.8rem 0;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: take;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .post .takeaways > li {
+      counter-increment: take;
+      position: relative;
+      padding-left: 2.85rem;
+      line-height: 1.8;
+      min-height: 1.8rem;
+    }
+    .post .takeaways > li::before {
+      content: counter(take);
+      position: absolute;
+      left: 0; top: 0.15rem;
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      border: 1.5px solid var(--blue-deep);
+      color: #2F635E;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 0.76rem;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      box-shadow: 0 1px 4px rgba(105,75,64,0.06);
+    }
+
+    /* 对比表格 */
+    .compare-figure {
+      margin: 2.4rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.08);
+    }
+    .compare-kicker {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--ink-faint);
+      margin: 0.25rem 0.25rem 0.85rem;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 0.8rem 0.85rem;
+      text-align: left;
+      vertical-align: top;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .comparison-table th:last-child, .comparison-table td:last-child { border-right: 0; }
+    .comparison-table tr:last-child th, .comparison-table tr:last-child td { border-bottom: 0; }
+    .comparison-table thead th {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.95rem;
+      background: var(--blue-soft);
+    }
+    .comparison-table thead th:first-child { width: 22%; background: #fffdf8; }
+    .comparison-table tbody th {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--ink-faint);
+      background: #fffdf8;
+    }
+    .comparison-table td {
+      font-size: 0.86rem;
+      line-height: 1.65;
+    }
+    .compare-figure figcaption {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.55rem 0.4rem 0.15rem;
+    }
+    .hand {
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      color: var(--blue-deep);
+    }
+    .fig-no {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+
+    .subtitle {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1.05rem, 2.6vw, 1.32rem);
+      line-height: 1.6;
+      color: var(--ink-light);
+      margin-bottom: 1.2rem;
+    }
+
+    /* 配图卡片 */
+    figure.fig {
+      margin: 2.6rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.08);
+      transform: rotate(-0.35deg);
+      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    }
+    figure.fig:nth-of-type(even) { transform: rotate(0.35deg); }
+    figure.fig:hover {
+      transform: rotate(0deg) translateY(-2px);
+      box-shadow: 0 10px 28px rgba(105,75,64,0.12);
+    }
+    figure.fig img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 3px;
+    }
+    figure.fig figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.55rem 0.4rem 0.2rem;
+    }
+
+    /* 代码与 ASCII 框 */
+    .post pre {
+      margin: 1.6rem 0;
+      padding: 1.1rem 1.3rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 12px 12px 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--ink);
+      overflow-x: auto;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+    }
+
+    /* 结语 */
+    .ending {
+      margin: 3.6rem 0 0;
+      padding-top: 2.2rem;
+      border-top: 1px dashed var(--line);
+    }
+    .ending .punch {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.12rem;
+      line-height: 1.8;
+      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
+      display: inline;
+      padding: 0 2px;
+    }
+
+    /* 文末 */
+    .post-foot {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+    .foot-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.5rem 1.7rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+      font-size: 0.92rem;
+      color: var(--ink-light);
+    }
+    .foot-card a {
+      color: var(--red);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      text-decoration: none;
+      border-bottom: 1px solid var(--blue-deep);
+      transition: color 0.2s var(--ease-out);
+    }
+    .foot-card a:hover { color: var(--blue-deep); }
+    .foot-card .src { margin-top: 0.5rem; color: var(--ink-faint); font-size: 0.85rem; }
+    .post-foot .back { display: inline-block; margin-top: 2.4rem; }
+
+    /* ---------- 原作者交互与对比演示组件 (Comparison Demos) ---------- */
+    .demo-box {
+      margin: 2.6rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem 1.4rem;
+      box-shadow: 0 4px 18px rgba(105,75,64,0.06);
+    }
+    .demo-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px dashed var(--line);
+    }
+    .demo-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .demo-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .demo-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+    }
+    .demo-card {
+      background: #FFFDF9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+      position: relative;
+    }
+    .demo-card.recommended {
+      border-color: #7AAFA9;
+      background: linear-gradient(180deg, #F2F8F7 0%, #FFFDF9 18%);
+    }
+    .demo-card.discouraged {
+      border-color: #D69E96;
+      background: linear-gradient(180deg, #FAF1F0 0%, #FFFDF9 18%);
+    }
+    .demo-card-head {
+      margin-bottom: 0.75rem;
+    }
+    .demo-badge {
+      display: inline-block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+    }
+    .demo-card.recommended .demo-badge {
+      background: #D8ECE9;
+      color: #2F635E;
+      border: 1px solid #A4CEC9;
+    }
+    .demo-card.discouraged .demo-badge {
+      background: #FCE6E4;
+      color: #93382D;
+      border: 1px solid #E5B2AC;
+    }
+    .demo-card-caption {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--ink-light);
+    }
+    .demo-card-caption strong {
+      color: var(--ink);
+    }
+    .demo-card-body {
+      margin-top: auto;
+      padding-top: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* 模拟交互框元素 */
+    .mock-chat-bubble {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.4rem;
+    }
+    .mock-chat-bubble.user {
+      align-self: flex-end;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      color: var(--ink);
+    }
+    .mock-chat-bubble.assistant {
+      align-self: flex-start;
+      background: #FFF;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .mock-input-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+    }
+    .mock-input-row.waiting {
+      background: #F8F6F2;
+      opacity: 0.85;
+    }
+    .mock-input-text {
+      flex: 1;
+      font-size: 0.75rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--ink-faint);
+    }
+    .mock-btn {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .mock-btn.primary {
+      background: var(--ink);
+      color: #FFF;
+    }
+    .mock-btn.stop {
+      background: #C0392B;
+      color: #FFF;
+    }
+    .mock-btn.disabled {
+      background: #E8E2D9;
+      color: var(--ink-faint);
+      cursor: not-allowed;
+    }
+
+    /* Subway Surfers 视频演示 */
+    .surfer-video-wrapper {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      overflow: hidden;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #000;
+    }
+    .surfer-video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .surfer-tag {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0,0,0,0.65);
+      color: #FFF;
+      font-size: 0.65rem;
+      font-family: 'Fira Code', monospace;
+      padding: 2px 6px;
+      border-radius: 3px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* 骨架与步骤指示 */
+    .mock-step-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.6rem 0.7rem;
+      font-size: 0.78rem;
+    }
+    .mock-step-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0.35rem 0;
+      color: var(--ink-light);
+    }
+    .mock-step-item.active {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .mock-dot-pulse {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue-deep);
+      animation: mockPulse 1.4s infinite ease-in-out;
+      margin-right: 6px;
+    }
+    @keyframes mockPulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    /* 虚假进度条与真实挂钟计时器 */
+    .stall-bar-container {
+      width: 100%;
+      height: 10px;
+      background: #EAE3D8;
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+    .stall-bar-fill {
+      height: 100%;
+      width: 90%;
+      background: #D98880;
+      border-radius: 5px;
+    }
+    .stall-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #A34338;
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+    .timer-display-box {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.65rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .timer-val {
+      font-family: 'Fira Code', monospace;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+    .timer-sub {
+      font-size: 0.72rem;
+      color: var(--ink-faint);
+    }
+
+    /* 文字重排计数卡片 */
+    .rebreak-stat {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+    .rebreak-number {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .rebreak-number.bad { color: #C0392B; }
+    .rebreak-number.warn { color: #D35400; }
+    .rebreak-number.good { color: #27AE60; }
+    .rebreak-unit {
+      font-size: 0.7rem;
+      color: var(--ink-faint);
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* 常数矩阵徽章网格 */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin: 1.6rem 0;
+    }
+    .matrix-pill {
+      background: #FFFDF9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.8rem 0.9rem;
+      transition: transform 0.2s var(--ease-out);
+    }
+    .matrix-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(105,75,64,0.06);
+    }
+    .matrix-key {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      color: var(--blue-deep);
+      margin-bottom: 0.2rem;
+    }
+    .matrix-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+    .matrix-desc {
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 16.5px; }
+      figure.fig { transform: none; margin: 2rem 0; }
+      figure.fig figcaption { flex-direction: column; gap: 0.15rem; }
+      .lede { padding: 1.15rem 1.2rem; }
+      .comparison-table th, .comparison-table td { padding: 0.6rem 0.5rem; font-size: 0.75rem; }
+      .scenes li { padding-left: 2.6rem; }
+      .scenes li::before { left: 0.8rem; }
+      .demo-grid-2, .demo-grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="label">WRITING · 交互工程 / 体验设计</span>
+    <a href="writing.html?category=tech" class="back">← 技术文章</a>
+  </div>
+
+  <header class="post-head">
+    <h1>为什么绝大多数 AI 产品用起来都<em>让人难受？</em></h1>
+    <div class="subtitle">从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面</div>
+    <p class="lede">
+      大模型把接口耗时从几十毫秒拉长到了 400 毫秒至 30 秒。<strong>等待不再是系统的边缘状态，它占了 80% 的交互现场。</strong>这是一份写给所有 AI 产品经理、UX 设计师与前端工程师的实战手册：别把延迟当成要遮掩的家丑，把它当成一种交互材料，按时间阈值挑对组件，给流式安上节拍。
+    </p>
+    <div class="meta">
+      <span>2026-09</span>
+      <span>AI UX &amp; INTERACTION</span>
+      <span>SOURCE: CHLOÉ MAILLOT · DESIGNING THE WAIT</span>
+    </div>
+  </header>
+
+  <article class="post">
+
+    <h2>一、一个被大模型打破的交互常识</h2>
+
+    <p>做传统 Web 交互时，加载（Loading）是个边缘状态：界面画完了，最后顺手塞个转圈的 Spinner，因为网络往返通常在 200 毫秒内解决。</p>
+
+    <p>在大模型和 Agent 产品里，这个常识彻底失效了。一次推理短则 800 毫秒，长则半分钟，而且你在结束之前根本不知道它要跑多久。等待变成了整个交互的主体。用户在这几十秒里盯着屏幕，做出决定：这个东西到底是在认真干活，还是已经卡死了？</p>
+
+    <p>很多 AI 产品让人觉得“假、躁、烦”，根源不是模型笨，而是界面把这十几秒的等待当成了普通网络请求来糊弄：120 毫秒的筛选加了闪烁的骨架屏，11 秒的 Agent 深度推理却只留一个光秃秃的旋转菊花。力气全用错了区间。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-ai-wait-anxiety.jpg" alt="概念插画：一个人托腮疲倦地坐在老式书桌前，笔记本屏幕上放着一个旋转的菊花加载圈，旁边是一个沙漏" loading="lazy">
+      <figcaption>
+        <span class="hand">thirty seconds of pure anxiety</span>
+        <span class="fig-no">FIG.00 · 转圈谎言与等待焦虑</span>
+      </figcaption>
+    </figure>
+
+    <h2>二、三道不可逾越的认知阈值</h2>
+
+    <p>人机交互里有三道死线，自 1968 年 Miller 提出、1993 年 Nielsen 普及以来，半个世纪没有变过：</p>
+
+    <figure class="compare-figure">
+      <div class="compare-kicker">FIG.01 · 三个关键时间阈值与用户心理状态</div>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>阈值</th>
+            <th>感知状态</th>
+            <th>交互动作原则</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>&lt; 100 ms</th>
+            <td>瞬时响应</td>
+            <td>完全不需要加载设计。加任何 Spinner 都会让界面显得更慢。</td>
+          </tr>
+          <tr>
+            <th>&lt; 1 s</th>
+            <td>心流连贯</td>
+            <td>用户感知到了轻微延迟，但注意力不会中断。只需证明“系统收到了”，不必解释在干什么。</td>
+          </tr>
+          <tr>
+            <th>&gt; 10 s</th>
+            <td>注意力涣散</td>
+            <td>心流彻底断裂，用户一定会切换标签页。界面必须经受住“被遗弃后再切回来”。</td>
+          </tr>
+        </tbody>
+      </table>
+      <figcaption>
+        <span class="hand">three numbers that never change</span>
+        <span class="fig-no">MILLER 1968 · NIELSEN 1993</span>
+      </figcaption>
+    </figure>
+
+    <p>几乎所有的交互灾难，都是把设计精力花在了错误的区间上。把这三道线刻在案头，我们来看具体怎么选组件。</p>
+
+    <h2>三、前 200ms 留给用户，而不是等模型</h2>
+
+    <p>用户感受到的等待时钟，不是从服务端返回第一个字节开始走的，而是从点击的那一瞬间就开始计时。</p>
+
+    <p>因此最划算、性价比最高的优化，跟大模型没有半点关系：<strong>本地状态绝不等网络。</strong></p>
+
+    <p>点击发送的瞬间，消息必须立刻出现在对话流中，输入框清空，发送图标瞬间切换为停止图标。这些动作完全依赖本地状态，根本不需要等服务端握手。这 150 毫秒的果断，能替整个系统争取到接下来整整一秒的用户宽容度。同一个需要耗时 4 秒的回答，前面这 150 毫秒有无响应，会直接决定用户评价它是“极快”还是“卡顿”。</p>
+
+    <pre>用户按下发送
+   ↓
+【0 ms】 输入框立刻清空，消息上屏，Send 变成 Stop  ← 本地状态，绝不等网络
+   ↓
+【400 ms】 模型尚未吐字，进入等待状态机
+   ↓
+【1000 ms+】 流式吐字平滑呈现</pre>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 01 · 本地回显：0ms 立即上屏 vs 等待网络握手</div>
+        <div class="hand">instant echo is free perceived performance</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>0ms 瞬间回显</strong>：点击瞬间，输入框清空，消息立即上屏，发送按钮变为红色打断按钮。用户立刻知道动作生效。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-chat-bubble user">帮我给团队写一封关于异步工作的说明邮件</div>
+            <div class="mock-input-row">
+              <span class="mock-input-text">问点什么...</span>
+              <button class="mock-btn stop" type="button">■ Stop</button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 反模式</span>
+            <div class="demo-card-caption">
+              <strong>等待服务器握手</strong>：输入框里的文字继续留着，按钮变灰或转圈。用户以为没点上，往往会重复点击。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-input-row waiting">
+              <span class="mock-input-text" style="color:var(--ink);">帮我给团队写一封关于异步工作的说明邮件</span>
+              <button class="mock-btn disabled" type="button">↻ 等待中</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>四、按耗时区间选组件，拒绝用 Spinner 撒谎</h2>
+
+    <p>普通的旋转菊花（Spinner）在对用户撒谎：转了 800 毫秒是这个速度，转了 30 秒还是这个速度。它什么都没说，只暴露了开发者根本没测过耗时。</p>
+
+    <p>组件选择必须按时间分段：</p>
+
+    <ul class="scenes">
+      <li>
+        <strong>1 秒以内：什么都不加，或者仅保留按钮按下态</strong>
+        <p>让界面自然承接。多余的闪烁只会制造焦虑。</p>
+      </li>
+      <li>
+        <strong>1 到 4 秒：仅在确切知道结果轮廓时使用骨架屏（Skeleton）</strong>
+        <p class="s-so"><strong>反模式</strong>三条灰色横线一闪，突然突变成一张四栏数据表。你承诺了一种形状，却交付了另一种，这比不给骨架屏更消耗信任。如果形状未知，宁可保持上一屏的旧内容。</p>
+      </li>
+      <li>
+        <strong>4 到 15 秒：展示已逝时间（Elapsed Time）并指明当前步骤名</strong>
+        <p class="s-so"><strong>设计解法</strong>这时候简单的“处理中……”已经无法安抚用户。必须明确告诉用户它在干嘛（如：“正在搜索近 3 年财报”），并把秒数如实呈现在屏幕上。</p>
+      </li>
+      <li>
+        <strong>15 秒以上：独立的等待场域，必须耐受刷新重连</strong>
+        <p class="s-so"><strong>长耗时保障</strong>用户必然切走。等他切回标签页、或者不小心刷新了页面，中间状态不能丢失。</p>
+      </li>
+    </ul>
+
+    <p>超过 15 秒的等待，很多人会尝试“娱乐化设计”——比如在等待区塞一个 Subway Surfers 跑酷小游戏或趣味动画。第一次看固然眼前一亮，但绝不能进生产环境：它严重分散了注意力，到了第 50 次使用时，曾经的惊喜就变成了对核心任务的粗暴干扰。</p>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 02 · 等待容器：结构化步骤 vs 塞入地铁跑酷游戏</div>
+        <div class="hand">gamified wait is an anti-pattern for focus</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>结构化步骤与挂钟指示</strong>：明确列出当前正在处理的阶段，保持静态低负荷，不打扰用户的心理预期。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-step-card">
+              <div class="mock-step-item" style="color:#27AE60;">✓ 1. 分析输入参数与上下文 (0.4s)</div>
+              <div class="mock-step-item active">
+                <span><span class="mock-dot-pulse"></span>2. 检索 2024~2026 相关财报与公开研报</span>
+                <span style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--blue-deep);">04.2s</span>
+              </div>
+              <div class="mock-step-item" style="opacity:0.4;">○ 3. 组织对比摘要并排版输出</div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 娱乐化反模式</span>
+            <div class="demo-card-caption">
+              <strong>塞入跑酷小游戏</strong>：把用户的核心工作流变成街机厅。首次见到的新奇感，在第 20 次使用时会迅速退化为焦虑与分心。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="surfer-video-wrapper">
+              <video src="assets/subway-surfers.mp4" autoplay muted loop playsinline></video>
+              <div class="surfer-tag">SUBWAY SURFERS · 正在等待模型...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>五、展示已逝时间，而不是卡在 90% 的虚假进度条</h2>
+
+    <p>大模型的推理机制决定了你根本无法提前预知它什么时候结束。一个卡在 90% 一动不动的进度条，是用户一眼就能识破的谎言。</p>
+
+    <p>如实展示**已逝时间（Elapsed Time）**是诚实且零成本的解法。它向用户传递的是：我还在持续运行，你已经投入了这么多秒，你可以据此决定继续等待还是中止。</p>
+
+    <p>做好这个计时器，有三个极易被忽视的工程细节：</p>
+
+    <pre>// 错误做法：直接 setInterval 累加数字
+setInterval(() => { elapsed += 0.1 }, 100);
+// 当用户切换到后台标签页，浏览器会把定时器强制节流到 1 秒执行一次！
+// 切换回来时，计时器显示的数值只有真实时间的十分之一。
+
+// 正确做法：读取真实挂钟时间（Wall Time）
+const startTime = performance.now();
+setInterval(() => {
+  const currentElapsed = (performance.now() - startTime) / 1000;
+  render(currentElapsed);
+}, 100);</pre>
+
+    <ul>
+      <li><strong>使用等宽数字（Tabular Figures）</strong>：在 CSS 中声明 <code>font-variant-numeric: tabular-nums;</code>。否则每个数字宽度不同，计时器每一跳整行文字都在抽搐。</li>
+      <li><strong>使用 <code>performance.now()</code> 计算挂钟时间</strong>：定时器只决定界面的刷新频率，绝不能让定时器充当钟表本身。</li>
+      <li><strong>尊重 <code>prefers-reduced-motion</code> 规范</strong>：在减弱动态效果模式下，停掉旋转动画，但**必须保留数字计时器**。无障碍规范要求去除的是不必要的晃动装饰，而不是信息本身。</li>
+    </ul>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 03 · 进度表达：真实已逝挂钟时间 vs 停滞在 90% 的虚假进度条</div>
+        <div class="hand">elapsed time is honest, fake bars are deceitful</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>真实已逝时间（Elapsed Time）</strong>：以等宽数字跳动显示耗时，辅以轻量状态点。告诉用户系统依然健康活跃。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="timer-display-box">
+              <div>
+                <div class="timer-val">00:07.8s</div>
+                <div class="timer-sub">检索并提取上下文节点 (Wall Time)</div>
+              </div>
+              <span class="mock-dot-pulse" style="width:10px;height:10px;"></span>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 虚假反模式</span>
+            <div class="demo-card-caption">
+              <strong>停滞在 90% 的伪进度条</strong>：快速冲到 90% 然后纹丝不动。用户根本不知道它是死机了还是在运算。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div style="background:#FFF;border:1px solid var(--line);border-radius:6px;padding:0.75rem 0.8rem;">
+              <div class="stall-bar-container">
+                <div class="stall-bar-fill"></div>
+              </div>
+              <div class="stall-label">90% · 正在完成最后处理... (永久停滞)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>六、流式输出是有节拍的（Cadence）</h2>
+
+    <p>大模型吐出的 Token 是突发的（Burst）：卡顿半秒，然后呼啦涌出一大堆。如果你拿到一段 chunk 就直接往页面上 append 一次，文字就会剧烈地一顿一挫。在人的感知里，<strong>抽搐比慢更像系统崩溃</strong>。</p>
+
+    <p>因此前端必须建立缓冲区，用自己的时钟重新发射（Buffer and Re-emit）：</p>
+
+    <pre>LLM 突发吐块 ──> [ 前端平滑缓冲区 ] ──> 匀速发射到屏幕（约 60ms/词）
+                    ↑ 动态采样
+                    根据近几批到达速率，自适应调节在 40~120ms 之间</pre>
+
+    <p>发射速度来自人类真实的阅读生理极限。成年人阅读英文非虚构文本的平均速度是 238 词/分钟（约合 252 毫秒/词）。如果你以这个原速吐字，读者的眼睛就会紧贴着文字边缘，一旦模型稍微卡壳，读者就会被硬生生卡住。</p>
+
+    <p>把发射节拍定在人类阅读速度的 4 倍左右（约 <strong>60 毫秒一个词</strong>），每流式输出一秒，就能在读者的视线前平稳筑起一整行的文字缓冲跑道。读者的体感就会是“字已经在那里等我”，而不是“我在追着字跑”。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-ai-cadence-runway.jpg" alt="概念插画：字词如同轨道小车平稳滑行，在读者视线前留出缓冲跑道，旁边是 60ms 节拍器" loading="lazy">
+      <figcaption>
+        <span class="hand">text with a cadence, not a typewriter</span>
+        <span class="fig-no">FIG.02 · 匀速节拍与阅读跑道</span>
+      </figcaption>
+    </figure>
+
+    <p>同时，严格遵守<strong>词（Word）优于字符（Character）</strong>。中文以词组为步长，英文以单词为步长。逐字逐字蹦出来那是老式打字机的复古皮套，不是高效交互。</p>
+
+    <p>最后，交互组件必须遵守严格的顺位律：<strong>可读（Readable）→ 完整（Complete）→ 可用（Usable）</strong>。在流式输出结束之前，千万不要露出“复制”或“重试”按钮——否则用户点一下复制，只拷走了半截没写完的话。</p>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 04 · 操作顺位：流式结束淡入 vs 首个 Token 露出</div>
+        <div class="hand">readable first, usable only when complete</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>流式结束才淡出操作栏</strong>：待最后一段文字渲染完成，平滑淡入复制、重新生成与点赞按钮，保证用户点复制能拷到完整内容。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-chat-bubble assistant">
+              建议将重排策略调整为流式结束后挂载。这样可以彻底消除光标上方的文字抖动。
+            </div>
+            <div style="display:flex;gap:0.4rem;justify-content:flex-end;">
+              <span class="mock-btn" style="border:1px solid var(--line);background:#FFF;font-size:0.68rem;">📋 复制全文</span>
+              <span class="mock-btn" style="border:1px solid var(--line);background:#FFF;font-size:0.68rem;">↻ 重新生成</span>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 冒进反模式</span>
+            <div class="demo-card-caption">
+              <strong>首个 Token 就露出按钮</strong>：文字还在以 60ms 狂飙，底部的复制按钮就跟着上下乱晃。不仅极易误触，拷走的还是残缺半句。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-chat-bubble assistant">
+              建议将重排策略调整为流式...
+            </div>
+            <div style="display:flex;gap:0.4rem;justify-content:flex-end;opacity:0.8;">
+              <span class="mock-btn" style="border:1px solid #D69E96;background:#FFF;color:#C0392B;font-size:0.68rem;">📋 复制 (未完成)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>七、别让已渲染的文字在眼前跳舞</h2>
+
+    <p>流式输出打破了 Web 排版的一条底层铁律：光标上方的文字必须保持绝对静止。如果光标在底下打字，上面的文字却在疯狂跳动重排，会让人产生强烈的眩晕感。</p>
+
+    <p>有三处最容易导致文字重排跳动的元凶：</p>
+
+    <ul>
+      <li><strong>流式输出期间禁用 <code>text-wrap: balance</code> 和 <code>pretty</code></strong>：每追加一个词，浏览器就会对整段重新计算换行，首行甚至会被重新拆分八九次。平常用普通换行；等流式彻底结束后，再单次挂上 <code>pretty</code>。</li>
+      <li><strong>Markdown 仅对已闭合块进行解析</strong>：遇到没有闭合的段落或列表，末尾统一当作纯文本处理，直到遇到回车闭合再转为 AST 节点，避免标题、列表在几毫秒内来回跳变。</li>
+      <li><strong>代码块从第一行就预先锁定高度</strong>：代码框展开时，提前为可能的高度保留空间，而不是随着代码行数增加不断把下方的页面硬生生往下推。</li>
+    </ul>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 05 · 排版重排测试：流式吐字期间光标上方的文字跳动次数</div>
+        <div class="hand">zero re-breaks above the cursor while streaming</div>
+      </div>
+      <div class="demo-grid-3">
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED</span>
+            <div class="demo-card-caption">
+              <strong>text-wrap: balance</strong><br>
+              每增加一个词，浏览器强制重新平衡整段各行宽度。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="rebreak-stat">
+              <span class="rebreak-number bad">9</span>
+              <span class="rebreak-unit">RE-BREAKS</span>
+            </div>
+            <div style="font-size:0.72rem;color:var(--ink-faint);line-height:1.4;">
+              首行被打散 9 次，文字像在地震中跳舞。
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ CAUTION</span>
+            <div class="demo-card-caption">
+              <strong>text-wrap: pretty</strong><br>
+              为避免末行孤字（Orphan），不时向前借词。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="rebreak-stat">
+              <span class="rebreak-number warn">4</span>
+              <span class="rebreak-unit">RE-BREAKS</span>
+            </div>
+            <div style="font-size:0.72rem;color:var(--ink-faint);line-height:1.4;">
+              仍有 4 次前行突跳，视线被强行拽动。
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED</span>
+            <div class="demo-card-caption">
+              <strong>wrap ➔ pretty</strong><br>
+              流式期间普通折行；流式完成后单次挂载 pretty。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="rebreak-stat">
+              <span class="rebreak-number good">0</span>
+              <span class="rebreak-unit">RE-BREAKS</span>
+            </div>
+            <div style="font-size:0.72rem;color:#2F635E;line-height:1.4;">
+              光标上方文字绝对静止，读感稳健。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>八、等待必须随时可打断 &amp; 失败也是一种延迟终态</h2>
+
+    <p>一个无法打断的动画让人厌烦，而一个无法打断的大模型等待，就像一场长达半分钟的人质危机。</p>
+
+    <figure class="fig">
+      <img src="assets/fig-ai-stop-preserve.jpg" alt="概念插画：一只手按下控制台上的红色 STOP 按钮，半截写好的手稿被完好保存在木托盘中" loading="lazy">
+      <figcaption>
+        <span class="hand">stop means pause, never erase</span>
+        <span class="fig-no">FIG.03 · 随时打断与现场保全</span>
+      </figcaption>
+    </figure>
+
+    <p>中止按钮（Stop）必须做到三件事：</p>
+
+    <ul>
+      <li><strong>它必须严格位于原来发送按钮的位置</strong>：用户的鼠标光标就在那里，放在别处的 Stop 按钮根本没人会点。</li>
+      <li><strong>本地立即响应中止，然后再通知服务端</strong>：先在前端 Abort 掉连接和界面状态，后台再补发 Cancel 请求。</li>
+      <li><strong>绝对保留已经生成出来的半截内容</strong>：一点击中止就把已经吐出的内容瞬间蒸发，是对用户操作的残酷惩罚。下次用户想中止，就会直接关掉网页。</li>
+    </ul>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 06 · 中止语义：资产保全 vs 惩罚性清屏</div>
+        <div class="hand">preserve partial output on interrupt</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>中止即定格资产</strong>：停止网络请求，但已输出的 300 字完好保存在卡片中，并立即提供复制按钮与原地修改入口。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div class="mock-chat-bubble assistant">
+              架构选型建议：如果业务场景属于高频并发协作，优先选择本地优先的 CRDT/OT 方案... <span style="font-size:0.7rem;color:var(--ink-faint);">[已按用户要求打断]</span>
+            </div>
+            <div style="display:flex;gap:0.4rem;justify-content:flex-end;">
+              <span class="mock-btn" style="border:1px solid var(--line);background:#FFF;font-size:0.68rem;">📋 复制已生成内容</span>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 惩罚反模式</span>
+            <div class="demo-card-caption">
+              <strong>中止等同于蒸发</strong>：用户点了打断，整个消息气泡瞬间消失或变成空白。用户等待了几秒钟的资产化为乌有。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div style="background:#FAF1F0;border:1px dashed #D69E96;border-radius:6px;padding:0.75rem;font-size:0.75rem;color:#93382D;text-align:center;">
+              ✕ 生成已取消 (内容已被清空)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p>同样，运行了 11 秒后如果请求报错，这不是一个普通的报错弹窗，它是这场漫长等待的最坏结局。千万不要只弹出一句冷冰冰的“出错了（Something went wrong）”。保留用户的原输入 Prompt，保留已经生成的半截文本，把重试按钮放在原地，并且诚实指出到底哪一步挂了。</p>
+
+    <div class="demo-box">
+      <div class="demo-head">
+        <div class="demo-title">DEMO 07 · 延迟终态：步骤归因与现场保留 vs 粗暴弹窗</div>
+        <div class="hand">failure is a latency terminal state</div>
+      </div>
+      <div class="demo-grid-2">
+        <div class="demo-card recommended">
+          <div class="demo-card-head">
+            <span class="demo-badge">✦ RECOMMENDED · 推荐做法</span>
+            <div class="demo-card-caption">
+              <strong>标明故障步骤与现场保全</strong>：指出是在检索外部数据时超时，用户 Prompt 完整留在框内，支持单步重试。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div style="background:#FFF;border:1px solid #D69E96;border-radius:6px;padding:0.65rem 0.75rem;">
+              <div style="font-size:0.75rem;font-weight:700;color:#93382D;">第 2 步挂了：财务数据检索接口响应超时 (12.4s)</div>
+              <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.25rem;">您的输入 Prompt 已完好保留。</div>
+            </div>
+            <div style="display:flex;gap:0.4rem;justify-content:flex-end;">
+              <button class="mock-btn primary" type="button" style="font-size:0.68rem;">↻ 重试该步骤</button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-card discouraged">
+          <div class="demo-card-head">
+            <span class="demo-badge">✕ DISCOURAGED · 糊弄反模式</span>
+            <div class="demo-card-caption">
+              <strong>毫无信息的笼统弹窗</strong>：抛出一句“Something went wrong”，用户输入框被刷成空白，完全不知道怎么救。
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <div style="background:#FAF1F0;border:1px solid #E5B2AC;border-radius:6px;padding:0.75rem;font-size:0.75rem;color:#C0392B;">
+              Error: Something went wrong. Please try again.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>九、带走一张工程常量表与自检清单</h2>
+
+    <p>将上述所有阈值和交互法则固化为一份前端交互工程字典与常量矩阵：</p>
+
+    <div class="matrix-grid">
+      <div class="matrix-pill">
+        <div class="matrix-key">INSTANT_ECHO</div>
+        <div class="matrix-val">0 ms</div>
+        <div class="matrix-desc">本地输入 0ms 瞬间清空并上屏，绝不等握手</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">LOADER_AFTER</div>
+        <div class="matrix-val">400 ms</div>
+        <div class="matrix-desc">400ms 内不展示任何 spinner，避免界面频闪</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">ELAPSED_AFTER</div>
+        <div class="matrix-val">4,000 ms</div>
+        <div class="matrix-desc">4s 起开始展示挂钟秒数与具体步骤名</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">ABANDON_AFTER</div>
+        <div class="matrix-val">10,000 ms</div>
+        <div class="matrix-desc">10s 后用户必切走，界面需耐受切台与刷新</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">STREAM_UNIT</div>
+        <div class="matrix-val">'word'</div>
+        <div class="matrix-desc">以词为发射单位，拒绝打字机单字复古皮套</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">STREAM_CADENCE</div>
+        <div class="matrix-val">60 ms</div>
+        <div class="matrix-desc">约 60ms/词，在读者视线前筑造平稳跑道</div>
+      </div>
+      <div class="matrix-pill">
+        <div class="matrix-key">STOP_LATENCY</div>
+        <div class="matrix-val">0 ms</div>
+        <div class="matrix-desc">本地 0ms 中止连接，绝对保留已吐出的文本</div>
+      </div>
+    </div>
+
+    <pre>const AI_WAIT_CONSTANTS = {
+  INSTANT_ECHO:    0,     // 本地状态瞬间回显，绝不等网络握手
+  LOADER_AFTER:    400,   // 400ms 内不展示任何 loader，防闪烁
+  ELAPSED_AFTER:   4000,  // 4s 后开始显式展示挂钟已耗秒数与当前步骤
+  ABANDON_AFTER:   10000, // 10s 后用户必切走，界面需耐受切台与刷新
+  STREAM_UNIT:     'word',// 以词为发射单位，拒绝单字打字机皮套
+  STREAM_CADENCE:  60,    // 默认 60ms/词，根据入流自适应 40~120ms
+  STOP_LATENCY:    0,     // 本地 0ms 立即打断并保留半截产物
+};</pre>
+
+    <ul class="takeaways">
+      <li><strong>本地回显等网络了吗？</strong>按下发送时，输入框是否 0ms 清空且文字立刻上屏？</li>
+      <li><strong>是否用进度条撒谎了？</strong>长耗时是否诚实展示了基于 <code>performance.now()</code> 的挂钟秒数？</li>
+      <li><strong>骨架屏有没有乱承诺？</strong>是否在不知道确切返回形状的列表上塞了无意义的灰条？</li>
+      <li><strong>流式吐字抽搐了吗？</strong>是否经过了平滑缓冲？流式期间是否误用了 <code>text-wrap: balance</code>？</li>
+      <li><strong>操作按钮露早了吗？</strong>复制、重试是否严格遵循了“可读 → 完整 → 可用”的次序？</li>
+      <li><strong>中止操作能保全财产吗？</strong>点击 Stop 是否保留了已生成内容，而不是清屏惩罚？</li>
+      <li><strong>报错之后现场还在吗？</strong>10 秒后的失败有没有保留用户的原 prompt 和已执行的上下文？</li>
+    </ul>
+
+    <div class="ending">
+      <p><span class="punch">在大模型时代，优雅的等待不是用转圈遮掩延迟，而是把时间变成一种坦诚、受控且有呼吸感的交互材料。</span></p>
+    </div>
+
+  </article>
+
+  <footer class="post-foot">
+    <div class="foot-card">
+      本文理论与原型启发自 Chloé Maillot 的经典长文：<a href="https://chloemaillot.fr/writing/designing-the-wait" target="_blank" rel="noopener">Designing the wait</a>。
+      <div class="src">阈值引用自 Robert B. Miller (1968) 与 Jakob Nielsen (1993)；阅读速度采样自 Marc Brysbaert (2019) 荟萃分析；文中常数与防抖方案经过工程实践验证，写给所有追求极致产品品味的 AI 缔造者。</div>
+    </div>
+    <a href="writing.html?category=tech" class="back">← 回文章目录</a>
+  </footer>
+
+</body>
+</html>

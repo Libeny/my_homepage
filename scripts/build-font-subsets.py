@@ -54,8 +54,14 @@ MIRROR = os.environ.get("FONT_MIRROR", "https://fonts.loli.net")
 MODERN_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
              "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
 
-# 扫描这些文件提取字符：仓库根目录的所有 html（新增页面自动被覆盖）
-HTML_GLOB = os.path.join(REPO_ROOT, "*.html")
+# 扫描这些文件提取字符：根站页面，以及旅行书当前可见的页面、样例和历史成书。
+# 范围保持显式，避免把 node_modules 或检索阶段的海量原始资料打进字体。
+TEXT_GLOBS = [
+    os.path.join(REPO_ROOT, "*.html"),
+    os.path.join(REPO_ROOT, "travel-book", "app", "*.html"),
+    os.path.join(REPO_ROOT, "travel-book", "app", "data.js"),
+    os.path.join(REPO_ROOT, "travel-book", ".context", "jobs", "*", "book.json"),
+]
 
 # 中文字体：按权重做"切片合并"子集
 CJK_FONTS = {
@@ -141,15 +147,15 @@ def expand_unicode_range(ur):
 
 
 def collect_page_chars():
-    """扫描仓库根目录所有 html，返回出现过的全部字符集合。"""
+    """扫描所有会直接参与页面渲染的文本资源。"""
     import glob
     chars = set()
-    files = sorted(glob.glob(HTML_GLOB))
+    files = sorted({path for pattern in TEXT_GLOBS for path in glob.glob(pattern)})
     for path in files:
         with open(path, encoding="utf-8") as fh:
             chars.update(fh.read())
     chars = {c for c in chars if ord(c) >= 0x20 or c in "\n\t"}
-    print(f"扫描 {len(files)} 个 html，共 {len(chars)} 个不同字符")
+    print(f"扫描 {len(files)} 个页面文本资源，共 {len(chars)} 个不同字符")
     return chars
 
 

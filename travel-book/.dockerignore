@@ -1,0 +1,7 @@
+.git
+.context
+node_modules
+ios
+__pycache__
+*.pyc
+.DS_Store

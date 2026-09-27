@@ -1,0 +1,5 @@
+{"id": "emtvr41jpr4f94d", "ts": 1789058287573, "type": "check", "bookId": "builtin", "chapterId": "cb-1", "taskIndex": 0, "checked": true, "deviceId": "dmtvr41jpx564l7", "serverTs": 1789058287.575297, "syncId": 1}
+{"id": "emtvr41ocx46kz8", "ts": 1789058287740, "type": "photo", "bookId": "builtin", "chapterId": "cb-1", "photoKey": "builtin/cb-1", "deviceId": "dmtvr41jpx564l7", "serverTs": 1789058287.742831, "syncId": 2}
+{"id": "emtvr429vlngjfh", "ts": 1789058288515, "type": "note", "bookId": "builtin", "chapterId": "cb-1", "note": "山顶风很大，天池比照片里蓝。", "deviceId": "dmtvr41jpx564l7", "serverTs": 1789058288.518096, "syncId": 3}
+{"id": "emtwbakux1vw37r", "ts": 1789092184857, "type": "check", "bookId": "builtin", "chapterId": "cb-1", "taskIndex": 0, "checked": true, "deviceId": "dmtwbakuxagbfe2", "serverTs": 1789092184.860043, "syncId": 4}
+{"id": "emtwbtjaejtxnmo", "ts": 1789093069286, "type": "check", "bookId": "builtin", "chapterId": "cb-1", "taskIndex": 0, "checked": true, "deviceId": "dmtwbtjanvb9nt3", "serverTs": 1789093069.29884, "syncId": 6}

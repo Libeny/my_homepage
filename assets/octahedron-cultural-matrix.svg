@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #FBF8F2; }
+      .border-outer { fill: none; stroke: #E2D5C3; stroke-width: 1.5; }
+      .border-inner { fill: none; stroke: #EFE6D8; stroke-width: 1; }
+      
+      /* 顶部纯粹标题 */
+      .title-cn { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 22px; font-weight: 700; fill: #2C201C; letter-spacing: 0.28em; }
+      
+      /* 3D 棱线体系：正面能看到的用实线，被遮住的用虚线 */
+      .edge-visible { stroke: #4A3327; stroke-width: 2.2; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+      .edge-hidden { stroke: #BAA694; stroke-width: 1.4; stroke-dasharray: 4 4; fill: none; }
+      
+      /* 刻面遮挡与光影 */
+      .face-front-major { fill: rgba(215, 168, 110, 0.22); }
+      .face-front-side { fill: rgba(185, 138, 92, 0.14); }
+      .face-front-bot-major { fill: rgba(135, 92, 76, 0.16); }
+      .face-front-bot-side { fill: rgba(92, 58, 48, 0.24); }
+      .face-back-hidden { fill: rgba(195, 185, 175, 0.07); }
+      
+      /* 空间遮挡引线系统：
+         - 穿透晶体内部被遮挡部分：用虚线 (ray-internal-hidden)
+         - 穿出晶体到外部空间部分：用实线 (ray-external-visible)
+      */
+      .ray-external-visible { stroke: #8F7663; stroke-width: 1.3; stroke-linecap: round; }
+      .ray-internal-hidden { stroke: #B59E8B; stroke-width: 1.2; stroke-dasharray: 3 3; }
+      
+      .anchor-front { fill: #8B261D; stroke: #FBF8F2; stroke-width: 1.5; }
+      .anchor-back { fill: #B8857B; stroke: #FBF8F2; stroke-width: 1.2; }
+      .card-anchor { fill: #8B261D; }
+      
+      /* 卡片文字 */
+      .tag-num { font-family: "Fira Code", monospace; font-size: 11px; font-weight: 700; fill: #8B261D; }
+      .tag-title { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 15px; font-weight: 700; fill: #261B17; }
+      .tag-source { font-family: "Noto Serif SC", serif; font-size: 11px; fill: #9E3A30; font-weight: 600; }
+      .tag-desc { font-family: "PingFang SC", "Noto Sans SC", sans-serif; font-size: 11.5px; fill: #6A5951; }
+      
+      /* 底部核心格言：加粗放大 */
+      .footer-quote { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 16px; font-weight: 700; fill: #3D2C24; letter-spacing: 0.15em; }
+    </style>
+    
+    <radialGradient id="halo-glow" cx="49%" cy="51%" r="48%">
+      <stop offset="0%" stop-color="#C4945C" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="#C4945C" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#C4945C" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- 笺纸底色与雅致双线边框 -->
+  <rect width="960" height="560" class="bg" rx="14" />
+  <rect x="18" y="18" width="924" height="524" class="border-outer" rx="10" />
+  <rect x="25" y="25" width="910" height="510" class="border-inner" rx="7" />
+
+  <!-- 顶部标题区 -->
+  <text class="title-cn" x="480" y="66" text-anchor="middle">人文旅行八面体</text>
+
+  <!-- 中央环境光晕 -->
+  <circle cx="480" cy="275" r="150" fill="url(#halo-glow)" />
+
+  <!-- ==================== 3D 正八面体结构 ====================
+       顶点计算 (偏转 3/4 空间透视):
+       Top (顶极):       (480, 125)
+       Bottom (底极):    (480, 425)
+       Left (左外翼):    (325, 265)
+       Right (右外翼):   (635, 285)
+       Front (前赤道脊): (450, 325)   [完全能看见，前凸]
+       Back (后赤道脊):  (510, 225)   [被完全遮挡，后隐]
+  ============================================================== -->
+  <g id="octahedron-mesh">
+    <!-- 1. 背面被遮挡刻面 (4面) -->
+    <polygon points="480,125 325,265 510,225" class="face-back-hidden" />
+    <polygon points="480,125 635,285 510,225" class="face-back-hidden" />
+    <polygon points="480,425 325,265 510,225" class="face-back-hidden" />
+    <polygon points="480,425 635,285 510,225" class="face-back-hidden" />
+
+    <!-- 2. 背面被遮挡棱线 (严格用虚线，共 4 条连向 Back 顶点) -->
+    <line x1="480" y1="125" x2="510" y2="225" class="edge-hidden" />
+    <line x1="480" y1="425" x2="510" y2="225" class="edge-hidden" />
+    <line x1="325" y1="265" x2="510" y2="225" class="edge-hidden" />
+    <line x1="635" y1="285" x2="510" y2="225" class="edge-hidden" />
+
+    <!-- 3. 正面能看见的 4 个刻面 -->
+    <polygon points="480,125 325,265 450,325" class="face-front-side" />
+    <polygon points="480,125 635,285 450,325" class="face-front-major" />
+    <polygon points="480,425 325,265 450,325" class="face-front-bot-side" />
+    <polygon points="480,425 635,285 450,325" class="face-front-bot-major" />
+
+    <!-- 4. 正面能看见的所有空间棱线 (严格用实线，共 8 条) -->
+    <line x1="480" y1="125" x2="450" y2="325" class="edge-visible" />
+    <line x1="480" y1="425" x2="450" y2="325" class="edge-visible" />
+    <line x1="325" y1="265" x2="450" y2="325" class="edge-visible" />
+    <line x1="635" y1="285" x2="450" y2="325" class="edge-visible" />
+    <line x1="480" y1="125" x2="325" y2="265" class="edge-visible" />
+    <line x1="480" y1="125" x2="635" y2="285" class="edge-visible" />
+    <line x1="480" y1="425" x2="325" y2="265" class="edge-visible" />
+    <line x1="480" y1="425" x2="635" y2="285" class="edge-visible" />
+
+    <!-- 5. 顶点标识 -->
+    <circle cx="480" cy="125" r="3.5" fill="#4A3327" />
+    <circle cx="480" cy="425" r="3.5" fill="#4A3327" />
+    <circle cx="325" cy="265" r="3.5" fill="#4A3327" />
+    <circle cx="635" cy="285" r="3.5" fill="#4A3327" />
+    <circle cx="450" cy="325" r="4.5" fill="#8B261D" />
+    <circle cx="510" cy="225" r="2.5" fill="#B5A494" />
+  </g>
+
+  <!-- ==================== 八个刻面中心与分段引线 ====================
+       遮挡裁剪规则：
+       - 晶体内部段（被遮挡）：用虚线
+       - 晶体外部段（自由可见）：用实线
+       - 正面刻面引线：全段在外部，全部用实线
+  ============================================================== -->
+
+  <!-- 背面刻面锚点 -->
+  <circle cx="438" cy="205" r="3" class="anchor-back" />
+  <circle cx="438" cy="305" r="3" class="anchor-back" />
+  <circle cx="542" cy="212" r="3" class="anchor-back" />
+  <circle cx="542" cy="312" r="3" class="anchor-back" />
+
+  <!-- 正面刻面锚点 -->
+  <circle cx="418" cy="238" r="4.2" class="anchor-front" />
+  <circle cx="418" cy="338" r="4.2" class="anchor-front" />
+  <circle cx="522" cy="245" r="4.2" class="anchor-front" />
+  <circle cx="522" cy="345" r="4.2" class="anchor-front" />
+
+  <!-- ========== 8 根引线 (精确区分晶体内部虚线与晶体外部实线) ========== -->
+
+  <!-- 01 历史沿革 (背面): 内部(438,205)->(403,195)虚线; 外部(403,195)->(240,148)实线 -->
+  <line x1="438" y1="205" x2="403" y2="195" class="ray-internal-hidden" />
+  <line x1="403" y1="195" x2="240" y2="148" class="ray-external-visible" />
+
+  <!-- 03 地质自然 (正面): 全程位于晶体表面及外部，实线 -->
+  <line x1="418" y1="238" x2="225" y2="233" class="ray-external-visible" />
+
+  <!-- 05 信仰民俗 (背面): 内部(438,305)->(368,309)虚线; 外部(368,309)->(225,318)实线 -->
+  <line x1="438" y1="305" x2="368" y2="309" class="ray-internal-hidden" />
+  <line x1="368" y1="309" x2="225" y2="318" class="ray-external-visible" />
+
+  <!-- 07 诗赋文学 (正面): 全程位于晶体表面及外部，实线 -->
+  <line x1="418" y1="338" x2="240" y2="403" class="ray-external-visible" />
+
+  <!-- 02 名人行纪 (背面): 内部(542,212)->(559,206)虚线; 外部(559,206)->(720,148)实线 -->
+  <line x1="542" y1="212" x2="559" y2="206" class="ray-internal-hidden" />
+  <line x1="559" y1="206" x2="720" y2="148" class="ray-external-visible" />
+
+  <!-- 04 乡土营造 (正面): 全程位于晶体表面及外部，实线 -->
+  <line x1="522" y1="245" x2="735" y2="233" class="ray-external-visible" />
+
+  <!-- 06 风物饮食 (背面): 内部(542,312)->(603,314)虚线; 外部(603,314)->(735,318)实线 -->
+  <line x1="542" y1="312" x2="603" y2="314" class="ray-internal-hidden" />
+  <line x1="603" y1="314" x2="735" y2="318" class="ray-external-visible" />
+
+  <!-- 08 市井活态 (正面): 全程位于晶体表面及外部，实线 -->
+  <line x1="522" y1="345" x2="720" y2="403" class="ray-external-visible" />
+
+  <!-- ==================== 左侧 4 个维度文字 ==================== -->
+  <!-- 01 历史沿革 (y=130) -->
+  <g text-anchor="end">
+    <circle cx="240" cy="148" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="226" y="140">01</text>
+    <text class="tag-title" x="226" y="158">历史沿革</text>
+    <text class="tag-source" x="226" y="174">志书 ·《沿革》</text>
+    <text class="tag-desc" x="226" y="191">建制更迭 / 时间来龙去脉</text>
+  </g>
+
+  <!-- 03 地质自然 (y=215) -->
+  <g text-anchor="end">
+    <circle cx="225" cy="233" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="211" y="225">03</text>
+    <text class="tag-title" x="211" y="243">地质自然</text>
+    <text class="tag-source" x="211" y="259">志书 ·《舆地》</text>
+    <text class="tag-desc" x="211" y="276">山川经络 / 亿万年地形演变</text>
+  </g>
+
+  <!-- 05 信仰民俗 (y=300) -->
+  <g text-anchor="end">
+    <circle cx="225" cy="318" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="211" y="310">05</text>
+    <text class="tag-title" x="211" y="328">信仰民俗</text>
+    <text class="tag-source" x="211" y="344">志书 ·《风俗 / 坛庙》</text>
+    <text class="tag-desc" x="211" y="361">神明祭社 / 节气祈愿与乡约</text>
+  </g>
+
+  <!-- 07 诗赋文学 (y=385) -->
+  <g text-anchor="end">
+    <circle cx="240" cy="403" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="226" y="395">07</text>
+    <text class="tag-title" x="226" y="413">诗赋文学</text>
+    <text class="tag-source" x="226" y="429">志书 ·《艺文》</text>
+    <text class="tag-desc" x="226" y="446">刻石墨宝 / 留给江山的字句</text>
+  </g>
+
+  <!-- ==================== 右侧 4 个维度文字 ==================== -->
+  <!-- 02 名人行纪 (y=130) -->
+  <g text-anchor="start">
+    <circle cx="720" cy="148" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="734" y="140">02</text>
+    <text class="tag-title" x="734" y="158">名人行纪</text>
+    <text class="tag-source" x="734" y="174">志书 ·《人物 / 封爵》</text>
+    <text class="tag-desc" x="734" y="191">先贤履痕 / 谁曾在此驻足</text>
+  </g>
+
+  <!-- 04 乡土营造 (y=215) -->
+  <g text-anchor="start">
+    <circle cx="735" cy="233" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="749" y="225">04</text>
+    <text class="tag-title" x="749" y="243">乡土营造</text>
+    <text class="tag-source" x="749" y="259">志书 ·《营造 / 城池》</text>
+    <text class="tag-desc" x="749" y="276">海草房 / 窑洞 / 梁架砖石智慧</text>
+  </g>
+
+  <!-- 06 风物饮食 (y=300) -->
+  <g text-anchor="start">
+    <circle cx="735" cy="318" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="749" y="310">06</text>
+    <text class="tag-title" x="749" y="328">风物饮食</text>
+    <text class="tag-source" x="749" y="344">志书 ·《物产 / 食货》</text>
+    <text class="tag-desc" x="749" y="361">一水一味 / 风物与餐桌溯源</text>
+  </g>
+
+  <!-- 08 市井活态 (y=385) -->
+  <g text-anchor="start">
+    <circle cx="720" cy="403" r="2.5" class="card-anchor" />
+    <text class="tag-num" x="734" y="395">08</text>
+    <text class="tag-title" x="734" y="413">市井活态</text>
+    <text class="tag-source" x="734" y="429">志书 ·《市集》</text>
+    <text class="tag-desc" x="734" y="446">晨昏渔市 / 街巷茶摊的人间活气</text>
+  </g>
+
+  <!-- ==================== 底部核心格言 ==================== -->
+  <g transform="translate(480, 502)" text-anchor="middle">
+    <line x1="-280" y1="-15" x2="280" y2="-15" stroke="#DFD1BE" stroke-width="1.2" />
+    <text class="footer-quote" y="6">“ 舆地为骨，沿革为脉，物产养人，市集见心。”</text>
+  </g>
+</svg>

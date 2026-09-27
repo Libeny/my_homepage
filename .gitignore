@@ -14,3 +14,16 @@
 
 # 字体源文件缓存（build-font-subsets.py 生成，可重新下载）
 .font-cache/
+
+# travel-book App 壳
+travel-book/node_modules/
+travel-book/ios/App/App/public/
+travel-book/ios/DerivedData/
+travel-book/ios/Frameworks/
+travel-book/ios/App/Pods/
+**/__pycache__/
+*.sqlite3*
+travel-book/.context/jobs/
+
+# Temporary previews
+preview-*.html

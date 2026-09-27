@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  travel-book:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: travel-book-server
+    restart: unless-stopped
+    ports:
+      - "8138:8137"
+    volumes:
+      # 持久化挂载 SQLite 会话与历史任务数据
+      - travelbook-data:/app/.context
+    environment:
+      - PORT=8137
+      - TRAVELBOOK_MAIN_AGENT=pi
+      - TRAVELBOOK_PI_PROVIDER=deepseek
+      - TRAVELBOOK_PI_MODEL=deepseek-v4-flash
+      - TRAVELBOOK_AUTH_DEBUG_CODES=0
+
+volumes:
+  travelbook-data:
+    driver: local

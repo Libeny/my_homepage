@@ -1,0 +1,9 @@
+{
+  "appId": "com.muyu.travelbook",
+  "appName": "旅册",
+  "webDir": "app",
+  "server": {
+    "url": "http://192.168.1.5:8137",
+    "cleartext": true
+  }
+}

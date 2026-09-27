@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI UI Taste Skill · 专为 Coding Agent 打造的审美自救规范</title>
+  <meta name="description" content="专为 Claude Code、Codex、Cursor 与 Antigravity 打造的前端 UI 选型与审美自救 Skill。开箱即用的意图路由决策树与代码清洗规范。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.85;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* 顶部导航 */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px dashed var(--line);
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .badge-pill {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: #3F7A77;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      border-radius: 20px;
+      padding: 3px 14px;
+    }
+    .nav-links a {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      margin-left: 1.2rem;
+      transition: color 0.2s var(--ease-out);
+    }
+    .nav-links a:hover { color: var(--blue-deep); }
+
+    /* 标题区域 */
+    .hero {
+      margin-bottom: 2.8rem;
+    }
+    .hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2.1rem, 6vw, 3.2rem);
+      line-height: 1.25;
+      margin: 0.6rem 0 1rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--blue) 42%, transparent 42%);
+      padding: 0 6px;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--ink-light);
+      max-width: 680px;
+    }
+
+    /* 快速复制区 */
+    .copy-banner {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--blue-deep);
+      border-radius: 6px 18px 18px 6px;
+      padding: 1.6rem 1.8rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 4px 18px rgba(105,75,64,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+    .copy-banner .text {
+      flex: 1;
+      min-width: 260px;
+    }
+    .copy-banner h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.3rem;
+    }
+    .copy-banner p {
+      font-size: 0.88rem;
+      color: var(--ink-light);
+      margin: 0;
+    }
+    .btn-copy {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #251c19;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 22px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s var(--ease-out);
+    }
+    .btn-copy:hover {
+      background: var(--red);
+      transform: translateY(-1px);
+    }
+    .btn-copy:active {
+      transform: translateY(0);
+    }
+
+    /* 选型路由卡片 */
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.65rem;
+      margin: 3rem 0 1.2rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+    h2 .num {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.1rem;
+      color: var(--blue-deep);
+    }
+
+    .routing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px;
+      margin: 1.5rem 0 3rem;
+    }
+    .route-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .route-card-top {
+      margin-bottom: 1rem;
+    }
+    .route-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--ink-faint);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .route-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .route-link {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+    }
+    .route-desc {
+      font-size: 0.88rem;
+      color: var(--ink-light);
+      margin: 0.6rem 0 0.8rem;
+    }
+    .route-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      background: rgba(105,75,64,0.06);
+      border-radius: 4px;
+      padding: 2px 7px;
+      color: var(--ink);
+    }
+
+    /* 代码展示块 */
+    pre {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      background: #251c19;
+      color: #fdfaf6;
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      position: relative;
+    }
+    code {
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* 规则清单 */
+    .rules-box {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem;
+      margin: 1.5rem 0;
+    }
+    .rules-box ol {
+      margin-left: 1.4rem;
+    }
+    .rules-box li {
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    /* 底部 */
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px dashed var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.88rem;
+      color: var(--ink-light);
+    }
+    .hand {
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      color: var(--blue-deep);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="topbar">
+      <div class="badge-pill">AGENT SKILL · v1.0.0 · MIT</div>
+      <nav class="nav-links">
+        <a href="writing-ai-ui-curation.html">← 读图文拆解文章</a>
+        <a href="writing.html">文章目录</a>
+        <a href="index.html">返回主页</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <div style="font-family:'Fira Code',monospace; font-size:0.8rem; letter-spacing:0.18em; color:var(--ink-faint);">AGENTIC CODING CAPABILITY</div>
+      <h1>AI UI Taste <em>Skill</em></h1>
+      <p>专为 Claude Code、Codex、Cursor 与 Antigravity 打造的前端 UI 选型与审美自救规范。当你在项目中需要编写高质感交互时，让 Agent 依据场景意图自动向顶级开源组件库获取灵感与代码。</p>
+    </div>
+
+    <!-- 复制横幅 -->
+    <div class="copy-banner">
+      <div class="text">
+        <h3>一键复制完整 SKILL.md</h3>
+        <p>直接存入工程的 <code>.claude/skills/ai-ui-taste/SKILL.md</code> 或系统的 Agent 设定中。</p>
+      </div>
+      <button class="btn-copy" id="copyBtn" onclick="copySkill()">
+        <span id="btnIcon">📋</span>
+        <span id="btnText">复制 SKILL 规则文本</span>
+      </button>
+    </div>
+
+    <!-- 意图决策树 -->
+    <h2><span class="num">01</span> 意图路由决策对照表</h2>
+    <div class="routing-grid">
+      <!-- Route 1 -->
+      <div class="route-card">
+        <div class="route-card-top">
+          <span class="route-tag">AI-NATIVE INTERFACES</span>
+          <div class="route-title">
+            <span>AI 原生交互 / Agent</span>
+            <a href="https://beautifului.dev" target="_blank" class="route-link">Beautiful UI ↗</a>
+          </div>
+          <div class="route-desc">构建大模型对话、思考链展开、工具调用胶囊、人类审批卡片、流式引用。</div>
+        </div>
+        <div class="route-chips">
+          <span class="chip">Thinking State</span>
+          <span class="chip">Tool Chips</span>
+          <span class="chip">Approval Card</span>
+          <span class="chip">Prompt Bar</span>
+        </div>
+      </div>
+
+      <!-- Route 2 -->
+      <div class="route-card">
+        <div class="route-card-top">
+          <span class="route-tag">MICRO-INTERACTIONS</span>
+          <div class="route-title">
+            <span>丝滑现代 React 动效</span>
+            <a href="https://beui.dev" target="_blank" class="route-link">beUI ↗</a>
+          </div>
+          <div class="route-desc">基于 Framer Motion + Tailwind，给页面注入 Apple 原生级别的弹性形变与空间感。</div>
+        </div>
+        <div class="route-chips">
+          <span class="chip">Dynamic Island</span>
+          <span class="chip">Morphing Modal</span>
+          <span class="chip">macOS Dock</span>
+          <span class="chip">3D Tilt Card</span>
+        </div>
+      </div>
+
+      <!-- Route 3 -->
+      <div class="route-card">
+        <div class="route-card-top">
+          <span class="route-tag">SIGNATURE &amp; CREATIVE</span>
+          <div class="route-title">
+            <span>破除同质化的记忆点</span>
+            <a href="https://rareui.com" target="_blank" class="route-link">Rare UI ↗</a>
+          </div>
+          <div class="route-desc">拒绝千篇一律的后台系统卡片，打造极具辨识度与极客个性的核心亮点。</div>
+        </div>
+        <div class="route-chips">
+          <span class="chip">folder-component</span>
+          <span class="chip">gooey-nav</span>
+          <span class="chip">bounce-sidebar</span>
+          <span class="chip">gravity-letters</span>
+        </div>
+      </div>
+
+      <!-- Route 4 -->
+      <div class="route-card">
+        <div class="route-card-top">
+          <span class="route-tag">MOTION &amp; EASING</span>
+          <div class="route-title">
+            <span>专治动效僵硬与机械感</span>
+            <a href="https://transitions.dev" target="_blank" class="route-link">Transitions.dev ↗</a>
+          </div>
+          <div class="route-desc">提取精调的物理缓动曲线、阶梯微延迟与毛玻璃模糊过渡，带来真正呼吸感。</div>
+        </div>
+        <div class="route-chips">
+          <span class="chip">Ease Bounce</span>
+          <span class="chip">Smooth Out</span>
+          <span class="chip">40ms Stagger</span>
+          <span class="chip">Micro Blur</span>
+        </div>
+      </div>
+
+      <!-- Route 5 -->
+      <div class="route-card" style="grid-column: 1 / -1;">
+        <div class="route-card-top">
+          <span class="route-tag">PRIMITIVES &amp; ACCESSIBILITY</span>
+          <div class="route-title">
+            <span>工业级基础骨架与所有权底座</span>
+            <a href="https://ui.shadcn.com" target="_blank" class="route-link">shadcn/ui ↗</a>
+          </div>
+          <div class="route-desc">全套 Radix UI a11y 标准与无黑盒 Tailwind 源码，现代前端事实上的标准母体。用于所有基础表单、表格、导航与弹窗。</div>
+        </div>
+        <div class="route-chips">
+          <span class="chip">Dialog</span>
+          <span class="chip">Dropdown</span>
+          <span class="chip">Data Table</span>
+          <span class="chip">Command (⌘K)</span>
+          <span class="chip">Sheet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent 执行与清洗规范 -->
+    <h2><span class="num">02</span> Agent 代码清洗与落地方则</h2>
+    <div class="rules-box">
+      <ol>
+        <li><strong>结构与色值解耦（禁止生搬硬套硬编码颜色）</strong>：要求 Agent 提取组件的 HTML 骨架、间距节奏与 Motion 变体，但必须将色值映射为你项目现有的 Tailwind 语义变量（例如 <code>bg-background</code>, <code>text-foreground</code>, <code>border-border</code>）。</li>
+        <li><strong>动效降级安全</strong>：必须包含 <code>prefers-reduced-motion</code> 判断，尊重用户的系统动效偏好。</li>
+        <li><strong>先原生后三方</strong>：轻量交互优先使用 CSS 原生动画与 Transitions 参数，仅在多状态复杂形变时才引入 Framer Motion。</li>
+      </ol>
+    </div>
+
+    <!-- 提示词示例 -->
+    <h2><span class="num">03</span> 常用 Agent 对话提示词模板</h2>
+    <pre><code># 场景 1：重构生硬弹窗
+"请参考 AI UI Taste Skill 规则：
+用 beUI 的 Morphing Modal 动效逻辑重构当前用户设置弹窗，
+保留项目现有的配色与国际化文本规范。"
+
+# 场景 2：给 Agent 工作台增加思考状态
+"在对话气泡上方添加一个大模型思考过程展示组件，
+参考 Beautiful UI 的 Thinking State 原语，
+支持展开查看 step-by-step 耗时与折叠。"
+
+# 场景 3：调优机械动画
+"当前的通知下拉动画太生硬了，
+请参考 Transitions.dev 的 Ease-Bounce 和 40ms Stagger 参数，
+将其改写为具有自然物理回弹的过渡。"</code></pre>
+
+    <!-- 原始 SKILL 源码预览 -->
+    <h2><span class="num">04</span> SKILL.md 原文</h2>
+    <pre id="skillRaw"><code>---
+name: ai-ui-taste
+description: 专为 Claude Code、Codex、Cursor 与 Antigravity 打造的前端 UI 选型与审美自救 Skill。当需要构建高颜值、现代微交互或特定风格界面时，自动匹配最优质的组件库与动效参数。
+---
+
+# AI UI Taste &amp; Component Curation Skill
+
+## 选型路由决策树 (Intent Routing)
+1. AI 原生交互 (AI-Native Interfaces) 👉 https://beautifului.dev
+   - 提取: Thinking State, Tool Chips, Approval Card, Streaming Text, Prompt Bar
+2. 现代微交互与灵动感 👉 https://beui.dev
+   - 提取: Dynamic Island, Morphing Modal, macOS Dock, Animated Toast, 3D Tilt Card
+3. 拒绝千篇一律的记忆点 👉 https://rareui.com
+   - 提取: folder-component, gooey-nav, proximity-sidebar, gravity-letters
+4. 专治动效僵硬与机械感 👉 https://transitions.dev
+   - 参数: Bounce `cubic-bezier(0.34, 1.36, 0.64, 1)`, Smooth `cubic-bezier(0.22, 1, 0.36, 1)`, Stagger `40ms`
+5. 工业级项目底座 👉 https://ui.shadcn.com
+   - 提取: 基础组件、Radix UI a11y、Tailwind 源码直拷
+
+## Agent 执行约束与代码清洗规范
+1. 结构与样式解耦：提取 DOM 与动效，色值严格映射为工程现有的 Tailwind 语义变量。
+2. 动效降级保障：必须支持 `prefers-reduced-motion`。
+3. 保持轻量：优先 CSS 原生 Transition，复杂形变使用 Framer Motion。</code></pre>
+
+    <footer>
+      <div>© 2026 木鱼拓哉 · Builder's Taste</div>
+      <div class="hand">taste is code</div>
+    </footer>
+  </div>
+
+  <script>
+    function copySkill() {
+      const text = document.getElementById('skillRaw').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        btnText.innerText = '已成功复制到剪贴板！';
+        btnIcon.innerText = '✅';
+        setTimeout(() => {
+          btnText.innerText = '复制 SKILL 规则文本';
+          btnIcon.innerText = '📋';
+        }, 2200);
+      });
+    }
+  </script>
+
+</body>
+</html>

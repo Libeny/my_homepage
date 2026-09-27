@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>生活杂谈 · 木鱼拓哉の写作本</title>
-  <meta name="description" content="随便写写，不赶时间。">
+  <title>为什么现在的旅行，越来越像一场体力活？ · 木鱼拓哉の写作本</title>
+  <meta name="description" content="打开手机，算法把城市的呼吸切成碎屑。从中国两千年方志学八大卷帙中，寻找真正看懂一块土地的人文旅行八面体骨架。">
 
   <link rel="stylesheet" href="assets/fonts/fonts.css">
 
@@ -12,53 +12,45 @@
     :root {
       --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
       --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --highlight:#fae3c6;
       --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
       --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --accent-red:#8B261D;
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
       background:
-        radial-gradient(ellipse at 28% 18%, var(--yellow-soft) 0%, transparent 55%),
-        radial-gradient(ellipse at 78% 82%, rgba(189,231,229,0.32) 0%, transparent 55%),
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
         var(--cream);
       color: var(--ink);
-      line-height: 1.7;
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 4rem 1.5rem;
-      text-align: center;
+      line-height: 1.95;
+      font-size: 17px;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部导航条 */
+    .topbar {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
     .label {
       font-family: 'Fira Code', monospace;
-      font-size: 0.72rem; letter-spacing: 0.18em;
-      color: var(--ink-faint); margin-bottom: 1.75rem;
-    }
-    h1 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(2.4rem, 7vw, 4rem);
-      line-height: 1.15;
-      margin-bottom: 1.5rem;
-      max-width: 14ch;
-    }
-    h1 em {
-      font-style: normal;
-      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
-      padding: 0 6px;
-    }
-    .lede { color: var(--ink-light); max-width: 480px; margin-bottom: 0.6rem; }
-    .lede-2 { color: var(--ink-faint); max-width: 480px; font-size: 0.92rem; }
-    .note {
-      margin-top: 2.5rem;
-      font-family: 'Caveat', cursive;
-      font-size: 1.25rem;
-      color: var(--blue-deep);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
     }
     .back {
-      margin-top: 3rem;
       font-family: 'Fira Code', monospace;
       font-size: 0.78rem;
       color: var(--red);
@@ -66,16 +58,544 @@
       border-bottom: 1px solid currentColor;
       padding-bottom: 2px;
       transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
     }
     .back:hover { color: var(--blue-deep); }
+
+    /* 文章头部 */
+    .post-head {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3.2rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5.4vw, 2.75rem);
+      line-height: 1.35;
+      margin: 1.1rem 0 0.8rem;
+      letter-spacing: -0.01em;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--yellow) 42%, transparent 42%);
+      padding: 0 6px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+    .lede {
+      margin-top: 2.2rem;
+      padding: 1.5rem 1.8rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent-red);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 1rem;
+      box-shadow: 0 3px 16px rgba(105,75,64,0.06);
+    }
+
+    /* 正文 */
+    article {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.8rem 1.5rem 5rem;
+    }
+    article h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.62rem;
+      line-height: 1.4;
+      margin: 3.4rem 0 1.4rem;
+      padding-top: 1.8rem;
+      border-top: 1px dashed var(--line);
+      color: var(--ink);
+    }
+    article p {
+      margin-bottom: 1.6rem;
+      color: #553c32;
+      text-align: justify;
+    }
+    article p strong {
+      color: #2e1d17;
+      font-weight: 700;
+    }
+
+    /* 醒目高亮底纹 */
+    .hl {
+      background: linear-gradient(to top, var(--highlight) 40%, transparent 40%);
+      padding: 0 3px;
+      font-weight: 600;
+      color: #2e1d17;
+    }
+
+    /* 大字引言金句卡片 (Pull Quote) */
+    .pull-quote {
+      margin: 2.8rem 0;
+      padding: 2.2rem 2rem;
+      background: #FFFDF8;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(105,75,64,0.05);
+    }
+    .pull-quote .pq-text {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(1.25rem, 3.2vw, 1.55rem);
+      font-weight: 900;
+      color: var(--accent-red);
+      line-height: 1.45;
+      margin-bottom: 0.5rem;
+    }
+    .pull-quote .pq-sub {
+      font-size: 0.92rem;
+      color: var(--ink-light);
+    }
+
+    /* 对比卡片 (Contrast Box) */
+    .contrast-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 2rem 0 2.4rem;
+    }
+    @media (max-width: 600px) {
+      .contrast-grid { grid-template-columns: 1fr; }
+    }
+    .contrast-box {
+      padding: 1.4rem 1.6rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .contrast-box.negative {
+      border-left: 3px solid #C07D75;
+      background: rgba(254, 245, 243, 0.6);
+    }
+    .contrast-box.positive {
+      border-left: 3px solid var(--blue-deep);
+      background: rgba(232, 246, 245, 0.6);
+    }
+    .contrast-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .contrast-box.negative .contrast-tag { color: #A64B40; }
+    .contrast-box.positive .contrast-tag { color: #528B89; }
+    .contrast-content {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #553c32;
+      margin: 0;
+    }
+
+    /* 方志八卷帙大卡片 */
+    .fangzhi-banner {
+      margin: 2rem 0;
+      padding: 1.8rem 2rem;
+      background: #FFFDF8;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(105,75,64,0.04);
+    }
+    .fangzhi-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent-red);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .fangzhi-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .fangzhi-chip {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #2E1D17;
+      background: rgba(239, 230, 216, 0.7);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(105,75,64,0.1);
+    }
+    .fangzhi-desc {
+      font-size: 0.95rem;
+      color: #553c32;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* 视觉插画与卡片 */
+    .figure-card {
+      margin: 2.8rem 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(105,75,64,0.08);
+    }
+    .figure-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .figure-card figcaption {
+      padding: 1rem 1.4rem;
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      border-top: 1px solid var(--line);
+      background: rgba(251,242,227,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .figure-card figcaption span.tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      background: rgba(189,231,229,0.35);
+      color: var(--ink-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* 四维咬合 2x2 网格卡片 */
+    .dimension-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.8rem 0 2.4rem;
+    }
+    @media (max-width: 600px) {
+      .dimension-grid { grid-template-columns: 1fr; }
+    }
+    .dim-card {
+      background: #FFFDF8;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.3rem 1.4rem;
+      box-shadow: 0 2px 10px rgba(105,75,64,0.03);
+    }
+    .dim-head {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent-red);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .dim-body {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--ink-light);
+      margin: 0;
+    }
+
+    /* 趣味问题列表 (Question Cards) */
+    .question-list {
+      margin: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .question-item {
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      padding: 1rem 1.3rem;
+      background: #FFFDF8;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .question-badge {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-red);
+      background: rgba(139, 38, 29, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .question-text {
+      font-size: 0.95rem;
+      color: #2e1d17;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* 底部收尾 */
+    .post-footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-note {
+      font-family: 'Caveat', cursive;
+      font-size: 1.35rem;
+      color: var(--blue-deep);
+    }
   </style>
 </head>
 <body>
-  <span class="label">WRITING · 生活杂谈</span>
-  <h1>随便写写，<em>不赶时间</em>。</h1>
-  <p class="lede">技术之外的那些事——路上看到的、心里想到的。</p>
-  <p class="lede-2">这一页还会长出来——在那之前，先回主页逛逛。</p>
-  <span class="note">还没有内容 ✦ 想到了就写</span>
-  <a href="index.html#writing" class="back">← 回主页</a>
+
+  <div class="topbar">
+    <span class="label">WRITING · 生活杂谈 / ESSAY</span>
+    <a href="writing.html?category=life" class="back">← 回到生活杂谈</a>
+  </div>
+
+  <header class="post-head">
+    <div class="meta">
+      <span>2026.09.15</span>
+      <span>TRAVEL ESSAY</span>
+      <span>CURIOSITY & CONTEXT</span>
+    </div>
+    <h1>为什么现在的旅行，<em>越来越像一场体力活？</em></h1>
+    <div class="lede">
+      打开手机，算法推给你一套又一套完美的图文。查不完的避坑指南，做不完的完美攻略，我们把异国他乡的街头过成了精确到分钟的 KPI。可那是别人的故事，不是你的。这次，我只想重新带上好奇心。
+    </div>
+  </header>
+
+  <article>
+
+    <h2>一、 异乡的体力活</h2>
+
+    <p>
+      现在的旅行，越来越像一场体力活。
+    </p>
+    <p>
+      打开手机，算法推给你一套又一套完美的图文：同一种色调的九宫格、同一个转角的路标、同一扇能看到日落的窗户。
+    </p>
+    <p>
+      看到别人的故事，我们下意识的选择，是<span class="hl">去追随</span>。
+    </p>
+    <p>
+      把路线存进收藏夹，买一样的车票，踩着别人踩过的脚印赶场。查不完的避坑指南，做不完的完美攻略。几点起、去哪拍、吃哪家网红店——在别人站过的位置排队，摆出类似的姿势，按下快门。
+    </p>
+    <p>
+      我们把异国他乡的街头，过成了<span class="hl">精确到分钟的 KPI</span>。我们把别人看过的风景，原封不动地走了一遍。
+    </p>
+
+    <!-- 金句大字引言 -->
+    <div class="pull-quote">
+      <p class="pq-text">“可那是别人的故事，不是你的。”</p>
+      <span class="pq-sub">算法把城市切成几个适合拍照的切片，我们就真的以为那是全部</span>
+    </div>
+
+    <p>
+      一座城市活了几百年、上千年，有它的地貌，有它的气候，有几十万人世代生活的规矩和脾气。<strong>人是到了，照片也有了，但好像只是换了个地方刷手机。</strong>
+    </p>
+
+    <!-- 视觉对比卡片 -->
+    <div class="contrast-grid">
+      <div class="contrast-box negative">
+        <span class="contrast-tag">［ 算法给的清单 ］</span>
+        <p class="contrast-content">
+          饱和度拉满的九宫格、排队两小时的热门机位、对照考卷打钩的日程表。
+        </p>
+      </div>
+      <div class="contrast-box positive">
+        <span class="contrast-tag">［ 被略过的现场 ］</span>
+        <p class="contrast-content">
+          石缝里顽强钻出的青苔、面馆师傅切肉的手法、吹过巷口的风声与真实的人间烟火。
+        </p>
+      </div>
+    </div>
+
+    <p>
+      直到很久以后，看到某张照片或者偶然读到一本书，才突然拍大腿：原来当年那个路口，藏着这么有意思的故事？
+    </p>
+    <p>
+      <strong>可那时候，你已经不在现场了。</strong>
+    </p>
+    <p>
+      我不想再要一份密密麻麻的打卡清单。这次，我只想重新带上好奇心。去看看眼前这座山、这条街、这顿饭背后真正动人的地方。
+    </p>
+
+    <h2>二、 那么，以什么样的视角才能看懂一个地方？</h2>
+
+    <p>
+      好奇心有了，但我很快遇到了下一个问题：面对一座陌生的城市，庞大、芜杂、深厚，我到底该以什么样的视角去看它？
+    </p>
+    <p>
+      如果不去追随网红打卡点，我是不是又会陷入漫无目的的盲转？我不想靠偶然的撞大运，更不想被零碎的推荐牵着鼻子走。
+    </p>
+    <p>
+      直到我翻开了中国的<strong>《方志学》</strong>。
+    </p>
+    <p>
+      从宋元到明清，古人给一座府、一个县编修志书，从来不是想到哪儿写到哪儿。翻开历朝历代的《府志》《县志》，体例永远是严谨对仗的八大卷帙：
+    </p>
+
+    <!-- 方志八大卷帙卡片 -->
+    <div class="fangzhi-banner">
+      <div class="fangzhi-title">✦ 历代方志八大卷帙</div>
+      <div class="fangzhi-chips">
+        <span class="fangzhi-chip">舆地</span>
+        <span class="fangzhi-chip">沿革</span>
+        <span class="fangzhi-chip">人物</span>
+        <span class="fangzhi-chip">营造</span>
+        <span class="fangzhi-chip">风俗</span>
+        <span class="fangzhi-chip">物产</span>
+        <span class="fangzhi-chip">艺文</span>
+        <span class="fangzhi-chip">市集</span>
+      </div>
+      <p class="fangzhi-desc">
+        地貌如何形成、历史如何演变、谁曾在此留下足迹、屋舍城池如何修筑、当地人敬畏什么神明、水土出产什么风物、山川刻着怎样的字句，以及晨昏集市里冒着怎样的市井烟火。
+      </p>
+    </div>
+
+    <p>
+      这是祖先在两千年的时间里，摸索出来描摹一块土地<span class="hl">最完整、不遗漏的骨架</span>。我想，放到今天也合适。
+    </p>
+
+    <!-- 八面体图谱卡片 -->
+    <figure class="figure-card">
+      <img src="assets/octahedron-cultural-matrix.svg" alt="人文旅行八面体结构图谱">
+      <figcaption>
+        <span>两千年中国方志体例骨架 · 人文旅行八面体</span>
+        <span class="tag">OCTAHEDRON MATRIX</span>
+      </figcaption>
+    </figure>
+
+    <p>
+      这八个切面，两两相对，咬合成一座城市的完整肌理：
+    </p>
+
+    <!-- 四大维度 2x2 咬合网格 -->
+    <div class="dimension-grid">
+      <div class="dim-card">
+        <div class="dim-head">✦ 时间的纵深｜沿革与人物</div>
+        <p class="dim-body">地名因何而改，城池因何而筑；又有谁曾在这里驻足，留下过行迹与抉择。</p>
+      </div>
+      <div class="dim-card">
+        <div class="dim-head">✦ 空间的底座｜地质与营造</div>
+        <p class="dim-body">山川地貌如何塑造了气候；当地人又怎样就地取材，用黄土、石头或海草盖起屋舍。</p>
+      </div>
+      <div class="dim-card">
+        <div class="dim-head">✦ 生活的根柢｜民俗与风物</div>
+        <p class="dim-body">这里的人敬畏什么神明，过什么样的节令；每天吃的这碗饭，又是哪方水土长出来的味道。</p>
+      </div>
+      <div class="dim-card">
+        <div class="dim-head">✦ 精神与当下｜文学与市井</div>
+        <p class="dim-body">古人在石碑与卷轴里写下了什么；而今天早晨的集市、黄昏的码头，正冒着怎样热气腾腾的营生。</p>
+      </div>
+    </div>
+
+    <h2>三、 骨架有了，然后呢？</h2>
+
+    <p>
+      有了这套骨架，看一个地方不再是盲人摸象。但随之而来的问题是：去哪里找这些信息？
+    </p>
+    <p>
+      古籍县志晦涩难读，学术专著门槛太高。但在今天的网络上，其实散落着大量极好的内容：
+    </p>
+    <ul class="feature-list" style="list-style:none; padding-left:0;">
+      <li style="position:relative; padding-left:1.5rem; margin-bottom:0.8rem; color:#553c32;">
+        <span style="position:absolute; left:0; color:var(--accent-red);">✦</span>电视台与专业制作组拍出的<strong>精品纪录片</strong>，把亿万年的地质演变和山川演化讲得清楚生动；
+      </li>
+      <li style="position:relative; padding-left:1.5rem; margin-bottom:0.8rem; color:#553c32;">
+        <span style="position:absolute; left:0; color:var(--accent-red);">✦</span>独立学者与文史爱好者写的<strong>网站博客</strong>，记录着鲜为人知的实地考据与老城掌故；
+      </li>
+      <li style="position:relative; padding-left:1.5rem; margin-bottom:0.8rem; color:#553c32;">
+        <span style="position:absolute; left:0; color:var(--accent-red);">✦</span><strong>B站、抖音</strong>上那些真正懂行的创作者，用镜头拆解古建梁架，重现古战场与贸易商道；
+      </li>
+      <li style="position:relative; padding-left:1.5rem; margin-bottom:0.8rem; color:#553c32;">
+        <span style="position:absolute; left:0; color:var(--accent-red);">✦</span><strong>小红书</strong>上也有那些走入偏远村落的行者，记录下老瓦当、手艺人与真实的人情烟火。
+      </li>
+    </ul>
+
+    <p>
+      这些好内容一直都在，只是被算法推荐的机位和滤镜打散了。我希望能把关于这八个维度的优质信息，尽可能搜集齐全。<strong>不用生硬的说教，而是用生动直白的方式，把事情的来龙去脉讲明白。</strong>
+    </p>
+    <p>
+      我喜欢带着疑问的感觉去学习，去探索。
+    </p>
+    <p>
+      从小到大，当我们心里揣着一个好奇的问题时，学习从来不是苦差事。<strong>带着“为什么”走在路上，眼睛是亮的，周围的一砖一瓦才会从无声的背景板，变成活生生、可以被理解的世界。</strong>
+    </p>
+
+    <!-- 趣味问题列表 -->
+    <div class="question-list">
+      <div class="question-item">
+        <span class="question-badge">Q1</span>
+        <p class="question-text">为什么这座边境小城的招牌，同时写着两种文字？</p>
+      </div>
+      <div class="question-item">
+        <span class="question-badge">Q2</span>
+        <p class="question-text">为什么山顶会蓄着这么大一汪天池？周围十六座山峰为什么围成一圈？</p>
+      </div>
+      <div class="question-item">
+        <span class="question-badge">Q3</span>
+        <p class="question-text">为什么端上一碗冷面时，桌上总要配一把剪刀？</p>
+      </div>
+      <div class="question-item">
+        <span class="question-badge">Q4</span>
+        <p class="question-text">为什么老城墙的转角，当年会特意修成圆弧形？</p>
+      </div>
+    </div>
+
+    <p>
+      光有文字和考据还不够，长篇大论很容易被丢在一边。<span class="hl">必须用有趣味的版画与图解，把这些问题的答案画出来，让人一眼就能看懂，一眼就能记住。</span>
+    </p>
+
+    <!-- 科普版画图解卡片 -->
+    <figure class="figure-card">
+      <img src="assets/travel-volcano-tianchi-infographic.jpg" alt="火山口天池地质成因手绘版画图解">
+      <figcaption>
+        <span>带着问题看世界 · 手绘版画图解“天池为什么是一汪盛在山顶的水”</span>
+        <span class="tag">INFOGRAPHIC</span>
+      </figcaption>
+    </figure>
+
+    <p>
+      所以，我想做一个产品。
+    </p>
+    <p>
+      我不想要又一个催人赶场的打卡软件，也不想要一个千篇一律的攻略生成器。
+    </p>
+    <p>
+      <strong>我想做一本真正属于旅人自己的书。</strong>在出发前，输入想去的地方，它以这套两千年的方志骨架为底，搜集全网深度的记录与故事，提炼出几个有趣的问题，配上好懂的插画，装订成册。
+    </p>
+    <p>
+      带着这本书出门。在路上核实自己的疑问，看懂真实的风景，然后，揣着属于自己的故事回来。
+    </p>
+
+  </article>
+
+  <footer class="post-footer">
+    <a href="writing.html?category=life" class="back">← 回到生活杂谈</a>
+    <span class="footer-note">带着疑问出门 ✦ 揣着故事回来</span>
+  </footer>
+
 </body>
 </html>

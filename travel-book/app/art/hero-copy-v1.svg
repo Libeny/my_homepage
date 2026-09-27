@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="440" viewBox="0 0 1600 440">
+  <style>
+    text { fill: #c9bfa9; font-family: 'Songti SC', 'Songti TC', serif; font-size: 46px; font-weight: 500; letter-spacing: 1px; }
+  </style>
+  <text x="800" y="78" text-anchor="middle">你可以照着攻略抵达一个地方，</text>
+  <text x="800" y="178" text-anchor="middle">却未必真正走进它。旅册会为你搜集一个地方</text>
+  <text x="800" y="278" text-anchor="middle">的故事、文化和日常，再</text>
+  <text x="800" y="378" text-anchor="middle">做成一本独属于你这趟旅行的书。</text>
+</svg>

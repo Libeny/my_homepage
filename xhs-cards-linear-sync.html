@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>小红书卡片 · Linear 架构深读</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+  :root {
+    --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+    --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+    --red:#694B40; --cream:#FBF2E3;
+    --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+    --paper:#FFFDF8; --line:#E7D7C4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E5E1D8; font-family: 'Noto Sans SC', 'PingFang SC', sans-serif; }
+  .card {
+    width: 1080px; height: 1440px;
+    margin: 40px auto;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 18% 5%, var(--yellow-soft) 0%, transparent 55%),
+      radial-gradient(ellipse at 88% 95%, rgba(189,231,229,0.38) 0%, transparent 55%),
+      var(--cream);
+    color: var(--ink);
+    padding: 56px 76px 44px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  }
+  .c-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Fira Code', monospace; font-size: 20px; letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 18px;
+    flex-shrink: 0;
+  }
+  .c-body {
+    flex: 1;
+    padding: 20px 0 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 18px;
+  }
+  .c-foot {
+    font-family: 'Fira Code', monospace; font-size: 19px; letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 1px dashed var(--line);
+    padding-top: 16px;
+    flex-shrink: 0;
+  }
+  .c-foot .hand { font-family: 'Caveat', cursive; font-size: 30px; color: var(--blue-deep); letter-spacing: 0; }
+
+  /* 标题体系 */
+  h1.cardtitle {
+    font-family: 'Noto Serif SC', serif; font-weight: 900;
+    font-size: 54px; line-height: 1.32; color: var(--ink);
+  }
+  h1.cardtitle em, h2 em, .hl {
+    font-style: normal;
+    background: linear-gradient(to top, var(--blue) 44%, transparent 44%);
+    padding: 0 6px;
+  }
+  .subtitle {
+    font-family: 'Noto Serif SC', serif; font-weight: 700;
+    font-size: 28px; color: var(--ink-light); margin-top: 12px; line-height: 1.5;
+  }
+  .lede {
+    margin: 14px 0 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 7px solid var(--blue-deep);
+    border-radius: 6px 20px 20px 6px;
+    padding: 20px 26px;
+    font-size: 23px; line-height: 1.82; color: var(--ink-light);
+    box-shadow: 0 4px 16px rgba(105,75,64,0.06);
+  }
+  .lede strong { color: var(--ink); }
+
+  /* 分隔横条 */
+  .rule {
+    display: flex; align-items: center; gap: 12px; margin: 12px 0 10px;
+  }
+  .rule::before {
+    content: ''; width: 44px; height: 3px; background: var(--blue-deep); border-radius: 2px;
+  }
+  .rule::after {
+    content: ''; flex: 1; height: 1px; border-bottom: 1px dashed var(--line);
+  }
+
+  h2 {
+    font-family: 'Noto Serif SC', serif; font-weight: 900;
+    font-size: 40px; line-height: 1.35; margin-bottom: 10px; color: var(--ink);
+  }
+  p { font-size: 24px; line-height: 1.8; color: var(--ink); margin: 6px 0; }
+  p.dim { color: var(--ink-light); font-size: 22px; line-height: 1.75; }
+
+  /* 卡片与盒子 */
+  .box {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 16px; padding: 20px 24px; margin: 0;
+    box-shadow: 0 3px 14px rgba(105,75,64,0.05);
+    font-size: 23px; line-height: 1.8;
+  }
+  .box .tag {
+    display: inline-block; font-family: 'Fira Code', monospace; font-size: 18px;
+    letter-spacing: 0.1em; color: #3F7A77; background: var(--blue-soft);
+    border: 1px solid var(--blue-deep); border-radius: 6px; padding: 2px 10px;
+    margin-bottom: 8px; font-weight: 600;
+  }
+  pre {
+    font-family: 'Fira Code', monospace; font-size: 21px; line-height: 1.65;
+    background: var(--paper); border: 1px solid var(--line);
+    border-left: 7px solid var(--blue-deep); border-radius: 6px 14px 14px 6px;
+    padding: 16px 22px; margin: 0; color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  /* 清单 */
+  ul.tick { list-style: none; margin: 8px 0; }
+  ul.tick li {
+    font-size: 23px; line-height: 1.72; padding-left: 44px; position: relative; margin: 10px 0;
+  }
+  ul.tick li::before {
+    content: '✦'; position: absolute; left: 4px; top: 1px; color: var(--blue-deep); font-size: 22px;
+  }
+  ul.tick li strong { color: var(--ink); margin-right: 6px; }
+
+  /* 拍立得画框配图 */
+  figure.polaroid {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 10px 6px; margin: 6px 0 0;
+    box-shadow: 0 5px 20px rgba(105,75,64,0.09);
+    transform: rotate(-0.2deg);
+  }
+  figure.polaroid img { width: 100%; border-radius: 4px; display: block; object-fit: cover; }
+  figure.polaroid figcaption {
+    display: flex; justify-content: space-between; align-items: baseline; padding: 8px 4px 2px;
+  }
+  figure.polaroid .hand { font-family: 'Caveat', cursive; font-size: 26px; color: var(--blue-deep); }
+  figure.polaroid .no { font-family: 'Fira Code', monospace; font-size: 16px; letter-spacing: 0.12em; color: var(--ink-faint); }
+
+  .versus { display: flex; flex-direction: column; gap: 12px; margin: 0; }
+  .versus .col {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; font-size: 22px; line-height: 1.72;
+    border-left: 7px solid var(--blue-deep);
+  }
+  .versus .col .cap { font-family: 'Fira Code', monospace; font-size: 18px; letter-spacing: 0.08em; color: #3F7A77; display: block; margin-bottom: 4px; font-weight: 600; }
+  .versus .col.bad { border-left-color: #D69E96; }
+  .versus .col.bad .cap { color: #C0392B; }
+
+  /* 策略表格 / 矩阵 */
+  .strategy-grid { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+  .strategy-row {
+    display: flex; align-items: center; gap: 14px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px;
+    font-size: 22px; line-height: 1.5;
+  }
+  .strategy-row code {
+    font-family: 'Fira Code', monospace; font-size: 19px; color: #3F7A77;
+    background: var(--blue-soft); border: 1px solid var(--blue-deep);
+    padding: 2px 10px; border-radius: 6px; font-weight: 600;
+    flex-shrink: 0; min-width: 220px; text-align: center;
+  }
+  .strategy-row span { color: var(--ink); flex: 1; }
+
+  /* 结构化对比表 */
+  .comparison-table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    table-layout: fixed; border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden; margin: 8px 0;
+    background: var(--paper);
+  }
+  .comparison-table th, .comparison-table td {
+    padding: 12px 16px; text-align: left; vertical-align: middle;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .comparison-table th:last-child, .comparison-table td:last-child { border-right: 0; }
+  .comparison-table tr:last-child th, .comparison-table tr:last-child td { border-bottom: 0; }
+  .comparison-table thead th {
+    font-family: 'Noto Serif SC', serif; font-size: 21px; font-weight: 700;
+    background: var(--blue-soft); color: var(--ink);
+  }
+  .comparison-table thead th:first-child { width: 22%; background: #fffdf8; }
+  .comparison-table thead th:last-child { background: var(--yellow-soft); }
+  .comparison-table tbody th {
+    font-family: 'Fira Code', monospace; font-size: 18px; letter-spacing: 0.08em;
+    color: var(--ink-faint); background: #fffdf8; font-weight: 600;
+  }
+  .comparison-table td { font-size: 20px; line-height: 1.55; color: var(--ink); }
+
+  /* 流程图与泳道 */
+  .mechanism-map {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px; margin: 8px 0;
+    box-shadow: 0 4px 18px rgba(105,75,64,0.06);
+  }
+  .map-lane { padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; }
+  .map-lane:last-child { margin-bottom: 0; }
+  .map-lane.old { background: var(--yellow-soft); border: 1px solid #EAC8CD; }
+  .map-lane.new { background: var(--blue-soft); border: 1px solid var(--blue-deep); }
+  .lane-head {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+  }
+  .lane-head strong { font-family: 'Noto Serif SC', serif; font-size: 21px; font-weight: 700; color: var(--ink); }
+  .lane-head span { font-family: 'Fira Code', monospace; font-size: 16px; letter-spacing: 0.08em; color: var(--ink-light); }
+  .map-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: stretch; }
+  .map-steps.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .map-step {
+    position: relative; padding: 10px 8px; background: rgba(255,253,248,0.92);
+    border: 1px solid var(--line); border-radius: 8px; text-align: center;
+  }
+  .map-step:not(:last-child)::after {
+    content: '➔'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+    z-index: 2; color: #3F7A77; font-size: 15px; font-weight: bold;
+  }
+  .map-lane.old .map-step:not(:last-child)::after { color: #C0392B; }
+  .map-step strong { display: block; font-family: 'Noto Serif SC', serif; font-size: 19px; margin-bottom: 3px; color: var(--ink); }
+  .map-step small { display: block; color: var(--ink-light); font-size: 16px; line-height: 1.35; }
+
+  /* 场景与场面卡片 */
+  .scene-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }
+  .scene-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 16px; font-size: 21px; line-height: 1.6;
+  }
+  .scene-card .scene-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .scene-card .num {
+    font-family: 'Fira Code', monospace; font-size: 17px; font-weight: 700;
+    color: #3F7A77; background: var(--blue-soft); padding: 1px 8px; border-radius: 4px;
+    border: 1px solid var(--blue-deep);
+  }
+  .scene-card .scene-title { font-weight: 700; color: var(--ink); font-size: 21px; }
+  .scene-card .scene-desc { color: var(--ink-light); font-size: 20px; margin-bottom: 4px; }
+  .scene-card .scene-fix {
+    background: rgba(189,231,229,0.22); border-left: 4px solid var(--blue-deep);
+    padding: 4px 10px; border-radius: 0 6px 6px 0; font-size: 20px; color: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<!-- 01 封面 + 爆点场景大图 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h1 class="cardtitle">Linear 架构深读：<br>Agent 跑了八分钟，<em>刷新一下就没了？</em></h1>
+      <p class="subtitle">聊聊 AI 时代的端云协同基本功</p>
+      <div class="lede">
+        长耗时 Agent 频发，为什么绝大多数产品一断网、一刷新现场就蒸发？通读 Linear 同步引擎（LSE）逆向实现：看他们如何用像客户端数据库一样的架构，做到<strong>抗断点、抗交错、多端强一致</strong>。
+      </div>
+    </div>
+    
+    <div class="rule"></div>
+    
+    <div>
+      <h2 style="font-size:32px;margin-bottom:6px;">一、从一个让人崩溃的现场说起</h2>
+      <p style="margin:4px 0 8px;font-size:23px;line-height:1.75;">电脑刚改完手机还是旧的；更糟的是长耗时 AI Agent：跑了 8 分钟，浏览器意外刷新，<strong>所有执行现场瞬间蒸发</strong>。根源是架构默认值：状态只活在脆弱的网络长连接里。</p>
+    </div>
+    
+    <figure class="polaroid" style="margin-top:4px;">
+      <img src="assets/fig-lse-0-refresh.jpg" alt="等待网络与刷新灾难" style="max-height:480px;">
+      <figcaption>
+        <span class="hand">state vanished on page refresh</span>
+        <span class="no">FIG.00 · 状态蒸发与网络断点</span>
+      </figcaption>
+    </figure>
+  </div>
+  <div class="c-foot"><span class="hand">local-first &amp; sync engine</span><span>FIG.00 · 封面</span></div>
+</section>
+
+<!-- 02 为什么传统 Web 这么脆弱？拿原生软件当参照 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>二、为什么 Web 总像半成品？拿原生软件当参照</h2>
+      <p>你在桌面用 VS Code 或记事本打字，从不需要等网络转圈。但为什么多数 Web 和 AI 产品一卡顿就像瘫痪了一样？</p>
+    </div>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>对比维度</th>
+          <th>本地优先 Local-first（Linear）</th>
+          <th>传统 Web 架构（远端真相）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>01 / 响应</th>
+          <td><strong>0ms 立即生效</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：勾选完成任务，复选框 0ms 秒变绿勾，网络退为后台管道</small></td>
+          <td><strong>转圈等待网络</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：点一次卡半秒，网络稍差整屏转菊花，连击导致重复调用</small></td>
+        </tr>
+        <tr>
+          <th>02 / 离线</th>
+          <td><strong>断网照常改</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：进隧道断网照常建任务、拖看板，出隧道后台静默补传</small></td>
+          <td><strong>弹窗置灰拦截</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：网络一断弹窗禁止输入，手滑刷新所有正在输入的内容蒸发</small></td>
+        </tr>
+        <tr>
+          <th>03 / 撤销</th>
+          <td><strong>撤销重做白送</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：手抖误删卡片，按 Cmd+Z 从内存历史瞬间回滚，不求网络</small></td>
+          <td><strong>极难实现撤销</strong><br><small style="color:var(--ink-light);display:block;margin-top:2px;">实例：深怕并发脏数据，不敢给撤销能力，全靠用户手动重填</small></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box">
+      <span class="tag">ROLES · 四个核心角色各管一段</span>
+      <div class="map-steps">
+        <div class="map-step">
+          <strong>事务队列</strong>
+          <small>管上行：本地操作安全打包异步发射</small>
+        </div>
+        <div class="map-step">
+          <strong>全局序号</strong>
+          <small>管下行：凭 syncId 单调递增补齐</small>
+        </div>
+        <div class="map-step">
+          <strong>Rebase 引擎</strong>
+          <small>管交错：并发撞车时动态重新对齐</small>
+        </div>
+        <div class="map-step">
+          <strong>按需加载</strong>
+          <small>管规模：几十万实体首屏秒开不卡</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">four roles, one engine</span><span>FIG.01 · 花名册</span></div>
+</section>
+
+<!-- 03 事务队列 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>三、事务队列：先改内存，再排队落盘</h2>
+      <p>把负责人改成 Bob，普通网页先发请求等后端回包；Linear 的做法是：<strong>内存模型 0ms 先改，界面瞬间变，网络退成后台管道</strong>。</p>
+    </div>
+
+    <div class="mechanism-map">
+      <div class="lane-head">
+        <strong>上行写入流水线 · 内存第一，落盘第二</strong>
+        <span>OUTBOX PIPELINE</span>
+      </div>
+      <div class="map-steps">
+        <div class="map-step">
+          <strong>01 UI 操作</strong>
+          <small>负责人 ➔ Bob</small>
+        </div>
+        <div class="map-step">
+          <strong>02 内存变更</strong>
+          <small>0ms 界面瞬间呈现</small>
+        </div>
+        <div class="map-step">
+          <strong>03 本地落盘</strong>
+          <small>写进 IndexedDB 表</small>
+        </div>
+        <div class="map-step">
+          <strong>04 后台发射</strong>
+          <small>批量合并发给 Server</small>
+        </div>
+      </div>
+    </div>
+
+    <figure class="polaroid">
+      <img src="assets/lse-cached-transactions.png" alt="DevTools 里的 _transactions 表" style="max-height:410px;">
+      <figcaption><span class="hand">the queue is real in IndexedDB</span><span class="no">FIG.02 · 队列真身（逆向实录）</span></figcaption>
+    </figure>
+
+    <div class="box">
+      <span class="tag">为什么必须落盘？</span>
+      <p style="margin:0;font-size:21px;line-height:1.65;">
+        写进本地 IndexedDB 后，即便用户<strong>突发合上笔记本、浏览器闪退或关机</strong>，改动依然牢固躺在本地。下次打开联网瞬间，同步器自动把积压的操作送出，零丢数据。
+      </p>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">memory first, queue second</span><span>FIG.02 · 事务队列</span></div>
+</section>
+
+<!-- 04 一次操作六种走法 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>四、网络不讲武德，引擎如何确定闭环？</h2>
+      <p class="dim">现实网络充满意外：断网、丢包、权限拒绝、并发冲突。事务队列给每种糟糕场面都准备了确定结局：</p>
+    </div>
+
+    <div class="scene-list">
+      <div class="scene-card">
+        <div class="scene-head">
+          <span class="num">01</span>
+          <span class="scene-title">场面：在高铁过隧道突发断网 ➔ RETRY</span>
+        </div>
+        <div class="scene-desc">你继续连续点击操作，毫无阻滞感。</div>
+        <div class="scene-fix"><strong>闭环解法</strong>：事务在本地持久化，引擎开启静默退避重试，绝不弹窗打扰用户，强退重启也丢不了。</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-head">
+          <span class="num">02</span>
+          <span class="scene-title">场面：改完被服务端权限拒绝 ➔ ROLLBACK</span>
+        </div>
+        <div class="scene-desc">如果只改内存，被拒绝后界面就会残留幽灵脏数据。</div>
+        <div class="scene-fix"><strong>闭环解法</strong>：每个事务都携带修改前的快照（baseSnapshot），被拒时精准撤回，界面平滑复原。</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-head">
+          <span class="num">03</span>
+          <span class="scene-title">场面：修改在半路被同事抢先了 ➔ REBASE</span>
+        </div>
+        <div class="scene-desc">你在改标题的同时，同事已经把该任务归档了。</div>
+        <div class="scene-fix"><strong>闭环解法</strong>：不粗暴覆盖，而是把你的意图在新事实之上重新解释重放，意图不丢。</div>
+      </div>
+    </div>
+    
+    <figure class="polaroid">
+      <img src="assets/fig-lse-1-offline.jpg" alt="断网照改" style="max-height:360px;">
+      <figcaption><span class="hand">offline? keep typing, queue it</span><span class="no">FIG.03 · 本地 Outbox 模式</span></figcaption>
+    </figure>
+  </div>
+  <div class="c-foot"><span class="hand">retry, rollback, rebase</span><span>FIG.03 · 闭环韧性</span></div>
+</section>
+
+<!-- 05 全局序号 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>五、全局序号：告别全量拉取，一个数字追平多端</h2>
+      <p>换了设备登录，或离线三天重新联网，传统网页只能粗暴全量重新拉一遍几千条数据，卡顿白屏；Linear 借鉴 Git，只用一个自增数字：</p>
+    </div>
+
+    <div class="mechanism-map">
+      <section class="map-lane old">
+        <div class="lane-head">
+          <strong>传统做法：暴力全量重拉</strong>
+          <span>BRUTE FORCE FETCH</span>
+        </div>
+        <div class="map-steps">
+          <div class="map-step"><strong>断线重连</strong><small>网络恢复</small></div>
+          <div class="map-step"><strong>全量请求</strong><small>拉取所有几千条</small></div>
+          <div class="map-step"><strong>首屏白屏</strong><small>等待 3~5 秒</small></div>
+          <div class="map-step"><strong>重刷 DOM</strong><small>闪烁且浪费流量</small></div>
+        </div>
+      </section>
+
+      <section class="map-lane new">
+        <div class="lane-head">
+          <strong>Linear 做法：游标增量对账</strong>
+          <span>SYNC BY SYNCID</span>
+        </div>
+        <div class="map-steps">
+          <div class="map-step"><strong>服务端定序</strong><small>事件单调递增</small></div>
+          <div class="map-step"><strong>端侧记游标</strong><small>lastSyncId = 100</small></div>
+          <div class="map-step"><strong>只拉增量</strong><small>请求 100 之后</small></div>
+          <div class="map-step"><strong>批量回放</strong><small>0 秒无感补平</small></div>
+        </div>
+      </section>
+    </div>
+
+    <figure class="polaroid">
+      <img src="assets/fig-lse-2-syncid.jpg" alt="全局序号与增量对账" style="max-height:380px;">
+      <figcaption><span class="hand">catch up from your cursor</span><span class="no">FIG.04 · 游标对账</span></figcaption>
+    </figure>
+
+    <div class="box">
+      <span class="tag">对账哲学</span>
+      <p style="margin:0;font-size:21px;line-height:1.65;">
+        省去复杂的向量时钟。服务端作为全局定序中枢，端侧只需带着游标问一句：“把上次之后的变更发给我”，极低流量秒级对齐。
+      </p>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">incremental sync by id</span><span>FIG.04 · 增量对账</span></div>
+</section>
+
+<!-- 06 冲突仲裁与按需加载 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>六、两人同时改同一行，凭什么不打架？</h2>
+      <p>两人同时改同一张卡片，客户端表达的是<strong>意图（我要改什么）</strong>，服务端裁定的是<strong>事实（以谁为准）</strong>。服务端是唯一终审法官（Last Writer Wins）。</p>
+    </div>
+
+    <div class="mechanism-map">
+      <div class="lane-head">
+        <strong>LWW 仲裁与自动收敛机制</strong>
+        <span>LAST WRITER WINS</span>
+      </div>
+      <div class="map-steps">
+        <div class="map-step">
+          <strong>Alice 端发起</strong>
+          <small>t1: 改为 Fix Bug</small>
+        </div>
+        <div class="map-step">
+          <strong>Bob 端发起</strong>
+          <small>t2: 改为 WIP (先到)</small>
+        </div>
+        <div class="map-step">
+          <strong>服务端仲裁</strong>
+          <small>Bob 胜出，广播 105</small>
+        </div>
+        <div class="map-step">
+          <strong>Alice 自动收敛</strong>
+          <small>收到广播覆写，不分叉</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <span class="tag">SCALING · 5 级按需加载矩阵（海量数据不卡顿）</span>
+      <div class="strategy-grid">
+        <div class="strategy-row">
+          <code>instant</code>
+          <span>核心元数据（ID、Title、Status）启动即载，首屏 0ms 秒开</span>
+        </div>
+        <div class="strategy-row">
+          <code>lazy / partial</code>
+          <span>正文描述、列表摘要快照，滚动进入视口才异步拉取</span>
+        </div>
+        <div class="strategy-row">
+          <code>explicitlyRequested</code>
+          <span>巨型附件、操作历史审计日志，仅点击弹窗时拉取</span>
+        </div>
+        <div class="strategy-row">
+          <code>local</code>
+          <span>端侧临时草稿、搜索过滤偏好，只留在本地存储，绝不上云</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <span class="tag">边界与账单 · 架构收益公式</span>
+      <p style="margin:0;font-size:21px;line-height:1.65;">
+        收益公式：<strong>价值 = 修改频率 × 协同端数 × 断网容忍度</strong>。普通内容站不需要，但协作看板、协同编辑与高频 Agent 离不开它。
+      </p>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">server is the referee</span><span>FIG.05 · 边界与规模</span></div>
+</section>
+
+<!-- 07 AI 时代延伸 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>七、AI 时代延伸：给 Agent 补上端云课</h2>
+      <p>现在的 Agent 产品普遍存在断点病：一个任务跑了 8 分钟，状态只活在浏览器的一条 SSE 长连接里。网络一抖或手滑刷新，一切化为乌有。</p>
+    </div>
+
+    <div class="mechanism-map">
+      <section class="map-lane old">
+        <div class="lane-head">
+          <strong>脆弱的传统 SSE 模式</strong>
+          <span>FRAGILE STREAMING</span>
+        </div>
+        <div class="map-steps cols-3">
+          <div class="map-step"><strong>跑了 8 分钟</strong><small>状态全在浏览器内存</small></div>
+          <div class="map-step"><strong>手滑按刷新</strong><small>SSE 长连接瞬间切断</small></div>
+          <div class="map-step"><strong>全屏变白清空</strong><small>现场蒸发，全盘白跑</small></div>
+        </div>
+      </section>
+
+      <section class="map-lane new">
+        <div class="lane-head">
+          <strong>LSE 范式：带游标的持久化事件流</strong>
+          <span>EVENT SOURCING RESILIENCE</span>
+        </div>
+        <div class="map-steps cols-3">
+          <div class="map-step"><strong>服务端写事件流</strong><small>每步落盘分配自增 ID</small></div>
+          <div class="map-step"><strong>端侧只记游标</strong><small>断线刷新保留 lastId</small></div>
+          <div class="map-step"><strong>增量断点续传</strong><small>0 秒瞬间完美复原现场</small></div>
+        </div>
+      </section>
+    </div>
+    
+    <figure class="polaroid">
+      <img src="assets/fig-lse-3-agent-events.jpg" alt="Agent 事件流与端云对账" style="max-height:360px;">
+      <figcaption><span class="hand">same illness, same medicine</span><span class="no">FIG.06 · Agent 状态流持久化</span></figcaption>
+    </figure>
+
+    <div class="box">
+      <span class="tag">解法落地</span>
+      <p style="margin:0;font-size:21px;line-height:1.65;">
+        同一副药：把 Agent 执行沉淀为服务端自增事件流，端侧断点续传，彻底终结长任务刷新白跑的灾难。
+      </p>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">agent needs sync engine too</span><span>FIG.06 · Agent 延伸</span></div>
+</section>
+
+<!-- 08 自检清单与收束 -->
+<section class="card">
+  <div class="c-top"><span>WRITING · 端云协同 / 架构深读</span><span>← 技术文章</span></div>
+  <div class="c-body">
+    <div>
+      <h2>八、端侧工程师自检清单 &amp; 决策罗盘</h2>
+      <p class="dim">在立项与重构前，用这张清单核对你的端云协同设计：</p>
+    </div>
+
+    <div class="box">
+      <span class="tag">CHECKLIST · 核心机制自检</span>
+      <ul class="tick" style="margin:2px 0;">
+        <li><strong>交互响应</strong>：核心操作是否在 0ms 内在本地生效？</li>
+        <li><strong>异常双轨</strong>：端侧是否严格区分网络 Retry 与业务 Rollback？</li>
+        <li><strong>本地队列</strong>：断网连续操作后杀掉 App 重启，队列还在不在？</li>
+        <li><strong>并发对齐</strong>：别人同时修改时，你的改动是悄悄被吞，还是平滑 Rebase？</li>
+        <li><strong>多端对账</strong>：断线重连靠全量拉取，还是靠递增 syncId 增量补课？</li>
+        <li><strong>数据分级</strong>：是否做了 instant / lazy 分层，避免首屏拉爆内存？</li>
+      </ul>
+    </div>
+
+    <div class="versus">
+      <div class="col">
+        <span class="cap">何时必须上 Local-First？</span>
+        多端实时协同、弱网高频编辑、长耗时 Agent 状态流。
+      </div>
+      <div class="col bad">
+        <span class="cap">何时坚决不上？</span>
+        纯内容展示站、一次性支付提交、对全局库存有强锁校验的场景。
+      </div>
+    </div>
+
+    <div class="box">
+      <span class="tag">终局判断</span>
+      <p style="margin:0;font-size:21px;line-height:1.7;">
+        优秀的端云协同架构，不是为了在完美网络下跑得更快，而是为了在现实充满断点、颠簸与并发的网络泥潭里，依然能保持绝对的优雅与从容。
+      </p>
+    </div>
+  </div>
+  <div class="c-foot"><span class="hand">save this checklist</span><span>FIG.07 · 清单收束</span></div>
+</section>
+
+</body>
+</html>
+

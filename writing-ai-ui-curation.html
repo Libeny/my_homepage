@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5 个让 Claude Code 抄作业的封神 UI 库 · 木鱼拓哉の写作本</title>
+  <meta name="description" content="AI 写的界面塑料感很强？写代码通常不是最难的，审美才容易卡人。整理 5 个适合交给 Claude Code、Codex 抄实现的封神 UI 库与开箱即用 Agent Skill。">
+
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+  <style>
+    :root {
+      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
+      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
+      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
+      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
+      --paper:#FFFDF8; --line:#E7D7C4;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
+        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
+        var(--cream);
+      color: var(--ink);
+      line-height: 1.9;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- 顶部条 ---------- */
+    .topbar {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-faint);
+    }
+    .back {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: color 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+    .back:hover { color: var(--blue-deep); }
+
+    /* ---------- 文章头 ---------- */
+    .post-head {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 0;
+    }
+    .post-head h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5.5vw, 2.9rem);
+      line-height: 1.35;
+      margin: 1.1rem 0 0.7rem;
+    }
+    .post-head h1 em {
+      font-style: normal;
+      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
+      padding: 0 4px;
+    }
+    .meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+    }
+    .lede {
+      margin-top: 2rem;
+      padding: 1.4rem 1.6rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 4px 14px 14px 4px;
+      color: var(--ink-light);
+      font-size: 1.02rem;
+      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
+    }
+
+    /* ---------- 正文容器 ---------- */
+    article {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 5rem;
+    }
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: 1.75rem;
+      line-height: 1.4;
+      margin: 3.6rem 0 1.2rem;
+      padding-top: 1.2rem;
+      border-top: 1px dashed var(--line);
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    h2 .num {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.2rem;
+      color: var(--blue-deep);
+      font-weight: 700;
+    }
+    h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 1.22rem;
+      margin: 1.8rem 0 0.8rem;
+    }
+    p { margin: 1.15rem 0; color: var(--ink); text-align: justify; }
+    strong { color: var(--ink); font-weight: 700; }
+    ul, ol { margin: 1rem 0 1.5rem 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+
+    /* 引用块 */
+    blockquote {
+      margin: 1.8rem 0;
+      padding: 1.2rem 1.6rem;
+      background: rgba(189,231,229,0.18);
+      border-left: 4px solid var(--blue-deep);
+      border-radius: 0 12px 12px 0;
+      font-size: 0.98rem;
+      color: var(--ink-light);
+      font-style: italic;
+    }
+
+    /* 卡片式展示容器 */
+    .showcase-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 4px 20px rgba(105,75,64,0.06);
+    }
+    .showcase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .site-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      color: #3F7A77;
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-deep);
+      border-radius: 6px;
+      padding: 2px 10px;
+    }
+    .site-link {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: var(--red);
+      text-decoration: none;
+      border-bottom: 1px dashed currentColor;
+    }
+    .showcase-img-wrap {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(105,75,64,0.1);
+      margin: 1rem 0;
+      background: #0f0f11;
+    }
+    .showcase-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.4s var(--ease-out);
+    }
+    .showcase-img-wrap:hover img {
+      transform: scale(1.015);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 1.2rem;
+    }
+    .feat-item {
+      background: rgba(244,207,214,0.22);
+      border: 1px solid rgba(244,207,214,0.6);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+    }
+    .feat-item code {
+      font-family: 'Fira Code', monospace;
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    /* 代码与 Prompt 块 */
+    pre {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.75;
+      background: #251c19;
+      color: #fdfaf6;
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      margin: 1.4rem 0;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88em;
+      background: rgba(105,75,64,0.08);
+      color: var(--red);
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* 尾部 */
+    .foot-note {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px dashed var(--line);
+      font-size: 0.9rem;
+      color: var(--ink-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .signature {
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      color: var(--blue-deep);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="label">FRONTEND · TASTE · AGENT</div>
+    <a href="writing.html" class="back">← 返回文章列表</a>
+  </header>
+
+  <header class="post-head">
+    <div class="meta">
+      <span>2026-09-27</span>
+      <span>·</span>
+      <span>10 MIN READ</span>
+      <span>·</span>
+      <span>AI CODING &amp; TASTE</span>
+    </div>
+    <h1>5 个让 Claude Code <em>抄作业</em> 的封神 UI 库</h1>
+    <div class="lede">
+      写代码通常不是最难的，界面审美才容易卡人。大家都感觉得到：大模型默认写出来的 UI 塑料感极强，泛滥的蓝紫渐变和圆角大卡片让人审美疲劳。想要让 Claude Code、Codex 这类 Agent 写出真正有手感、有呼吸感的现代界面，最好的办法就是把这 5 个顶尖 UI 库直接喂给它当“灵感母体”。
+    </div>
+  </header>
+
+  <article>
+    <p>最近 X 上有条很火的观点：<strong>写逻辑和业务代码往往是 AI 的拿手好戏，但界面审美才是卡住产品质感的真正门槛</strong>。很多人习惯让 AI 从零脑补样式，结果生成一堆像上个世代外包后台一样的千篇一律界面。其实最聪明的做法，是直接把经过审美验证的优质组件库交给 Agent，让它找组件、抄实现、剥离颜色变量，再丝滑放进项目里。</p>
+
+    <p>本文整理了 5 个风格各异、直击 Agentic 编程痛点的顶级 UI 资源，并附带一套开箱即用的 GitHub Agent Skill，教你的 Agent 自动按意图选型。</p>
+
+    <!-- 1. Beautiful UI -->
+    <h2><span class="num">01</span> Beautiful UI — AI 原生界面的设计原语</h2>
+    <div class="showcase-card">
+      <div class="showcase-header">
+        <span class="site-tag">AI-Native · Primitives</span>
+        <a href="https://beautifului.dev" target="_blank" rel="noopener" class="site-link">beautifului.dev ↗</a>
+      </div>
+      <p>由 Turbo 设计工作室打造，专门为<strong>大模型原生交互、Agent 工作台</strong>量身定制的组件库。做 AI 产品时不要再手写简陋的转圈 loading 了，它把大模型交互拆解成了极具质感的设计原语。</p>
+      
+      <div class="showcase-img-wrap">
+        <img src="assets/ui-curation/beautifului-preview.png" alt="Beautiful UI 界面展示">
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-item"><code>Thinking State</code><br>可展开折叠的多步骤推理链与耗时计时器</div>
+        <div class="feat-item"><code>Streaming Text</code><br>流式打字输出，集成内联 Sources 来源和追问</div>
+        <div class="feat-item"><code>Tool Chips</code><br>工具调用、代码修改的紧凑胶囊状态条</div>
+        <div class="feat-item"><code>Approval Card</code><br>Human-in-the-loop 人类审核与高危确认卡片</div>
+        <div class="feat-item"><code>Prompt Bar</code><br>带 @ 知识库、/ 快捷指令与模型切换的现代输入栏</div>
+        <div class="feat-item"><code>Diff Table</code><br>AI 自动变更表格数据的即时 Diff 对比视图</div>
+      </div>
+    </div>
+
+    <!-- 2. beUI -->
+    <h2><span class="num">02</span> beUI — 动效丝滑的现代 React 组件库</h2>
+    <div class="showcase-card">
+      <div class="showcase-header">
+        <span class="site-tag">Framer Motion · Tailwind · shadcn CLI</span>
+        <a href="https://beui.dev" target="_blank" rel="noopener" class="site-link">beui.dev ↗</a>
+      </div>
+      <p>超过 125 个基于 <strong>Framer Motion + Tailwind CSS</strong> 的现代交互组件，完全支持通过 shadcn CLI（<code>npx shadcn add @beui/...</code>）直接将代码拷入本地项目。拥有类似 Apple 原生般的弹性形变与触感。</p>
+      
+      <div class="showcase-img-wrap">
+        <img src="assets/ui-curation/beui-preview.png" alt="beUI 界面展示">
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-item"><code>Dynamic Island</code><br>仿 iOS 灵动岛的弹性胶囊形变与实时状态更新</div>
+        <div class="feat-item"><code>Morphing Modal</code><br>多步骤无感切换、高度平滑自适应的形变弹窗</div>
+        <div class="feat-item"><code>macOS Dock</code><br>带弹性指示器与微缩放手感的底部悬浮坞</div>
+        <div class="feat-item"><code>Animated Toast</code><br>具备空间堆叠感与滑动移除物理特性的消息通知</div>
+        <div class="feat-item"><code>Tilt Card</code><br>随光标位置 3D 浮动与动态眩光的高光卡片</div>
+        <div class="feat-item"><code>Animated Charts</code><br>流动性热力图、盘口深度、漏斗图等高阶数据图表</div>
+      </div>
+    </div>
+
+    <!-- 3. Rare UI -->
+    <h2><span class="num">03</span> Rare UI — 打破同质化的稀有创意库</h2>
+    <div class="showcase-card">
+      <div class="showcase-header">
+        <span class="site-tag">Creative · Signature UI · shadcn registry</span>
+        <a href="https://rareui.com" target="_blank" rel="noopener" class="site-link">rareui.com ↗</a>
+      </div>
+      <p>如果你讨厌目前千篇一律的 SaaS 管理台风格，想要让个人主页、产品 Landing Page 拥有让人一眼记住的“核心记忆点”，Rare UI 就是绝佳的灵感宝库。纯代码所有权，开箱即改。</p>
+      
+      <div class="showcase-img-wrap">
+        <img src="assets/ui-curation/rareui-showcase-complete.png" alt="Rare UI 官方 Hero 与标志性组件展示（文件夹、果冻导航、吸附侧栏、重力文字）">
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-item"><code>folder-component</code><br>极具拟物感的 3D 展开/收拢式交互文件夹</div>
+        <div class="feat-item"><code>proximity-sidebar</code><br>根据鼠标移动距离产生自适应感应与吸附的侧边栏</div>
+        <div class="feat-item"><code>family-drawer</code><br>丝滑如流体的高质感非标抽屉</div>
+        <div class="feat-item"><code>gravity-letters</code><br>物理掉落与碰撞检测的趣味文本动效</div>
+        <div class="feat-item"><code>matrix-orb</code><br>极客风流体与动态空间球体组件</div>
+      </div>
+    </div>
+
+    <!-- 4. Transitions -->
+    <h2><span class="num">04</span> Transitions.dev — 专治动画僵硬的物理缓动系统</h2>
+    <div class="showcase-card">
+      <div class="showcase-header">
+        <span class="site-tag">Motion Tokens · AI Skill · Physics</span>
+        <a href="https://transitions.dev" target="_blank" rel="noopener" class="site-link">transitions.dev ↗</a>
+      </div>
+      <p>绝大多数 AI 写的动画之所以“假”，是因为它们只会写 <code>transition: all 0.3s ease</code>。Transitions.dev 专门提炼了**最核心的转场状态与物理 Motion Tokens**，甚至直接自带 Coding Agent Skill，能让你的界面瞬间产生呼吸感。</p>
+      
+      <div class="showcase-img-wrap">
+        <img src="assets/ui-curation/transitions-preview.png" alt="Transitions.dev 界面展示">
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-item"><code>Ease Bounce</code><br><code>cubic-bezier(0.34, 1.36, 0.64, 1)</code> 真实物理回弹</div>
+        <div class="feat-item"><code>Smooth Out</code><br><code>cubic-bezier(0.22, 1, 0.36, 1)</code> 极度丝滑出入</div>
+        <div class="feat-item"><code>Stagger Delay</code><br><code>40ms</code> 逐项阶梯微延迟，消除机械齐步走</div>
+        <div class="feat-item"><code>Micro Distance</code><br><code>4px ~ 8px</code> 微位移配合高斯模糊淡入</div>
+      </div>
+    </div>
+
+    <!-- 5. shadcn/ui -->
+    <h2><span class="num">05</span> shadcn/ui — 工业级底座与代码所有权标准</h2>
+    <div class="showcase-card">
+      <div class="showcase-header">
+        <span class="site-tag">Primitives · Accessibility · Copy &amp; Paste</span>
+        <a href="https://ui.shadcn.com" target="_blank" rel="noopener" class="site-link">ui.shadcn.com ↗</a>
+      </div>
+      <p>掀起现代前端“Copy-Paste 哲学”的母体。基于 Radix UI 处理绝对严谨的键盘导航与无障碍标准（a11y），所有代码直接暴露在你的项目里。它依然是所有大模型掌握得最透彻、生态最丰富的底座。</p>
+      
+      <div class="showcase-img-wrap">
+        <img src="assets/ui-curation/shadcn-preview.png" alt="shadcn/ui 官方展示">
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-item"><code>Primitives</code><br>Dialog, Sheet, Popover, Dropdown, Command (⌘K)</div>
+        <div class="feat-item"><code>No Blackbox</code><br>没有封装成黑盒的 npm 包，所有 Tailwind 样式完全受控</div>
+        <div class="feat-item"><code>Ecosystem Hub</code><br>上面介绍的 beUI、Rare UI 都是它的生态衍生注册表</div>
+      </div>
+    </div>
+
+    <!-- 整合与 Skill 模块 -->
+    <h2><span class="num">06</span> 怎么让 Claude Code / Codex 自动选择？</h2>
+    <p>把这些资源存进收藏夹很容易吃灰。为此，我专门单独搭建了一个开箱即用的 **AI UI Taste Skill 独立网址**，包含了可视化意图路由表、代码清洗规范，以及一键复制完整的 <code>SKILL.md</code> 规则文本。</p>
+
+    <!-- 独立网址推荐卡片 -->
+    <div style="background:var(--paper); border:2px solid var(--blue-deep); border-radius:14px; padding:1.5rem 1.8rem; margin:1.6rem 0; box-shadow:0 6px 22px rgba(157,213,211,0.22); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div style="font-family:'Fira Code',monospace; font-size:0.75rem; color:#3F7A77; letter-spacing:0.12em; margin-bottom:0.25rem;">ONLINE AGENT SKILL PAGE</div>
+        <div style="font-family:'Noto Serif SC',serif; font-size:1.2rem; font-weight:900;">AI UI Taste Skill · 独立主页</div>
+        <div style="font-size:0.88rem; color:var(--ink-light); margin-top:0.2rem;">包含一键复制 SKILL 规则、交互式路由表与常用 Prompt 模板。</div>
+      </div>
+      <a href="ai-ui-taste-skill.html" style="font-family:'Fira Code',monospace; font-size:0.85rem; font-weight:600; background:#251c19; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+        打开 Skill 网址 ↗
+      </a>
+    </div>
+
+    <blockquote>
+      <strong>工作流原则：</strong><br>
+      1. <strong>意图路由</strong>：做 Agent 对话找 Beautiful UI；做转场微动效找 beUI；避免同质化找 Rare UI；调动效物理感找 Transitions。<br>
+      2. <strong>样式解耦</strong>：提示 Agent 提取骨架与动画参数，但将色值自动映射到工程现有的 Tailwind 语义变量。
+    </blockquote>
+
+    <h3>在项目中引入 Skill</h3>
+    <pre><code># 示例：将 Skill 文件放置在工程的 .claude / skills 目录下
+# 或直接在提示词中引用：
+"请参考 ai-ui-taste-skill 的意图决策树，
+用 beUI 的 Morphing Modal 动效逻辑重构当前设置弹窗，
+保留项目现有的配色规范。"</code></pre>
+
+    <div class="foot-note">
+      <div>© 2026 木鱼拓哉 · 让代码与审美双向奔赴</div>
+      <div class="signature">MuYu Takuya</div>
+    </div>
+  </article>
+
+</body>
+</html>
