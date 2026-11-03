@@ -372,7 +372,7 @@ article h3 {
 }
 
 .docs-nav-scroll {
-  max-height: min(340px, calc(100vh - 210px));
+  max-height: min(300px, calc(100vh - 210px));
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
