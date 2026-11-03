@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FBF2E3">
   <title>为什么绝大多数 AI 产品用起来都让人难受？ · 木鱼拓哉の写作本</title>
   <meta name="description" content="从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面。大模型把响应拉长到了 400ms 到 30 秒，等待不再是边缘状态，而是 80% 的交互现场。一份写给所有 AI UX 设计师、产品经理与前端工程师的等待设计实战手册。">
 
@@ -730,15 +731,102 @@
       .demo-grid-2, .demo-grid-3 { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="assets/writing-shell.css">
 </head>
 <body>
+  <!-- ====================================================================
+       Layer 3 & 1: Opening Banner + Header (scrolls away, then floats fixed)
+       ==================================================================== -->
+  <div class="docs-banner" id="top">
+    <div class="docs-header-slot">
+      <header class="docs-header" aria-label="写作本顶部导航">
+        <div class="docs-header-inner">
+          <div class="docs-brand-group">
+            <a href="index.html" class="docs-brand">
+              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
+              <span>木鱼拓哉</span>
+            </a>
+          </div>
 
-  <div class="topbar">
-    <span class="label">WRITING · 交互工程 / 体验设计</span>
-    <a href="writing.html?category=tech" class="back">← 技术文章</a>
+          <nav class="docs-top-nav" aria-label="站点主导航">
+            <a href="writing.html">全部文章</a>
+            <a href="writing.html?category=tech">技术拆解</a>
+            <a href="writing.html?category=life">生活杂谈</a>
+            <a href="index.html#explore">探索项目</a>
+            <a href="life.html#been-there">游玩日记</a>
+          </nav>
+
+          <div class="docs-header-actions">
+            <a href="index.html#writing" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
+          </div>
+        </div>
+      </header>
+    </div>
   </div>
 
-  <header class="post-head">
+  <!-- ====================================================================
+       Layer 2 & 1: Three-Column Sticky Shell (Sidebar + Article + Outline)
+       ==================================================================== -->
+  <div class="docs-shell">
+    <aside class="docs-sidebar" aria-label="全部文章导航">
+      <div class="docs-search-box">
+        <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M20 20l-3.5-3.5"></path>
+        </svg>
+        <input type="search" class="docs-search-input" placeholder="搜索文章..." aria-label="搜索文章">
+        <kbd class="docs-search-kbd" aria-hidden="true">/</kbd>
+      </div>
+
+      <div class="docs-nav-wrap" data-more-above="false" data-more-below="false">
+        <button type="button" class="docs-nav-arrow docs-nav-arrow--up" tabindex="-1" aria-hidden="true">↑</button>
+        <nav class="docs-nav-scroll" aria-label="写作本章节列表" data-more-above="false" data-more-below="false">
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">交互设计与品味</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
+              <li><a href="writing-designing-the-wait.html" class="docs-nav-link" aria-current="page">AI 产品等待设计：从转圈到流式</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">Agent 与系统架构</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
+              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
+              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
+              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
+              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">过程记录与专题归档</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
+              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">延伸现场与作品</div>
+            <ul class="docs-nav-list">
+              <li><a href="index.html#explore" class="docs-nav-link">探索项目 · 小刚Claw / 卜灵</a></li>
+              <li><a href="life.html#been-there" class="docs-nav-link">游玩日记 · Life Log 城市明信片</a></li>
+              <li><a href="travel-book/app/index.html" class="docs-nav-link">旅册 App · 虚拟实体书架</a></li>
+              <li><a href="index.html#now" class="docs-nav-link">正在搞 · stack-chan 与 IP 实验</a></li>
+            </ul>
+          </div>
+        </nav>
+        <button type="button" class="docs-nav-arrow docs-nav-arrow--down" tabindex="-1" aria-hidden="true">↓</button>
+      </div>
+    </aside>
+
+    <main class="docs-main" id="docsMain">
+<header class="post-head">
     <h1>为什么绝大多数 AI 产品用起来都<em>让人难受？</em></h1>
     <div class="subtitle">从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面</div>
     <p class="lede">
@@ -753,7 +841,7 @@
 
   <article class="post">
 
-    <h2>一、一个被大模型打破的交互常识</h2>
+    <h2 id="section-01">一、一个被大模型打破的交互常识</h2>
 
     <p>做传统 Web 交互时，加载（Loading）是个边缘状态：界面画完了，最后顺手塞个转圈的 Spinner，因为网络往返通常在 200 毫秒内解决。</p>
 
@@ -769,7 +857,7 @@
       </figcaption>
     </figure>
 
-    <h2>二、三道不可逾越的认知阈值</h2>
+    <h2 id="section-02">二、三道不可逾越的认知阈值</h2>
 
     <p>人机交互里有三道死线，自 1968 年 Miller 提出、1993 年 Nielsen 普及以来，半个世纪没有变过：</p>
 
@@ -809,7 +897,7 @@
 
     <p>几乎所有的交互灾难，都是把设计精力花在了错误的区间上。把这三道线刻在案头，我们来看具体怎么选组件。</p>
 
-    <h2>三、前 200ms 留给用户，而不是等模型</h2>
+    <h2 id="section-03">三、前 200ms 留给用户，而不是等模型</h2>
 
     <p>用户感受到的等待时钟，不是从服务端返回第一个字节开始走的，而是从点击的那一瞬间就开始计时。</p>
 
@@ -863,7 +951,7 @@
       </div>
     </div>
 
-    <h2>四、按耗时区间选组件，拒绝用 Spinner 撒谎</h2>
+    <h2 id="section-04">四、按耗时区间选组件，拒绝用 Spinner 撒谎</h2>
 
     <p>普通的旋转菊花（Spinner）在对用户撒谎：转了 800 毫秒是这个速度，转了 30 秒还是这个速度。它什么都没说，只暴露了开发者根本没测过耗时。</p>
 
@@ -931,7 +1019,7 @@
       </div>
     </div>
 
-    <h2>五、展示已逝时间，而不是卡在 90% 的虚假进度条</h2>
+    <h2 id="section-05">五、展示已逝时间，而不是卡在 90% 的虚假进度条</h2>
 
     <p>大模型的推理机制决定了你根本无法提前预知它什么时候结束。一个卡在 90% 一动不动的进度条，是用户一眼就能识破的谎言。</p>
 
@@ -999,7 +1087,7 @@ setInterval(() => {
       </div>
     </div>
 
-    <h2>六、流式输出是有节拍的（Cadence）</h2>
+    <h2 id="section-06">六、流式输出是有节拍的（Cadence）</h2>
 
     <p>大模型吐出的 Token 是突发的（Burst）：卡顿半秒，然后呼啦涌出一大堆。如果你拿到一段 chunk 就直接往页面上 append 一次，文字就会剧烈地一顿一挫。在人的感知里，<strong>抽搐比慢更像系统崩溃</strong>。</p>
 
@@ -1067,7 +1155,7 @@ setInterval(() => {
       </div>
     </div>
 
-    <h2>七、别让已渲染的文字在眼前跳舞</h2>
+    <h2 id="section-07">七、别让已渲染的文字在眼前跳舞</h2>
 
     <p>流式输出打破了 Web 排版的一条底层铁律：光标上方的文字必须保持绝对静止。如果光标在底下打字，上面的文字却在疯狂跳动重排，会让人产生强烈的眩晕感。</p>
 
@@ -1144,7 +1232,7 @@ setInterval(() => {
       </div>
     </div>
 
-    <h2>八、等待必须随时可打断 &amp; 失败也是一种延迟终态</h2>
+    <h2 id="section-08">八、等待必须随时可打断 &amp; 失败也是一种延迟终态</h2>
 
     <p>一个无法打断的动画让人厌烦，而一个无法打断的大模型等待，就像一场长达半分钟的人质危机。</p>
 
@@ -1243,7 +1331,7 @@ setInterval(() => {
       </div>
     </div>
 
-    <h2>九、带走一张工程常量表与自检清单</h2>
+    <h2 id="section-09">九、带走一张工程常量表与自检清单</h2>
 
     <p>将上述所有阈值和交互法则固化为一份前端交互工程字典与常量矩阵：</p>
 
@@ -1318,6 +1406,190 @@ setInterval(() => {
     </div>
     <a href="writing.html?category=tech" class="back">← 回文章目录</a>
   </footer>
+        <div class="docs-end-zone">
+          <div class="docs-help-card">
+            <div class="docs-help-copy">
+              <strong>看完还有疑问，或者想聊聊你的真实场景？</strong>
+              欢迎在 GitHub 提 Issue 讨论实现细节，或来小红书 / 发邮件找木鱼一起切磋。
+            </div>
+            <div class="docs-help-actions">
+              <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="docs-help-btn">GitHub 交流 ↗</a>
+              <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener" class="docs-help-btn">小红书 @explorer</a>
+              <a href="mailto:libeny0526@gmail.com" class="docs-help-btn">发邮件切磋</a>
+            </div>
+          </div>
+
+          <nav class="docs-pager" aria-label="上下篇导航">
+            <a href="writing-ai-ui-curation.html" class="docs-pager-card docs-pager-card--prev">
+              <span class="docs-pager-label">Previous · 上一篇</span>
+              <span class="docs-pager-title">5 个让 AI 抄作业的封神 UI 库</span>
+            </a>
+            <a href="writing-linear-sync-engine.html" class="docs-pager-card docs-pager-card--next">
+              <span class="docs-pager-label">Next · 下一篇</span>
+              <span class="docs-pager-title">Linear 架构深读：端云协同基本功</span>
+            </a>
+          </nav>
+        </div>
+    </main>
+
+    <aside class="docs-outline" aria-label="本页大纲">
+      <div class="docs-outline-title">On this page · 本页目录</div>
+      <ul class="docs-outline-list">
+          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、一个被大模型打破的交互常识</a></li>
+          <li><a href="#section-02" class="docs-outline-link">二、三道不可逾越的认知阈值</a></li>
+          <li><a href="#section-03" class="docs-outline-link">三、前 200ms 留给用户，而不是等模型</a></li>
+          <li><a href="#section-04" class="docs-outline-link">四、按耗时区间选组件，拒绝用 Spinner 撒谎</a></li>
+          <li><a href="#section-05" class="docs-outline-link">五、展示已逝时间，而不是卡在 90% 的虚假进度条</a></li>
+          <li><a href="#section-06" class="docs-outline-link">六、流式输出是有节拍的（Cadence）</a></li>
+          <li><a href="#section-07" class="docs-outline-link">七、别让已渲染的文字在眼前跳舞</a></li>
+          <li><a href="#section-08" class="docs-outline-link">八、等待必须随时可打断 &amp; 失败也是一种延迟终态</a></li>
+          <li><a href="#section-09" class="docs-outline-link">九、带走一张工程常量表与自检清单</a></li>
+      </ul>
+    </aside>
+  </div>
+
+  <!-- ====================================================================
+       Layer 1: Tall Crafted Footer (>50vh, pushes sticky sidebars up cleanly)
+       ==================================================================== -->
+  <footer class="docs-footer">
+    <div class="docs-footer-inner">
+      <div class="docs-footer-top">
+        <div class="docs-footer-brand">
+          <a href="index.html" class="docs-footer-brand-head">
+            <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
+            <span>木鱼拓哉 · MuYu</span>
+          </a>
+          <p>一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。</p>
+          <div class="docs-footer-socials">
+            <a href="https://github.com/Libeny" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">小红书</a>
+            <a href="mailto:libeny0526@gmail.com">Email</a>
+          </div>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>技术深读</h4>
+          <ul>
+            <li><a href="writing-designing-the-wait.html">AI 产品等待设计实战</a></li>
+            <li><a href="writing-linear-sync-engine.html">Linear 端云协同引擎</a></li>
+            <li><a href="writing-pi-agent-runtime.html">Pi Agent Runtime 底座</a></li>
+            <li><a href="writing-raft-message-mechanism.html">Raft 多 Agent 消息机制</a></li>
+            <li><a href="writing-qwen-audio-agent.html">qwen-audio-agent 架构</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>品味与随笔</h4>
+          <ul>
+            <li><a href="writing-ai-ui-curation.html">5 个封神 UI 库与 Skill</a></li>
+            <li><a href="writing-life.html">人文旅行八面体骨架</a></li>
+            <li><a href="writing-travel-book-essay.html">旅册：虚拟书架上的实体书</a></li>
+            <li><a href="writing-tech-process.html">小刚Claw 与 crewless 复盘</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>探索者现场</h4>
+          <ul>
+            <li><a href="index.html#explore">数字员工与独立产品</a></li>
+            <li><a href="index.html#now">正在搞：stack-chan 改造</a></li>
+            <li><a href="life.html#been-there">屏幕外的我 · 游玩日记</a></li>
+            <li><a href="travel-book/app/index.html">旅册 App 在线书房</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="docs-footer-bottom">
+        <span>© 2026 木鱼拓哉 · BUILDER'S NOTEBOOK &amp; WIKI</span>
+        <span class="hand">crafted with care &amp; curiosity ✦</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ====================================================================
+       Narrow Screens: Fixed Bottom Bar (.guide-dock) & Modal Sheets (<dialog>)
+       ==================================================================== -->
+  <div class="guide-dock" role="navigation" aria-label="移动端章节与目录切换">
+    <button type="button" class="guide-dock-btn guide-dock-btn--pages" data-open-sheet="pages">
+      <span aria-hidden="true">☰</span>
+      <span>文章目录</span>
+    </button>
+    <span class="guide-dock-divider" aria-hidden="true"></span>
+    <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
+      <span class="guide-dock-section" data-current-section-label>一、一个被大模型打破的交互常识</span>
+      <span class="guide-dock-caret" aria-hidden="true">^</span>
+    </button>
+  </div>
+
+  <dialog class="guide-sheet" id="sheetPages" aria-label="全部文章目录">
+    <div class="guide-sheet-head">
+      <span class="guide-sheet-title">文章目录 · Contents</span>
+      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
+    </div>
+    <div class="guide-sheet-body">
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">交互设计与品味</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
+              <li><a href="writing-designing-the-wait.html" class="docs-nav-link" aria-current="page">AI 产品等待设计：从转圈到流式</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">Agent 与系统架构</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
+              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
+              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
+              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
+              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">过程记录与专题归档</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
+              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">延伸现场与作品</div>
+            <ul class="docs-nav-list">
+              <li><a href="index.html#explore" class="docs-nav-link">探索项目 · 小刚Claw / 卜灵</a></li>
+              <li><a href="life.html#been-there" class="docs-nav-link">游玩日记 · Life Log 城市明信片</a></li>
+              <li><a href="travel-book/app/index.html" class="docs-nav-link">旅册 App · 虚拟实体书架</a></li>
+              <li><a href="index.html#now" class="docs-nav-link">正在搞 · stack-chan 与 IP 实验</a></li>
+            </ul>
+          </div>
+    </div>
+  </dialog>
+
+  <dialog class="guide-sheet" id="sheetOutline" aria-label="本页章节大纲">
+    <div class="guide-sheet-head">
+      <span class="guide-sheet-title">本页目录 · On this page</span>
+      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
+    </div>
+    <div class="guide-sheet-body">
+      <ul class="docs-outline-list">
+          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、一个被大模型打破的交互常识</a></li>
+          <li><a href="#section-02" class="docs-outline-link">二、三道不可逾越的认知阈值</a></li>
+          <li><a href="#section-03" class="docs-outline-link">三、前 200ms 留给用户，而不是等模型</a></li>
+          <li><a href="#section-04" class="docs-outline-link">四、按耗时区间选组件，拒绝用 Spinner 撒谎</a></li>
+          <li><a href="#section-05" class="docs-outline-link">五、展示已逝时间，而不是卡在 90% 的虚假进度条</a></li>
+          <li><a href="#section-06" class="docs-outline-link">六、流式输出是有节拍的（Cadence）</a></li>
+          <li><a href="#section-07" class="docs-outline-link">七、别让已渲染的文字在眼前跳舞</a></li>
+          <li><a href="#section-08" class="docs-outline-link">八、等待必须随时可打断 &amp; 失败也是一种延迟终态</a></li>
+          <li><a href="#section-09" class="docs-outline-link">九、带走一张工程常量表与自检清单</a></li>
+      </ul>
+    </div>
+  </dialog>
+
+  <script src="assets/writing-shell.js" defer></script>
 
 </body>
 </html>

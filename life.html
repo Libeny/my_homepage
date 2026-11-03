@@ -6,6 +6,7 @@
   <title>木鱼拓哉の游玩日记</title>
   <meta name="description" content="木鱼拓哉の游玩日记——合上电脑之后，在路上。">
   <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <link rel="stylesheet" href="assets/writing-shell.css">
   <link rel="preload" as="image" href="./assets/travel-xishuangbanna-rainforest.svg">
   <link rel="preload" as="image" href="./assets/travel-huangshan-pine.svg">
   <link rel="preload" as="image" href="./assets/travel-jinan-spring.svg">
@@ -858,11 +859,33 @@
   </style>
 </head>
 <body>
+  <div class="docs-banner" id="top">
+    <div class="docs-header-slot">
+      <header class="docs-header" aria-label="游玩日记顶部导航">
+        <div class="docs-header-inner">
+          <div class="docs-brand-group">
+            <a href="index.html" class="docs-brand">
+              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
+              <span>木鱼拓哉</span>
+            </a>
+          </div>
+
+          <nav class="docs-top-nav" aria-label="站点主导航">
+            <a href="writing.html">全部文章</a>
+            <a href="writing.html?category=tech">技术拆解</a>
+            <a href="writing.html?category=life">生活杂谈</a>
+            <a href="index.html#explore">探索项目</a>
+            <a href="life.html#been-there" aria-current="page">游玩日记</a>
+          </nav>
+
+          <div class="docs-header-actions">
+            <a href="index.html#off-screen" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
+          </div>
+        </div>
+      </header>
+    </div>
+  </div>
   <div class="page">
-    <nav class="top-nav" aria-label="Life Log navigation">
-      <div class="brand">MUYU.DEV / Life Log</div>
-      <a class="back-link" href="./index.html">Back to homepage</a>
-    </nav>
 
     <header class="hero">
       <div>
@@ -1539,5 +1562,6 @@
     }, { rootMargin: "200px" });
     loadMoreObs.observe(journalBoard);
   </script>
+  <script src="assets/writing-shell.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,1089 @@
+/* ==========================================================================
+   MuYu Writing / Wiki Shell (Kubai087 #008 Architecture)
+   Three layers:
+   1. Banner, Article, and Tall Footer scroll with the page.
+   2. Left Page List (.docs-sidebar) & Right Outline (.docs-outline) are sticky.
+   3. Header (.docs-header) belongs to Banner at top, then floats fixed once
+      Banner leaves viewport.
+   ========================================================================== */
+
+:root {
+  --shell-header-h: 64px;
+  --shell-sticky-top: 84px;
+  --shell-max-w: 1320px;
+  --shell-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Ensure headings never land under the floating bar */
+.docs-main h1[id],
+.docs-main h2[id],
+.docs-main h3[id],
+.docs-main section[id],
+.docs-main article[id],
+.post h2,
+.post h3,
+article h2,
+article h3 {
+  scroll-margin-top: 92px;
+}
+
+/* ==========================================================================
+   1. Opening Banner & Three-State Header (Top / Entering-Floating / Leaving)
+   ========================================================================== */
+.docs-banner {
+  position: relative;
+  background:
+    radial-gradient(ellipse 68% 85% at 18% 15%, rgba(244, 207, 214, 0.55) 0%, transparent 62%),
+    radial-gradient(ellipse 65% 80% at 82% 25%, rgba(189, 231, 229, 0.62) 0%, transparent 64%),
+    linear-gradient(180deg, #F7EFE2 0%, var(--cream, #FBF2E3) 100%);
+  border-bottom: 1px solid rgba(105, 75, 64, 0.12);
+  overflow: hidden;
+}
+
+.docs-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(105, 75, 64, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(105, 75, 64, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65) 0%, transparent 90%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65) 0%, transparent 90%);
+  pointer-events: none;
+}
+
+.docs-header-slot {
+  height: var(--shell-header-h);
+  position: relative;
+  z-index: 50;
+}
+
+.docs-header {
+  height: var(--shell-header-h);
+  width: 100%;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.docs-header-inner {
+  max-width: var(--shell-max-w);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 3.5vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+/* Floating state once banner leaves screen */
+.docs-header.is-floating {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: rgba(255, 253, 248, 0.84);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(105, 75, 64, 0.12);
+  box-shadow: 0 8px 28px rgba(105, 75, 64, 0.08);
+  animation: docsHeaderEnter 320ms var(--shell-ease-out) forwards;
+}
+
+.docs-header.is-leaving {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: rgba(255, 253, 248, 0.84);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(105, 75, 64, 0.12);
+  box-shadow: 0 8px 28px rgba(105, 75, 64, 0.08);
+  animation: docsHeaderLeave 120ms ease-in forwards;
+}
+
+@keyframes docsHeaderEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes docsHeaderLeave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+    filter: blur(6px);
+  }
+}
+
+/* Brand & Header Navigation */
+.docs-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.docs-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--ink, #694B40);
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.docs-brand-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  object-fit: cover;
+  border: 1.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(105, 75, 64, 0.16);
+}
+
+.docs-brand-sep {
+  color: rgba(105, 75, 64, 0.26);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+}
+
+.docs-brand-sub {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-light, #8B6F5C);
+  text-decoration: none;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 253, 248, 0.65);
+  border: 1px solid rgba(105, 75, 64, 0.12);
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.docs-brand-sub:hover {
+  background: var(--blue-soft, #E8F6F5);
+  color: var(--ink, #694B40);
+}
+
+.docs-top-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 26px);
+}
+
+.docs-top-nav a {
+  text-decoration: none;
+  color: var(--ink-light, #8B6F5C);
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: color 160ms ease;
+  white-space: nowrap;
+}
+
+.docs-top-nav a:hover,
+.docs-top-nav a[aria-current="page"] {
+  color: var(--ink, #694B40);
+}
+
+.docs-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.docs-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.78);
+  border: 1px solid rgba(105, 75, 64, 0.16);
+  color: var(--ink, #694B40);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(105, 75, 64, 0.05);
+  transition: transform 160ms var(--shell-ease-out), background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.docs-cta-btn .arrow {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.82rem;
+  color: #3F7A77;
+  transition: transform 160ms var(--shell-ease-out);
+}
+
+.docs-cta-btn:hover {
+  transform: translateY(-1px);
+  background: var(--blue-soft, #E8F6F5);
+  border-color: var(--blue-deep, #9DD5D3);
+  box-shadow: 0 4px 12px rgba(157, 213, 211, 0.28);
+}
+
+.docs-cta-btn:hover .arrow {
+  transform: translateX(-2px);
+}
+
+/* Banner Hero Strip (below header, inside .docs-banner) */
+.docs-banner-strip {
+  max-width: var(--shell-max-w);
+  margin: 0 auto;
+  padding: 1.1rem clamp(1.25rem, 3.5vw, 2.5rem) 1.55rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.docs-banner-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--ink-light, #8B6F5C);
+  text-transform: uppercase;
+}
+
+.docs-banner-kicker .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue-deep, #9DD5D3);
+  box-shadow: 0 0 0 3px rgba(189, 231, 229, 0.42);
+}
+
+.docs-banner-note {
+  font-family: 'Caveat', cursive;
+  font-size: 1.18rem;
+  color: var(--ink-light, #8B6F5C);
+}
+
+/* ==========================================================================
+   2. Three-Column Sticky Shell (.docs-shell)
+   ========================================================================== */
+.docs-shell {
+  max-width: var(--shell-max-w);
+  margin: 0 auto;
+  padding: clamp(2rem, 4vw, 3.2rem) clamp(1.25rem, 3.5vw, 2.5rem) clamp(3.5rem, 6vw, 5rem);
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr) 210px;
+  gap: clamp(28px, 3.6vw, 52px);
+  align-items: start;
+}
+
+/* ==========================================================================
+   3. Left Sidebar: Page List with Independent Scroll, Mask & Arrow Buttons
+   ========================================================================== */
+.docs-sidebar {
+  position: sticky;
+  top: var(--shell-sticky-top);
+  align-self: start;
+  min-width: 0;
+}
+
+.docs-search-box {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.docs-search-input {
+  width: 100%;
+  padding: 8px 34px 8px 32px;
+  border-radius: 9px;
+  border: 1px solid rgba(105, 75, 64, 0.16);
+  background: rgba(255, 253, 248, 0.78);
+  color: var(--ink, #694B40);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.docs-search-input::placeholder {
+  color: var(--ink-faint, #A89488);
+}
+
+.docs-search-input:focus {
+  background: #FFFDF8;
+  border-color: var(--blue-deep, #9DD5D3);
+  box-shadow: 0 0 0 3px rgba(189, 231, 229, 0.35);
+}
+
+.docs-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--ink-faint, #A89488);
+  pointer-events: none;
+}
+
+.docs-search-kbd {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: rgba(105, 75, 64, 0.06);
+  border: 1px solid rgba(105, 75, 64, 0.14);
+  color: var(--ink-faint, #A89488);
+  pointer-events: none;
+}
+
+.docs-nav-wrap {
+  position: relative;
+}
+
+.docs-nav-scroll {
+  max-height: min(340px, calc(100vh - 210px));
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 2px 12px 0;
+}
+
+.docs-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Edge fade masks driven by data-more-above and data-more-below */
+.docs-nav-scroll[data-more-above="true"][data-more-below="false"] {
+  mask-image: linear-gradient(to bottom, transparent 0px, transparent 4px, #000 40px, #000 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, transparent 4px, #000 40px, #000 100%);
+}
+
+.docs-nav-scroll[data-more-above="false"][data-more-below="true"] {
+  mask-image: linear-gradient(to bottom, #000 0px, #000 calc(100% - 56px), transparent calc(100% - 4px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0px, #000 calc(100% - 56px), transparent calc(100% - 4px), transparent 100%);
+}
+
+.docs-nav-scroll[data-more-above="true"][data-more-below="true"] {
+  mask-image: linear-gradient(to bottom, transparent 0px, transparent 4px, #000 40px, #000 calc(100% - 56px), transparent calc(100% - 4px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, transparent 4px, #000 40px, #000 calc(100% - 56px), transparent calc(100% - 4px), transparent 100%);
+}
+
+/* Centered round scroll arrows on edges with more content */
+.docs-nav-arrow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(105, 75, 64, 0.18);
+  background: rgba(255, 253, 248, 0.95);
+  color: var(--ink, #694B40);
+  box-shadow: 0 4px 12px rgba(105, 75, 64, 0.14);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms var(--shell-ease-out), background 160ms ease;
+}
+
+.docs-nav-arrow:hover {
+  background: #fff;
+  transform: translateX(-50%) scale(1.05);
+}
+
+.docs-nav-arrow--up {
+  top: 4px;
+}
+
+.docs-nav-arrow--down {
+  bottom: 6px;
+}
+
+.docs-nav-wrap[data-more-above="true"] .docs-nav-arrow--up,
+.docs-nav-wrap[data-more-below="true"] .docs-nav-arrow--down {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+.docs-nav-group {
+  margin-bottom: 18px;
+}
+
+.docs-nav-group:last-child {
+  margin-bottom: 4px;
+}
+
+.docs-nav-group-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink, #694B40);
+  padding: 4px 10px 6px;
+  letter-spacing: 0.01em;
+}
+
+.docs-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.docs-nav-link {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--ink-light, #8B6F5C);
+  text-decoration: none;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.docs-nav-link:hover {
+  background: rgba(105, 75, 64, 0.06);
+  color: var(--ink, #694B40);
+}
+
+.docs-nav-link[aria-current="page"] {
+  background: rgba(189, 231, 229, 0.52);
+  color: #244B49;
+  font-weight: 600;
+}
+
+.docs-nav-link[hidden],
+.docs-nav-group[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   4. Center Column: Main Article Container & End-of-Article Components
+   ========================================================================== */
+.docs-main {
+  min-width: 0;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* Override legacy standalone margins inside .docs-main so everything aligns */
+.docs-main .topbar {
+  display: none;
+}
+
+.docs-main .post-head,
+.docs-main .post,
+.docs-main article,
+.docs-main .post-foot,
+.docs-main .post-footer,
+.docs-main .wrap {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.docs-main .post-head {
+  padding-top: 0 !important;
+}
+
+.docs-main .post-head .meta {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--ink-faint, #A89488);
+  letter-spacing: 0.08em;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.docs-main .post > h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+  line-height: 1.35;
+  margin: 2.6rem 0 1rem;
+  letter-spacing: -0.01em;
+  color: var(--ink, #694B40);
+}
+
+.docs-main .post,
+.docs-main article {
+  padding-bottom: 2.5rem !important;
+}
+
+.docs-main .post-foot,
+.docs-main .post-footer {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-top: 0 !important;
+}
+
+/* Hide legacy standalone back links at bottom of articles (replaced by pager) */
+.docs-main .post-foot > .back,
+.docs-main .post-footer > .back,
+.docs-main .wrap > .back {
+  display: none !important;
+}
+
+/* End of Article: Step 1 — "Still need help?" Context Card */
+.docs-end-zone {
+  margin-top: 2.2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(105, 75, 64, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.docs-help-card {
+  background: var(--paper, #FFFDF8);
+  border: 1px solid var(--line, #E7D7C4);
+  border-radius: 12px;
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  box-shadow: 0 3px 14px rgba(105, 75, 64, 0.04);
+}
+
+.docs-help-copy {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--ink-light, #8B6F5C);
+  max-width: 44ch;
+}
+
+.docs-help-copy strong {
+  display: block;
+  color: var(--ink, #694B40);
+  font-size: 0.94rem;
+  margin-bottom: 2px;
+}
+
+.docs-help-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.docs-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--line, #E7D7C4);
+  background: #fff;
+  color: var(--ink, #694B40);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 150ms var(--shell-ease-out), border-color 150ms ease, background 150ms ease;
+}
+
+.docs-help-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--blue-deep, #9DD5D3);
+  background: var(--blue-soft, #E8F6F5);
+}
+
+/* End of Article: Step 2 — Previous / Next Page Cards */
+.docs-pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.docs-pager-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.05rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--line, #E7D7C4);
+  background: var(--paper, #FFFDF8);
+  text-decoration: none;
+  color: var(--ink, #694B40);
+  transition: transform 180ms var(--shell-ease-out), border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.docs-pager-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue-deep, #9DD5D3);
+  box-shadow: 0 8px 22px rgba(105, 75, 64, 0.07);
+}
+
+.docs-pager-card--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.docs-pager-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint, #A89488);
+  margin-bottom: 4px;
+}
+
+.docs-pager-title {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+  font-size: 0.96rem;
+  line-height: 1.45;
+  color: var(--ink, #694B40);
+}
+
+/* ==========================================================================
+   5. Right Sidebar: Outline ("On this page")
+   ========================================================================== */
+.docs-outline {
+  position: sticky;
+  top: var(--shell-sticky-top);
+  align-self: start;
+  min-width: 0;
+}
+
+.docs-outline-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink, #694B40);
+  margin-bottom: 10px;
+}
+
+.docs-outline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1.5px solid rgba(105, 75, 64, 0.14);
+}
+
+.docs-outline-link {
+  display: block;
+  padding: 6px 0 6px 14px;
+  margin-left: -1.5px;
+  border-left: 2px solid transparent;
+  color: var(--ink-faint, #A89488);
+  text-decoration: none;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.docs-outline-link:hover {
+  color: var(--ink, #694B40);
+}
+
+.docs-outline-link[aria-current="location"] {
+  border-left-color: #2C6E6B;
+  color: #2C6E6B;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   6. Tall Footer (Over 50vh tall — pushes sticky sidebars up cleanly)
+   ========================================================================== */
+.docs-footer {
+  min-height: 54vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 1px solid rgba(105, 75, 64, 0.14);
+  background:
+    radial-gradient(ellipse 70% 80% at 15% 85%, rgba(189, 231, 229, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 75% at 85% 20%, rgba(244, 207, 214, 0.48) 0%, transparent 60%),
+    linear-gradient(180deg, var(--cream, #FBF2E3) 0%, #F4E5D2 100%);
+  padding: clamp(3.5rem, 7vh, 5.5rem) 0 clamp(2.5rem, 5vh, 3.5rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.docs-footer::before {
+  content: 'MUYU NOTEBOOK';
+  position: absolute;
+  right: -10px;
+  bottom: -28px;
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(4.5rem, 11vw, 9.5rem);
+  line-height: 1;
+  color: rgba(105, 75, 64, 0.045);
+  pointer-events: none;
+  user-select: none;
+}
+
+.docs-footer-inner {
+  max-width: var(--shell-max-w);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 3.5vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  gap: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.docs-footer-top {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.2fr) repeat(3, minmax(140px, 0.65fr));
+  gap: clamp(24px, 4vw, 48px);
+}
+
+.docs-footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docs-footer-brand-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 1.15rem;
+  color: var(--ink, #694B40);
+  text-decoration: none;
+}
+
+.docs-footer-brand p {
+  font-size: 0.86rem;
+  color: var(--ink-light, #8B6F5C);
+  line-height: 1.75;
+  max-width: 34ch;
+}
+
+.docs-footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.docs-footer-socials a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(105, 75, 64, 0.16);
+  background: rgba(255, 253, 248, 0.7);
+  color: var(--ink, #694B40);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.docs-footer-socials a:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.docs-footer-col h4 {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink, #694B40);
+  margin-bottom: 12px;
+}
+
+.docs-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.docs-footer-col a {
+  color: var(--ink-light, #8B6F5C);
+  text-decoration: none;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  transition: color 150ms ease;
+}
+
+.docs-footer-col a:hover {
+  color: var(--ink, #694B40);
+}
+
+.docs-footer-bottom {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(105, 75, 64, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--ink-faint, #A89488);
+}
+
+.docs-footer-bottom .hand {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: #3F7A77;
+}
+
+/* ==========================================================================
+   7. Narrow Screens: Bottom Guide Dock & Modal Sheets (<dialog>)
+   ========================================================================== */
+.guide-dock {
+  display: none;
+}
+
+dialog.guide-sheet {
+  border: 1px solid rgba(105, 75, 64, 0.18);
+  border-radius: 20px 20px 0 0;
+  background: #FFFDF8;
+  color: var(--ink, #694B40);
+  width: 100%;
+  max-width: 100%;
+  max-height: 78vh;
+  margin: auto 0 0 0;
+  padding: 0;
+  box-shadow: 0 -14px 42px rgba(105, 75, 64, 0.18);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 220ms var(--shell-ease-out), transform 220ms var(--shell-ease-out);
+}
+
+dialog.guide-sheet[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* No dark dimming behind the sheet per Kubai #008 spec */
+dialog.guide-sheet::backdrop {
+  background: transparent;
+}
+
+.guide-sheet-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255, 253, 248, 0.94);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(105, 75, 64, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.guide-sheet-title {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--ink, #694B40);
+}
+
+.guide-sheet-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(105, 75, 64, 0.08);
+  color: var(--ink, #694B40);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.guide-sheet-body {
+  padding: 14px 16px 28px;
+  overflow-y: auto;
+  max-height: calc(78vh - 62px);
+}
+
+/* Tap targets one size up from desktop list */
+.guide-sheet-body .docs-nav-group-title {
+  font-size: 0.84rem;
+  padding: 8px 12px 6px;
+}
+
+.guide-sheet-body .docs-nav-link,
+.guide-sheet-body .docs-outline-link {
+  padding: 11px 14px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border-left: 0;
+  margin-left: 0;
+}
+
+.guide-sheet-body .docs-outline-list {
+  border-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guide-sheet-body .docs-outline-link[aria-current="location"] {
+  background: rgba(189, 231, 229, 0.48);
+  color: #244B49;
+  font-weight: 600;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1100px) {
+  .docs-shell {
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+  .docs-outline {
+    display: none;
+  }
+  .docs-footer-top {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 780px) {
+  body {
+    padding-bottom: 76px;
+  }
+  .docs-top-nav {
+    display: none;
+  }
+  .docs-shell {
+    grid-template-columns: 1fr;
+    padding-top: 1.6rem;
+  }
+  .docs-sidebar {
+    display: none;
+  }
+  .docs-pager {
+    grid-template-columns: 1fr;
+  }
+  .docs-pager-card--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .docs-footer-top {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .guide-dock {
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    z-index: 55;
+    display: grid;
+    grid-template-columns: auto 1px minmax(0, 1fr);
+    align-items: center;
+    background: rgba(255, 253, 248, 0.92);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(105, 75, 64, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(105, 75, 64, 0.16);
+    overflow: hidden;
+  }
+  .guide-dock-divider {
+    width: 1px;
+    height: 22px;
+    background: rgba(105, 75, 64, 0.15);
+  }
+  .guide-dock-btn {
+    border: 0;
+    background: transparent;
+    color: var(--ink, #694B40);
+    padding: 12px 14px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-width: 0;
+    text-align: left;
+  }
+  .guide-dock-btn--pages {
+    color: var(--ink-light, #8B6F5C);
+    font-weight: 500;
+    padding-right: 16px;
+  }
+  .guide-dock-btn--outline {
+    justify-content: space-between;
+  }
+  .guide-dock-section {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .guide-dock-caret {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-faint, #A89488);
+    flex-shrink: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  .docs-header.is-floating,
+  .docs-header.is-leaving,
+  dialog.guide-sheet {
+    animation: none !important;
+    transition: none !important;
+  }
+}

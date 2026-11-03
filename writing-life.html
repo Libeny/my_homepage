@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FBF2E3">
   <title>为什么现在的旅行，越来越像一场体力活？ · 木鱼拓哉の写作本</title>
   <meta name="description" content="打开手机，算法把城市的呼吸切成碎屑。从中国两千年方志学八大卷帙中，寻找真正看懂一块土地的人文旅行八面体骨架。">
 
@@ -365,15 +366,102 @@
       color: var(--blue-deep);
     }
   </style>
+  <link rel="stylesheet" href="assets/writing-shell.css">
 </head>
 <body>
+  <!-- ====================================================================
+       Layer 3 & 1: Opening Banner + Header (scrolls away, then floats fixed)
+       ==================================================================== -->
+  <div class="docs-banner" id="top">
+    <div class="docs-header-slot">
+      <header class="docs-header" aria-label="写作本顶部导航">
+        <div class="docs-header-inner">
+          <div class="docs-brand-group">
+            <a href="index.html" class="docs-brand">
+              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
+              <span>木鱼拓哉</span>
+            </a>
+          </div>
 
-  <div class="topbar">
-    <span class="label">WRITING · 生活杂谈 / ESSAY</span>
-    <a href="writing.html?category=life" class="back">← 回到生活杂谈</a>
+          <nav class="docs-top-nav" aria-label="站点主导航">
+            <a href="writing.html">全部文章</a>
+            <a href="writing.html?category=tech">技术拆解</a>
+            <a href="writing.html?category=life">生活杂谈</a>
+            <a href="index.html#explore">探索项目</a>
+            <a href="life.html#been-there">游玩日记</a>
+          </nav>
+
+          <div class="docs-header-actions">
+            <a href="index.html#writing" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
+          </div>
+        </div>
+      </header>
+    </div>
   </div>
 
-  <header class="post-head">
+  <!-- ====================================================================
+       Layer 2 & 1: Three-Column Sticky Shell (Sidebar + Article + Outline)
+       ==================================================================== -->
+  <div class="docs-shell">
+    <aside class="docs-sidebar" aria-label="全部文章导航">
+      <div class="docs-search-box">
+        <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M20 20l-3.5-3.5"></path>
+        </svg>
+        <input type="search" class="docs-search-input" placeholder="搜索文章..." aria-label="搜索文章">
+        <kbd class="docs-search-kbd" aria-hidden="true">/</kbd>
+      </div>
+
+      <div class="docs-nav-wrap" data-more-above="false" data-more-below="false">
+        <button type="button" class="docs-nav-arrow docs-nav-arrow--up" tabindex="-1" aria-hidden="true">↑</button>
+        <nav class="docs-nav-scroll" aria-label="写作本章节列表" data-more-above="false" data-more-below="false">
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">交互设计与品味</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
+              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">Agent 与系统架构</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
+              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
+              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
+              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-life.html" class="docs-nav-link" aria-current="page">为什么现在的旅行越来越像体力活？</a></li>
+              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">过程记录与专题归档</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
+              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">延伸现场与作品</div>
+            <ul class="docs-nav-list">
+              <li><a href="index.html#explore" class="docs-nav-link">探索项目 · 小刚Claw / 卜灵</a></li>
+              <li><a href="life.html#been-there" class="docs-nav-link">游玩日记 · Life Log 城市明信片</a></li>
+              <li><a href="travel-book/app/index.html" class="docs-nav-link">旅册 App · 虚拟实体书架</a></li>
+              <li><a href="index.html#now" class="docs-nav-link">正在搞 · stack-chan 与 IP 实验</a></li>
+            </ul>
+          </div>
+        </nav>
+        <button type="button" class="docs-nav-arrow docs-nav-arrow--down" tabindex="-1" aria-hidden="true">↓</button>
+      </div>
+    </aside>
+
+    <main class="docs-main" id="docsMain">
+<header class="post-head">
     <div class="meta">
       <span>2026.09.15</span>
       <span>TRAVEL ESSAY</span>
@@ -387,7 +475,7 @@
 
   <article>
 
-    <h2>一、 异乡的体力活</h2>
+    <h2 id="section-01">一、 异乡的体力活</h2>
 
     <p>
       现在的旅行，越来越像一场体力活。
@@ -441,7 +529,7 @@
       我不想再要一份密密麻麻的打卡清单。这次，我只想重新带上好奇心。去看看眼前这座山、这条街、这顿饭背后真正动人的地方。
     </p>
 
-    <h2>二、 那么，以什么样的视角才能看懂一个地方？</h2>
+    <h2 id="section-02">二、 那么，以什么样的视角才能看懂一个地方？</h2>
 
     <p>
       好奇心有了，但我很快遇到了下一个问题：面对一座陌生的城市，庞大、芜杂、深厚，我到底该以什么样的视角去看它？
@@ -511,7 +599,7 @@
       </div>
     </div>
 
-    <h2>三、 骨架有了，然后呢？</h2>
+    <h2 id="section-03">三、 骨架有了，然后呢？</h2>
 
     <p>
       有了这套骨架，看一个地方不再是盲人摸象。但随之而来的问题是：去哪里找这些信息？
@@ -596,6 +684,178 @@
     <a href="writing.html?category=life" class="back">← 回到生活杂谈</a>
     <span class="footer-note">带着疑问出门 ✦ 揣着故事回来</span>
   </footer>
+        <div class="docs-end-zone">
+          <div class="docs-help-card">
+            <div class="docs-help-copy">
+              <strong>看完还有疑问，或者想聊聊你的真实场景？</strong>
+              欢迎在 GitHub 提 Issue 讨论实现细节，或来小红书 / 发邮件找木鱼一起切磋。
+            </div>
+            <div class="docs-help-actions">
+              <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="docs-help-btn">GitHub 交流 ↗</a>
+              <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener" class="docs-help-btn">小红书 @explorer</a>
+              <a href="mailto:libeny0526@gmail.com" class="docs-help-btn">发邮件切磋</a>
+            </div>
+          </div>
+
+          <nav class="docs-pager" aria-label="上下篇导航">
+            <a href="writing-qwen-audio-agent.html" class="docs-pager-card docs-pager-card--prev">
+              <span class="docs-pager-label">Previous · 上一篇</span>
+              <span class="docs-pager-title">qwen-audio-agent：对话与干活双循环</span>
+            </a>
+            <a href="writing-travel-book-essay.html" class="docs-pager-card docs-pager-card--next">
+              <span class="docs-pager-label">Next · 下一篇</span>
+              <span class="docs-pager-title">旅册：在虚拟书架上做一本实体书</span>
+            </a>
+          </nav>
+        </div>
+    </main>
+
+    <aside class="docs-outline" aria-label="本页大纲">
+      <div class="docs-outline-title">On this page · 本页目录</div>
+      <ul class="docs-outline-list">
+          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、 异乡的体力活</a></li>
+          <li><a href="#section-02" class="docs-outline-link">二、 那么，以什么样的视角才能看懂一个地方？</a></li>
+          <li><a href="#section-03" class="docs-outline-link">三、 骨架有了，然后呢？</a></li>
+      </ul>
+    </aside>
+  </div>
+
+  <!-- ====================================================================
+       Layer 1: Tall Crafted Footer (>50vh, pushes sticky sidebars up cleanly)
+       ==================================================================== -->
+  <footer class="docs-footer">
+    <div class="docs-footer-inner">
+      <div class="docs-footer-top">
+        <div class="docs-footer-brand">
+          <a href="index.html" class="docs-footer-brand-head">
+            <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
+            <span>木鱼拓哉 · MuYu</span>
+          </a>
+          <p>一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。</p>
+          <div class="docs-footer-socials">
+            <a href="https://github.com/Libeny" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">小红书</a>
+            <a href="mailto:libeny0526@gmail.com">Email</a>
+          </div>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>技术深读</h4>
+          <ul>
+            <li><a href="writing-designing-the-wait.html">AI 产品等待设计实战</a></li>
+            <li><a href="writing-linear-sync-engine.html">Linear 端云协同引擎</a></li>
+            <li><a href="writing-pi-agent-runtime.html">Pi Agent Runtime 底座</a></li>
+            <li><a href="writing-raft-message-mechanism.html">Raft 多 Agent 消息机制</a></li>
+            <li><a href="writing-qwen-audio-agent.html">qwen-audio-agent 架构</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>品味与随笔</h4>
+          <ul>
+            <li><a href="writing-ai-ui-curation.html">5 个封神 UI 库与 Skill</a></li>
+            <li><a href="writing-life.html">人文旅行八面体骨架</a></li>
+            <li><a href="writing-travel-book-essay.html">旅册：虚拟书架上的实体书</a></li>
+            <li><a href="writing-tech-process.html">小刚Claw 与 crewless 复盘</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-footer-col">
+          <h4>探索者现场</h4>
+          <ul>
+            <li><a href="index.html#explore">数字员工与独立产品</a></li>
+            <li><a href="index.html#now">正在搞：stack-chan 改造</a></li>
+            <li><a href="life.html#been-there">屏幕外的我 · 游玩日记</a></li>
+            <li><a href="travel-book/app/index.html">旅册 App 在线书房</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="docs-footer-bottom">
+        <span>© 2026 木鱼拓哉 · BUILDER'S NOTEBOOK &amp; WIKI</span>
+        <span class="hand">crafted with care &amp; curiosity ✦</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ====================================================================
+       Narrow Screens: Fixed Bottom Bar (.guide-dock) & Modal Sheets (<dialog>)
+       ==================================================================== -->
+  <div class="guide-dock" role="navigation" aria-label="移动端章节与目录切换">
+    <button type="button" class="guide-dock-btn guide-dock-btn--pages" data-open-sheet="pages">
+      <span aria-hidden="true">☰</span>
+      <span>文章目录</span>
+    </button>
+    <span class="guide-dock-divider" aria-hidden="true"></span>
+    <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
+      <span class="guide-dock-section" data-current-section-label>一、 异乡的体力活</span>
+      <span class="guide-dock-caret" aria-hidden="true">^</span>
+    </button>
+  </div>
+
+  <dialog class="guide-sheet" id="sheetPages" aria-label="全部文章目录">
+    <div class="guide-sheet-head">
+      <span class="guide-sheet-title">文章目录 · Contents</span>
+      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
+    </div>
+    <div class="guide-sheet-body">
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">交互设计与品味</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
+              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">Agent 与系统架构</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
+              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
+              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
+              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-life.html" class="docs-nav-link" aria-current="page">为什么现在的旅行越来越像体力活？</a></li>
+              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">过程记录与专题归档</div>
+            <ul class="docs-nav-list">
+              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
+              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
+            </ul>
+          </div>
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">延伸现场与作品</div>
+            <ul class="docs-nav-list">
+              <li><a href="index.html#explore" class="docs-nav-link">探索项目 · 小刚Claw / 卜灵</a></li>
+              <li><a href="life.html#been-there" class="docs-nav-link">游玩日记 · Life Log 城市明信片</a></li>
+              <li><a href="travel-book/app/index.html" class="docs-nav-link">旅册 App · 虚拟实体书架</a></li>
+              <li><a href="index.html#now" class="docs-nav-link">正在搞 · stack-chan 与 IP 实验</a></li>
+            </ul>
+          </div>
+    </div>
+  </dialog>
+
+  <dialog class="guide-sheet" id="sheetOutline" aria-label="本页章节大纲">
+    <div class="guide-sheet-head">
+      <span class="guide-sheet-title">本页目录 · On this page</span>
+      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
+    </div>
+    <div class="guide-sheet-body">
+      <ul class="docs-outline-list">
+          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、 异乡的体力活</a></li>
+          <li><a href="#section-02" class="docs-outline-link">二、 那么，以什么样的视角才能看懂一个地方？</a></li>
+          <li><a href="#section-03" class="docs-outline-link">三、 骨架有了，然后呢？</a></li>
+      </ul>
+    </div>
+  </dialog>
+
+  <script src="assets/writing-shell.js" defer></script>
 
 </body>
 </html>
