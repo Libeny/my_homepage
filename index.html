@@ -1004,125 +1004,237 @@
     }
 
     /* =========================================================
-       §5  写作 —— 分类目录册
+       §5  手记 —— 小红书式笔记流（封面卡 + 类别筛选）
+       桌面：网格瀑布流，JS 按卡片高度算 row span；手机：横向滑动
+       背景沿用扉页的「左上淡粉、右下薄荷」光晕，和主区呼应
        ========================================================= */
-    .writing-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      border-top: 1px solid rgba(105,75,64,0.18);
-      border-bottom: 1px solid rgba(105,75,64,0.18);
+    .notes-section {
+      background:
+        radial-gradient(ellipse at 10% 6%, var(--yellow-soft) 0%, transparent 46%),
+        radial-gradient(ellipse at 90% 96%, rgba(189,231,229,0.36) 0%, transparent 52%),
+        var(--cream);
+      border-top: 1px solid rgba(105,75,64,0.08);
     }
-    .writing-entry {
-      --writing-accent: var(--blue-deep);
-      position: relative;
+    .notes-bar {
       display: flex;
-      min-height: 480px;
-      flex-direction: column;
-      padding: clamp(24px, 3vw, 38px);
-      border-left: 1px solid rgba(105,75,64,0.18);
-      text-decoration: none;
-      color: var(--ink);
-      overflow: hidden;
-      transition: background var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: clamp(20px, 2.6vw, 30px);
     }
-    .writing-entry:first-child { border-left: 0; }
-    .writing-entry::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 6px;
-      background: var(--writing-accent);
-      transform: scaleX(0.28);
-      transform-origin: left;
-      transition: transform var(--dur-med) var(--ease-out);
-    }
-    .writing-entry:hover { background: rgba(255,255,255,0.4); transform: translateY(-5px); }
-    .writing-entry:hover::before { transform: scaleX(1); }
-    .writing-entry--life { --writing-accent: #C56B7B; }
-    .writing-entry--doc { min-height: 570px; }
-    .writing-entry .w-num {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(2.7rem, 5vw, 4.5rem);
-      font-style: italic;
-      font-weight: 900;
-      line-height: 0.9;
-      color: var(--writing-accent);
-      opacity: 0.72;
-      margin-bottom: 28px;
-    }
-    .writing-entry .w-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: clamp(1.45rem, 2.4vw, 2rem);
-      font-weight: 900;
-      line-height: 1.2;
-    }
-    .writing-entry .w-en {
-      margin-top: 8px;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
-      color: var(--ink-faint);
-    }
-    .writing-entry .w-sub {
-      margin-top: 22px;
-      color: var(--ink-light);
-      font-size: 0.9rem;
-      line-height: 1.85;
-    }
-    .writing-entry .doc-preview {
-      display: block;
-      margin-top: 28px;
-      padding: 18px;
+    .notes-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .notes-filter {
+      padding: 8px 16px;
       border: 1px solid rgba(105,75,64,0.16);
-      border-left: 4px solid var(--writing-accent);
-      background: rgba(255,255,255,0.56);
-      box-shadow: 5px 6px 0 rgba(189,231,229,0.24);
-      transform: translate(5px, 4px) rotate(0.55deg);
-      transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), background var(--dur-med) var(--ease-out);
+      border-radius: 100px;
+      background: rgba(255,255,255,0.6);
+      color: var(--ink-light);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 500;
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out),
+                  color var(--dur-fast) var(--ease-out),
+                  border-color var(--dur-fast) var(--ease-out);
+    }
+    .notes-filter span {
+      margin-left: 5px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+    .notes-filter:hover { background: #fff; color: var(--ink); }
+    .notes-filter[aria-pressed="true"] {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--cream);
+    }
+    .notes-filter:focus-visible { outline: 2px solid var(--blue-deep); outline-offset: 2px; }
+    .notes-more {
+      flex-shrink: 0;
+      padding-bottom: 3px;
+      border-bottom: 2px solid var(--yellow);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
       color: var(--ink);
       text-decoration: none;
+      transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
     }
-    .writing-entry .doc-preview + .doc-preview { margin-top: 14px; }
-    .writing-entry .doc-preview:hover {
-      transform: translate(0, -6px) rotate(0deg);
-      background: rgba(255,255,255,0.86);
-      box-shadow: 8px 10px 0 rgba(189,231,229,0.42);
+    .notes-more:hover { transform: translateX(4px); border-color: var(--blue-deep); }
+    .notes-more:focus-visible { outline: 2px solid var(--blue-deep); outline-offset: 4px; }
+
+    .notes-feed {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(14px, 1.6vw, 20px);
+      align-items: start;
     }
-    .writing-entry .doc-preview:focus-visible { outline: 2px solid var(--writing-accent); outline-offset: 3px; }
-    .doc-preview .doc-label { display: block; font-family: 'Fira Code', monospace; font-size: 0.61rem; letter-spacing: 0.12em; color: var(--writing-accent); margin-bottom: 7px; }
-    .doc-preview .doc-title { display: block; font-family: 'Noto Serif SC', serif; font-size: 1rem; font-weight: 900; line-height: 1.45; }
-    .doc-preview .doc-meta { display: block; margin-top: 7px; font-family: 'Fira Code', monospace; font-size: 0.59rem; letter-spacing: 0.06em; color: var(--ink-faint); }
-    .doc-preview .doc-summary {
+    /* JS 接管后：4px 细行 + 每张卡按高度 span，形成瀑布流 */
+    .notes-feed.is-masonry { grid-auto-rows: 4px; grid-auto-flow: row dense; row-gap: 0; }
+    .notes-swipe { display: none; }
+
+    .note-card {
+      --hl: var(--blue);
+      --tag-ink: #2F7B78;
       display: block;
-      max-height: 0;
-      margin-top: 0;
       overflow: hidden;
-      color: var(--ink-light);
-      font-size: 0.75rem;
-      line-height: 1.65;
-      opacity: 0;
-      transition: max-height var(--dur-med) var(--ease-out), margin var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
-    }
-    .writing-entry .doc-preview:hover .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
-    .writing-entry .arrow {
-      display: inline-block;
-      margin-top: 2rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.76rem;
-      color: var(--writing-accent);
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid rgba(105,75,64,0.09);
+      box-shadow: 0 2px 10px rgba(105,75,64,0.05);
+      color: var(--ink);
       text-decoration: none;
-      transition: transform var(--dur-med) var(--ease-out);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform var(--dur-med) var(--ease-out),
+                  box-shadow var(--dur-med) var(--ease-out);
     }
-    .writing-entry:hover .arrow { transform: translateX(7px); }
-    .writing-entry:focus-visible { outline: 2px solid var(--writing-accent); outline-offset: -4px; }
+    .note-card--life { --hl: var(--yellow); --tag-ink: #A84F61; }
+    .note-card[hidden] { display: none; }
+    .note-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(105,75,64,0.13); }
+    .note-card:active { transform: scale(0.985); }
+    .note-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .note-card.is-entering { animation: note-in 0.42s var(--ease-out) backwards; }
+    @keyframes note-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .note-cover {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: var(--ratio, 3 / 4);
+      background: var(--cream-dark);
+    }
+    .note-cover img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease-out);
+    }
+    .note-card:hover .note-cover img { transform: scale(1.04); }
+    /* 类别贴条：和扉页「Hi, 是我」同一种胶带感 */
+    .note-tag {
+      position: absolute;
+      top: 10px; left: 10px;
+      padding: 3px 9px;
+      border-radius: 3px;
+      background: var(--hl);
+      color: var(--ink);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+      transform: rotate(-3deg);
+      box-shadow: 0 2px 6px rgba(105,75,64,0.14);
+    }
+    /* 没有插画的文章：笔记本横线 + 大字封面 */
+    .note-cover--text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 22px 20px;
+      background:
+        repeating-linear-gradient(to bottom, transparent 0 27px, rgba(105,75,64,0.08) 27px 28px),
+        linear-gradient(160deg, var(--blue-soft) 0%, #FFFCF7 72%);
+    }
+    .note-cover--text .nc-kicker {
+      margin-bottom: 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--tag-ink);
+    }
+    .note-cover--text .nc-big {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(1.25rem, 1.9vw, 1.6rem);
+      line-height: 1.38;
+    }
+    .note-cover--text mark {
+      padding: 0 2px;
+      background: linear-gradient(to top, var(--yellow) 40%, transparent 40%);
+      color: inherit;
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+    }
+
+    .note-body { padding: 12px 14px 14px; }
+    .note-title {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    /* 悬停时荧光笔划过标题（薄荷=技术，淡粉=生活） */
+    .note-title span {
+      background: linear-gradient(to top, var(--hl) 36%, transparent 36%) no-repeat left bottom / 0% 100%;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      transition: background-size 0.5s var(--ease-out);
+    }
+    .note-card:hover .note-title span,
+    .note-card:focus-visible .note-title span { background-size: 100% 100%; }
+    .note-tags {
+      margin-top: 6px;
+      font-size: 0.74rem;
+      color: var(--tag-ink);
+    }
+    .note-meta {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 12px;
+      font-size: 0.74rem;
+      color: var(--ink-light);
+    }
+    .note-avatar {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--cream-dark);
+    }
+    .note-meta time {
+      margin-left: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+    }
 
     @media (max-width: 1080px) {
-      .writing-grid { grid-template-columns: 1fr; }
-      .writing-entry { min-height: 0; border-left: 0; border-top: 1px solid rgba(105,75,64,0.18); }
-      .writing-entry:first-child { border-top: 0; }
-      .writing-entry .w-num { margin-bottom: 16px; }
-      .writing-entry .doc-preview { margin-top: 28px; }
-      .doc-preview .doc-summary { max-height: 4em; margin-top: 9px; opacity: 1; }
+      .notes-feed { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    /* 手机：区块内左右滑，页面上下滑；下一张卡露出一截提示可滑 */
+    @media (max-width: 760px) {
+      .notes-bar { flex-wrap: wrap; row-gap: 12px; }
+      .notes-filters { flex-wrap: nowrap; gap: 6px; }
+      .notes-filter { padding: 7px 12px; font-size: 0.8rem; }
+      .notes-feed,
+      .notes-feed.is-masonry {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-inline: calc(-1 * clamp(1.5rem, 4vw, 2.5rem));
+        padding: 4px clamp(1.5rem, 4vw, 2.5rem) 14px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: clamp(1.5rem, 4vw, 2.5rem);
+        scrollbar-width: none;
+      }
+      .notes-feed::-webkit-scrollbar { display: none; }
+      .note-card { flex: 0 0 min(68vw, 270px); scroll-snap-align: start; }
+      .note-card:hover { transform: none; }
+      .notes-swipe {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.74rem;
+        color: var(--ink-faint);
+        text-align: center;
+      }
     }
 
     /* blog 空列表（笔记本空白行） */
@@ -1442,8 +1554,8 @@
     .reveal-d3 { transition-delay: 270ms; }
 
     /* emil：按钮/可点元素 active 按压反馈 */
-    a.cta, .writing-entry, .contact-link:active { -webkit-tap-highlight-color: transparent; }
-    .writing-entry:active, .now-card:active { transform: scale(0.99); }
+    a.cta, .contact-link:active { -webkit-tap-highlight-color: transparent; }
+    .now-card:active { transform: scale(0.99); }
 
     /* 响应式 */
     @media (max-width: 900px) {
@@ -1531,7 +1643,7 @@
     <a href="#explore" data-index-target="explore"><span class="index-label">探索</span><span>02</span><i class="index-line"></i></a>
     <a href="#now" data-index-target="now"><span class="index-label">正在搞</span><span>03</span><i class="index-line"></i></a>
     <a href="#off-screen" data-index-target="off-screen"><span class="index-label">屏幕外</span><span>04</span><i class="index-line"></i></a>
-    <a href="#writing" data-index-target="writing"><span class="index-label">写</span><span>05</span><i class="index-line"></i></a>
+    <a href="#writing" data-index-target="writing"><span class="index-label">手记</span><span>05</span><i class="index-line"></i></a>
     <a href="#contact" data-index-target="contact"><span class="index-label">联系</span><span>06</span><i class="index-line"></i></a>
   </nav>
   <button class="index-menu-toggle" type="button" aria-expanded="false" aria-controls="indexMenu">目录 <span aria-hidden="true">↗</span></button>
@@ -1540,7 +1652,7 @@
     <a href="#explore" data-index-target="explore"><span class="index-num">02</span>探索</a>
     <a href="#now" data-index-target="now"><span class="index-num">03</span>正在搞</a>
     <a href="#off-screen" data-index-target="off-screen"><span class="index-num">04</span>屏幕外的我</a>
-    <a href="#writing" data-index-target="writing"><span class="index-num">05</span>写</a>
+    <a href="#writing" data-index-target="writing"><span class="index-num">05</span>手记</a>
     <a href="#contact" data-index-target="contact"><span class="index-num">06</span>联系</a>
   </nav>
 
@@ -1796,66 +1908,120 @@
   </section>
 
   <!-- ============================================================
-       §5  写作 —— 技术文档 + 生活杂谈
+       §5  手记 —— 小红书式笔记流：封面卡 + 类别筛选
        ============================================================ -->
-  <section class="section section--alt" id="writing">
+  <section class="section notes-section" id="writing">
     <div class="container">
       <div class="sec-head reveal">
         <div class="sec-row">
           <span class="sec-num">05</span>
-          <h2 class="sec-title">写</h2>
-          <span class="sec-en">Writing</span>
+          <h2 class="sec-title">手记</h2>
+          <span class="sec-en">Field Notes</span>
         </div>
-        <p class="sec-sub">把做过的、在场的、生活里的，都留下一点。</p>
+        <p class="sec-sub">把做过的、在场的、生活里的，都随手记一笔。</p>
       </div>
 
-      <div class="writing-grid">
-        <div class="writing-entry writing-entry--doc reveal">
-          <span class="w-num">01</span>
-          <div class="w-title">技术文档</div>
-          <div class="w-en">DOCUMENTS</div>
-          <div class="w-sub">近期对最新技术的拆解、分析与学习文档。</div>
-          <a href="writing-ai-ui-curation.html" class="doc-preview">
-            <span class="doc-label">ARCHIVE / 01</span>
-            <span class="doc-title">5 个让 Claude Code<br>抄作业的封神 UI 库</span>
-            <span class="doc-meta">FRONTEND · AGENT TASTE</span>
-            <span class="doc-summary">写代码通常不是最难的，审美才容易卡人。5 个顶级 UI 库与开箱即用的 Agent Skill。</span>
-          </a>
-          <a href="writing-designing-the-wait.html" class="doc-preview">
-            <span class="doc-label">ARCHIVE / 02</span>
-            <span class="doc-title">AI 产品交互：<br>为什么用着难受</span>
-            <span class="doc-meta">AI UX &amp; INTERACTION</span>
-            <span class="doc-summary">从转圈、骨架屏到流式，如何做一个让人舒服的 AI 界面？</span>
-          </a>
-          <a href="writing-linear-sync-engine.html" class="doc-preview">
-            <span class="doc-label">ARCHIVE / 03</span>
-            <span class="doc-title">Linear 架构深读：<br>端云协同基本功</span>
-            <span class="doc-meta">SYNC ENGINE</span>
-            <span class="doc-summary">Agent 跑了八分钟，刷新一下就没了？聊聊 AI 时代的端云协同基本功。</span>
-          </a>
-          <a href="writing.html?category=tech" class="arrow">进入文档库 →</a>
+      <div class="notes-bar reveal">
+        <div class="notes-filters" role="group" aria-label="按类别筛选手记">
+          <button class="notes-filter" type="button" data-filter="all" aria-pressed="true">全部<span>8</span></button>
+          <button class="notes-filter" type="button" data-filter="tech" aria-pressed="false">技术拆解<span>6</span></button>
+          <button class="notes-filter" type="button" data-filter="life" aria-pressed="false">生活杂谈<span>2</span></button>
         </div>
-
-        <div class="writing-entry writing-entry--life reveal reveal-d1">
-          <span class="w-num">02</span>
-          <div class="w-title">生活杂谈</div>
-          <div class="w-en">LIFE</div>
-          <div class="w-sub">路上看到，心里想到。技术之外，也把真实的日子留下来。</div>
-          <a href="writing-life.html" class="doc-preview">
-            <span class="doc-label">ESSAY / 02</span>
-            <span class="doc-title">为什么现在的旅行，<br>越来越像一场体力活？</span>
-            <span class="doc-meta">TRAVEL &amp; HUMANITIES</span>
-            <span class="doc-summary">从中国两千年《方志学》八大卷帙中，寻找真正看懂一块土地的人文旅行八面体骨架。</span>
-          </a>
-          <a href="writing-travel-book-essay.html" class="doc-preview">
-            <span class="doc-label">ESSAY / 01</span>
-            <span class="doc-title">在虚拟书架上做一本<br>真实的实体书</span>
-            <span class="doc-meta">CREATIVE LOG · 旅册</span>
-            <span class="doc-summary">从魔法书跳动、红顶与居中的美学思辨，到让 AI 真正为旅人“装订”一本有温度的书。</span>
-          </a>
-          <a href="writing.html?category=life" class="arrow">随便看看 →</a>
-        </div>
+        <a class="notes-more" id="notesMore" href="writing.html">全部手记 →</a>
       </div>
+
+      <div class="notes-feed reveal" id="notesFeed">
+        <a class="note-card" href="writing-ai-ui-curation.html" data-category="tech">
+          <div class="note-cover" style="--ratio: 3 / 4">
+            <img src="assets/covers/ui-curation.webp" alt="" width="600" height="800" loading="lazy">
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>5 个让 Claude Code 抄作业的封神 UI 库</span></h3>
+            <p class="note-tags">#前端审美 #ClaudeCode</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-09">2026.09</time></div>
+          </div>
+        </a>
+        <a class="note-card" href="writing-designing-the-wait.html" data-category="tech">
+          <div class="note-cover" style="--ratio: 4 / 3">
+            <img src="assets/covers/designing-wait.webp" alt="" width="640" height="480" loading="lazy">
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>为什么绝大多数 AI 产品用起来都让人难受？</span></h3>
+            <p class="note-tags">#AI交互 #等待体验</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-09">2026.09</time></div>
+          </div>
+        </a>
+        <a class="note-card note-card--life" href="writing-life.html" data-category="life">
+          <div class="note-cover" style="--ratio: 1 / 1">
+            <img src="assets/covers/travel-crowd.webp" alt="" width="600" height="600" loading="lazy">
+            <span class="note-tag">生活</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>为什么现在的旅行，越来越像一场体力活？</span></h3>
+            <p class="note-tags">#人文旅行 #方志</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-09">2026.09</time></div>
+          </div>
+        </a>
+        <a class="note-card" href="writing-linear-sync-engine.html" data-category="tech">
+          <div class="note-cover" style="--ratio: 3 / 4">
+            <img src="assets/covers/linear-sync.webp" alt="" width="600" height="800" loading="lazy">
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>Linear 架构深读：Agent 跑了八分钟，刷新一下就没了？</span></h3>
+            <p class="note-tags">#端云协同 #Linear</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-09">2026.09</time></div>
+          </div>
+        </a>
+        <a class="note-card" href="writing-pi-agent-runtime.html" data-category="tech">
+          <div class="note-cover note-cover--text" style="--ratio: 4 / 5">
+            <span class="nc-kicker">PI-MONO · AGENT RUNTIME</span>
+            <span class="nc-big">从一段 <mark>while(true)</mark><br>到工业级<br>Agent 运行时</span>
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>Pi 学习探索：为什么它是搞懂 Agent 底层与面试的最佳代码库</span></h3>
+            <p class="note-tags">#AgentRuntime #面试</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-08">2026.08</time></div>
+          </div>
+        </a>
+        <a class="note-card note-card--life" href="writing-travel-book-essay.html" data-category="life">
+          <div class="note-cover" style="--ratio: 4 / 3">
+            <img src="assets/covers/travel-book.webp" alt="" width="640" height="480" loading="lazy">
+            <span class="note-tag">生活</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>在虚拟书架上做一本真实的实体书</span></h3>
+            <p class="note-tags">#旅册 #装帧</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-09">2026.09</time></div>
+          </div>
+        </a>
+        <a class="note-card" href="writing-raft-message-mechanism.html" data-category="tech">
+          <div class="note-cover" style="--ratio: 3 / 2">
+            <img src="assets/covers/raft-message.webp" alt="" width="660" height="440" loading="lazy">
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>2026 年了，你的 agent 还在用 @ 或全量消息单独唤起吗？</span></h3>
+            <p class="note-tags">#Agent消息 #唤醒机制</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-08">2026.08</time></div>
+          </div>
+        </a>
+        <a class="note-card" href="writing-qwen-audio-agent.html" data-category="tech">
+          <div class="note-cover" style="--ratio: 3 / 2">
+            <img src="assets/covers/qwen-audio.webp" alt="" width="660" height="440" loading="lazy">
+            <span class="note-tag">技术</span>
+          </div>
+          <div class="note-body">
+            <h3 class="note-title"><span>qwen-audio-agent 架构深读：如何打造一个既能秒回，也能干活的 Agent</span></h3>
+            <p class="note-tags">#语音Agent #架构深读</p>
+            <div class="note-meta"><img class="note-avatar" src="assets/favicon.png" alt="" loading="lazy"><span>木鱼拓哉</span><time datetime="2026-08">2026.08</time></div>
+          </div>
+        </a>
+      </div>
+      <p class="notes-swipe" aria-hidden="true">← 左右滑动看更多 →</p>
     </div>
   </section>
 
@@ -2121,6 +2287,50 @@
           setTimeout(() => { mCopy.textContent = copyLabel; mCopy.classList.remove('copied'); }, 1600);
         }).catch(() => {});
       });
+    })();
+
+    // === §5 手记：类别筛选 + 瀑布流（桌面按卡片高度算 row span；手机横滑不参与） ===
+    (function() {
+      const feed = document.getElementById('notesFeed');
+      if (!feed) return;
+      const cards = [...feed.querySelectorAll('.note-card')];
+      const filters = [...document.querySelectorAll('.notes-filter')];
+      const more = document.getElementById('notesMore');
+      const wide = window.matchMedia('(min-width: 761px)');
+      const ROW = 4;
+
+      function layout() {
+        if (!wide.matches) {
+          feed.classList.remove('is-masonry');
+          cards.forEach(c => { c.style.gridRowEnd = ''; });
+          return;
+        }
+        const gap = parseFloat(getComputedStyle(feed).columnGap) || 0;
+        cards.forEach(c => {
+          if (!c.hidden) c.style.gridRowEnd = 'span ' + Math.ceil((c.offsetHeight + gap) / ROW);
+        });
+        feed.classList.add('is-masonry');
+      }
+
+      function apply(cat) {
+        filters.forEach(f => f.setAttribute('aria-pressed', String(f.dataset.filter === cat)));
+        cards.forEach(c => {
+          c.hidden = cat !== 'all' && c.dataset.category !== cat;
+          c.classList.remove('is-entering');
+        });
+        void feed.offsetWidth;
+        cards.forEach(c => { if (!c.hidden) c.classList.add('is-entering'); });
+        if (more) more.href = cat === 'all' ? 'writing.html' : 'writing.html?category=' + cat;
+        feed.scrollLeft = 0;
+        layout();
+      }
+
+      filters.forEach(f => f.addEventListener('click', () => apply(f.dataset.filter)));
+      cards.forEach(c => c.addEventListener('animationend', () => c.classList.remove('is-entering')));
+      if ('ResizeObserver' in window) new ResizeObserver(layout).observe(feed);
+      wide.addEventListener('change', layout);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+      layout();
     })();
 
     // === §2 探索 interactions: 交错揭示 + 滚动自动展开 ===
