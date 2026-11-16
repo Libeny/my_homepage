@@ -1216,11 +1216,24 @@
     }
     .contact-link:hover .c-platform::after { opacity: 0.35; transform: scaleX(1); }
     .contact-link .c-handle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       font-family: 'Fira Code', monospace;
       font-size: 0.78rem;
       color: rgba(251,242,227,0.5);
       margin-left: auto;
+      align-self: center;
     }
+    .contact-link .c-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(251,242,227,0.85);
+      background: #fff;
+      transition: transform var(--dur-med) var(--ease-out);
+    }
+    .contact-link:hover .c-avatar { transform: rotate(-6deg) scale(1.08); }
     .contact-link:hover .c-handle { color: var(--blue); }
 
     /* =========================================================
@@ -1298,13 +1311,14 @@
     }
     .modal-overlay.active .modal-card { transform: scale(1); opacity: 1; }
     .modal-avatar {
-      width: 76px; height: 76px;
+      width: 92px; height: 92px;
       border-radius: 50%;
       object-fit: cover;
       margin: 0 auto 18px;
       display: block;
-      border: 3px solid #fff;
-      box-shadow: 0 4px 14px rgba(105,75,64,0.18);
+      background: #fff;
+      border: 4px solid #fff;
+      box-shadow: 0 6px 18px rgba(105,75,64,0.2);
     }
     .modal-close {
       position: absolute; top: 14px; right: 16px;
@@ -1325,6 +1339,13 @@
       color: var(--ink);
       word-break: break-all;
       line-height: 1.3;
+    }
+    .modal-sub {
+      margin-top: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: var(--ink-light);
     }
     .modal-note {
       margin-top: 12px;
@@ -1862,27 +1883,34 @@
       <div class="contact-links">
         <a href="mailto:libeny0526@gmail.com" class="contact-link reveal"
            data-platform="EMAIL" data-detail="libeny0526@gmail.com"
+           data-avatar="assets/favicon.png"
            data-note="工作时间也会看，慢慢回。" data-copyable="true">
           <span class="c-platform">Email</span>
-          <span class="c-handle">libeny0526@gmail.com</span>
+          <span class="c-handle"><img class="c-avatar" src="assets/favicon.png" alt="" loading="lazy">libeny0526@gmail.com</span>
         </a>
-        <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener" class="contact-link reveal"
-           data-platform="小红书 · XIAOHONGSHU" data-detail="@explorer"
-           data-note="日常碎碎念 + IP 进度都在这。">
+        <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener" class="contact-link reveal"
+           data-platform="小红书 · XIAOHONGSHU" data-detail="木鱼拓哉"
+           data-sub="小红书号 3881625227" data-copy="3881625227" data-copy-label="复制小红书号"
+           data-avatar="assets/avatar-xhs.jpg"
+           data-note="日常碎碎念 + IP 进度都在这。" data-copyable="true">
           <span class="c-platform">小红书</span>
-          <span class="c-handle">@explorer</span>
+          <span class="c-handle"><img class="c-avatar" src="assets/avatar-xhs.jpg" alt="" loading="lazy">@木鱼拓哉</span>
         </a>
         <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="contact-link reveal"
-           data-platform="GITHUB" data-detail="@Libeny"
+           data-platform="GITHUB" data-detail="Libeny"
+           data-sub="木鱼拓哉 · github.com/Libeny"
+           data-avatar="assets/avatar-github.jpg"
            data-note="代码都在这，欢迎来玩。">
           <span class="c-platform">GitHub</span>
-          <span class="c-handle">@Libeny</span>
+          <span class="c-handle"><img class="c-avatar" src="assets/avatar-github.jpg" alt="" loading="lazy">@Libeny</span>
         </a>
         <a href="#" class="contact-link reveal"
-           data-platform="微信 · WECHAT" data-detail="BiothaLMY"
-           data-note="备注一下来路，更容易通过。" data-copyable="true">
+           data-platform="微信 · WECHAT" data-detail="Fanático"
+           data-sub="微信号 BiothaLMY" data-copy="BiothaLMY" data-copy-label="复制微信号"
+           data-avatar="assets/avatar-wechat.jpg"
+           data-note="复制微信号去搜索，备注一下来路，更容易通过。" data-copyable="true">
           <span class="c-platform">微信</span>
-          <span class="c-handle">BiothaLMY</span>
+          <span class="c-handle"><img class="c-avatar" src="assets/avatar-wechat.jpg" alt="" loading="lazy">Fanático</span>
         </a>
       </div>
 
@@ -1896,9 +1924,10 @@
   <div class="modal-overlay" id="contactModal" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalPlatform">
       <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
-      <img class="modal-avatar" src="assets/favicon.png" alt="木鱼的头像">
+      <img class="modal-avatar" id="modalAvatar" src="assets/favicon.png" alt="头像">
       <span class="label-caps modal-platform" id="modalPlatform">CONTACT</span>
       <div class="modal-detail" id="modalDetail"></div>
+      <p class="modal-sub" id="modalSub"></p>
       <p class="modal-note" id="modalNote"></p>
       <div class="modal-actions">
         <a class="modal-action" id="modalAction" href="#" target="_blank" rel="noopener">前往 →</a>
@@ -2022,17 +2051,24 @@
       if (!modal) return;
       const mPlatform = document.getElementById('modalPlatform');
       const mDetail = document.getElementById('modalDetail');
+      const mSub = document.getElementById('modalSub');
+      const mAvatar = document.getElementById('modalAvatar');
       const mNote = document.getElementById('modalNote');
       const mAction = document.getElementById('modalAction');
       const mCopy = document.getElementById('modalCopy');
       const mClose = document.getElementById('modalClose');
       let currentCopy = '';
+      let copyLabel = '复制';
       let lastFocus = null;
 
       function open(opts) {
         lastFocus = document.activeElement;
         mPlatform.textContent = opts.platform;
         mDetail.textContent = opts.detail;
+        mSub.textContent = opts.sub || '';
+        mSub.style.display = opts.sub ? '' : 'none';
+        mAvatar.src = opts.avatar || 'assets/favicon.png';
+        mAvatar.alt = opts.detail + ' 的头像';
         mNote.textContent = opts.note || '';
         mNote.style.display = opts.note ? '' : 'none';
         if (opts.link && opts.link !== '#') {
@@ -2042,9 +2078,10 @@
           mAction.style.display = 'none';
         }
         mCopy.style.display = opts.copyable ? '' : 'none';
-        mCopy.textContent = '复制';
+        copyLabel = opts.copyLabel || '复制';
+        mCopy.textContent = copyLabel;
         mCopy.classList.remove('copied');
-        currentCopy = opts.copyable ? opts.detail : '';
+        currentCopy = opts.copyable ? (opts.copy || opts.detail) : '';
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
         setTimeout(() => mClose.focus(), 60);
@@ -2061,6 +2098,10 @@
           open({
             platform: a.dataset.platform,
             detail: a.dataset.detail,
+            sub: a.dataset.sub,
+            copy: a.dataset.copy,
+            copyLabel: a.dataset.copyLabel,
+            avatar: a.dataset.avatar,
             note: a.dataset.note,
             link: a.getAttribute('href'),
             copyable: a.dataset.copyable === 'true'
@@ -2077,7 +2118,7 @@
         navigator.clipboard?.writeText(currentCopy).then(() => {
           mCopy.textContent = '已复制 ✦';
           mCopy.classList.add('copied');
-          setTimeout(() => { mCopy.textContent = '复制'; mCopy.classList.remove('copied'); }, 1600);
+          setTimeout(() => { mCopy.textContent = copyLabel; mCopy.classList.remove('copied'); }, 1600);
         }).catch(() => {});
       });
     })();
