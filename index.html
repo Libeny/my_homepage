@@ -800,11 +800,11 @@
     }
     .hero-mascot img,
     .hero-mascot video {
-      height: clamp(150px, 20vw, 220px);
+      height: clamp(220px, 36vh, 340px);
       width: auto;
       display: block;
-      border-radius: 22px;
-      border: 5px solid #fff;
+      border-radius: 26px;
+      border: 6px solid #fff;
       transform: rotate(-2.5deg);
       filter: drop-shadow(0 12px 24px rgba(105,75,64,0.22));
       transition: transform var(--dur-slow) var(--ease-out);
@@ -812,12 +812,16 @@
     }
     .hero-mascot:hover img,
     .hero-mascot:hover video { transform: rotate(-1deg) translateY(-4px); }
+    @media (max-height: 780px) and (min-width: 700px) {
+      .hero-mascot img,
+      .hero-mascot video { height: clamp(180px, 30vh, 260px); }
+    }
     .hero-mascot .mascot-tape {
       position: absolute;
-      top: -12px; right: -6px;
+      top: -14px; right: -14px;
       transform: rotate(8deg);
       font-family: 'Caveat', cursive;
-      font-size: 0.98rem;
+      font-size: 1.12rem;
       font-weight: 700;
       color: var(--red);
       background: var(--yellow);
