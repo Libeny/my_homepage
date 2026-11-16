@@ -1072,7 +1072,6 @@
     }
     /* JS 接管后：4px 细行 + 每张卡按高度 span，形成瀑布流 */
     .notes-feed.is-masonry { grid-auto-rows: 4px; grid-auto-flow: row dense; row-gap: 0; }
-    .notes-swipe { display: none; }
 
     .note-card {
       --hl: var(--blue);
@@ -1228,13 +1227,6 @@
       .notes-feed::-webkit-scrollbar { display: none; }
       .note-card { flex: 0 0 min(68vw, 270px); scroll-snap-align: start; }
       .note-card:hover { transform: none; }
-      .notes-swipe {
-        display: block;
-        margin-top: 4px;
-        font-size: 0.74rem;
-        color: var(--ink-faint);
-        text-align: center;
-      }
     }
 
     /* blog 空列表（笔记本空白行） */
@@ -1626,6 +1618,50 @@
       .life-row { grid-template-columns: 1fr; gap: 6px; }
     }
 
+    /* =========================================================
+       手机：区块内左右滑，页面上下滑（探索 / 正在搞 / 手记 共用一套横滑规则）
+       ========================================================= */
+    .swipe-hint { display: none; }
+    @media (max-width: 760px) {
+      .explore > * { min-width: 0; }
+      /* 扉页已经放了同一段形象视频，这里不再重复占一屏 */
+      .exp-side .ip-frame,
+      .exp-side .ip-caption { display: none; }
+      .exp-items,
+      .now-grid {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 12px;
+        width: auto;
+        margin-inline: calc(-1 * clamp(1.5rem, 4vw, 2.5rem));
+        padding: 18px clamp(1.5rem, 4vw, 2.5rem) 14px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: clamp(1.5rem, 4vw, 2.5rem);
+        scrollbar-width: none;
+      }
+      .exp-items::-webkit-scrollbar,
+      .now-grid::-webkit-scrollbar { display: none; }
+      .exp-item,
+      .now-card { flex: 0 0 84vw; scroll-snap-align: start; }
+      .exp-item:hover, .now-card:hover { transform: none; }
+      /* 横滑时每张项目卡直接展开，不再依赖纵向滚动位置；
+         改成普通块级流，避免 grid 行把多余高度分给标题行 */
+      .exp-item,
+      .exp-item.expanded { display: block; box-shadow: none; }
+      .exp-item .exp-detail { opacity: 1; margin-top: 20px; }
+      .exp-item .exp-detail > * { opacity: 1; transform: none; }
+      .swipe-hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.74rem;
+        color: var(--ink-faint);
+        text-align: center;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001ms !important;
@@ -1799,6 +1835,7 @@
           </article>
 
         </div>
+        <p class="swipe-hint" aria-hidden="true">← 左右滑动看更多 →</p>
       </div>
     </div>
   </section>
@@ -1859,6 +1896,7 @@
           </div>
         </div>
       </div>
+      <p class="swipe-hint" aria-hidden="true">← 左右滑动看更多 →</p>
     </div>
   </section>
 
@@ -2021,7 +2059,7 @@
           </div>
         </a>
       </div>
-      <p class="notes-swipe" aria-hidden="true">← 左右滑动看更多 →</p>
+      <p class="swipe-hint" aria-hidden="true">← 左右滑动看更多 →</p>
     </div>
   </section>
 
