@@ -21,7 +21,9 @@
 
 站点配置来源为 `deploy/homepage.nginx.conf`。宿主机安装位置为 `/etc/nginx/conf.d/mupath-homepage.conf`。
 
-`18081` 只监听本机、Docker 网桥和 Tailscale 地址，不对公网地址监听。既有 Nginx Proxy Manager 继续占用公网 80/443 端口。本轮没有新增应用后端常驻进程。
+`18081` 只监听本机与 Docker 网桥，不对公网或 Tailscale 地址监听。既有 Nginx Proxy Manager 继续占用公网 80/443 端口。本轮没有新增应用后端常驻进程。
+
+`deploy/nginx.service.d/mupath-network.conf` 安装到 `/etc/systemd/system/nginx.service.d/mupath-network.conf`，使 Nginx 在开机时等待 Docker 创建网桥，再绑定 `172.17.0.1`。修改后运行 `systemctl daemon-reload`。站点不依赖 Tailscale 地址是否就绪；Tailscale 只用于管理。Nginx 和 Docker 均已启用开机启动，NPM 容器重启策略为 `unless-stopped`。
 
 ### HTTPS 边界
 
@@ -111,6 +113,7 @@ GitHub Pages 配置与仓库 `CNAME` 保留。若主站必须回退，在 Cloudf
 - 02:47:56、02:48:03、02:48:11 三轮公网健康检查中，主站与既有 API 全部返回 200，服务状态均为 `ok`。
 - DNS API 确认根域名仅保留 `8.152.220.135` 这一条 Proxied A 记录；另外 9 条记录保持不变。
 - 宿主机和 NPM 的 Nginx 配置检查通过；宿主机 Nginx 与 `muyu@blue` 服务处于 active。
+- 开机顺序配置包含 `Wants=docker.service` 和 `After=docker.service`；未为验证而重启生产服务器。
 
 本轮验证范围为文件完整性、HTTP、资源传输、配置和健康检查；没有重新执行所有历史页面的交互测试。页面主体内容和交互代码沿用迁移前版本。
 
