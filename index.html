@@ -30,6 +30,7 @@
       --ink-light:   #8B6F5C;
       --ink-faint:   #A89488;
       --dark-panel:  #5A4037;  /* 暖棕暗面板 */
+      --paper:       #F8F5EF;  /* 卡片纸面 — 带一点灰的暖白，比纯白柔和 */
 
       /* 动效 token（emil：精确属性 + 自定义缓动） */
       --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
@@ -345,7 +346,7 @@
     .exp-item {
       position: relative;
       border-radius: 18px;
-      background: #fff;
+      background: var(--paper);
       border: 1px solid rgba(105,75,64,0.09);
       box-shadow: 0 2px 10px rgba(105,75,64,0.05);
       padding: clamp(28px, 3.4vw, 40px);
@@ -632,7 +633,7 @@
       margin: 0 auto clamp(34px, 5vw, 58px);
       border: 2px dashed rgba(189,231,229,.92);
       border-radius: 18px;
-      background: rgba(255,255,255,.62);
+      background: var(--paper);
     }
     .now-reel-media {
       position: relative;
@@ -675,7 +676,7 @@
       border: 2px dashed;
       border-radius: 18px;
       padding: clamp(28px, 3vw, 40px);
-      background: #fff;
+      background: var(--paper);
       transition: transform var(--dur-med) var(--ease-out);
     }
     .now-card:hover { transform: translateY(-4px) rotate(-0.3deg); }
@@ -818,7 +819,7 @@
       flex-direction: column;
       gap: 18px;
       padding: clamp(28px, 3.5vw, 40px);
-      background: #fff;
+      background: var(--paper);
       border-radius: 20px;
       box-shadow: 0 4px 18px rgba(105,75,64,0.07);
       text-decoration: none;
@@ -1017,7 +1018,7 @@
       font-size: 0.7rem;
       opacity: 0.6;
     }
-    .notes-filter:hover { background: #fff; color: var(--ink); }
+    .notes-filter:hover { background: var(--paper); color: var(--ink); }
     .notes-filter[aria-pressed="true"] {
       background: var(--ink);
       border-color: var(--ink);
@@ -1052,7 +1053,7 @@
       display: block;
       overflow: hidden;
       border-radius: 14px;
-      background: #fff;
+      background: var(--paper);
       border: 1px solid rgba(105,75,64,0.09);
       box-shadow: 0 2px 10px rgba(105,75,64,0.05);
       color: var(--ink);
