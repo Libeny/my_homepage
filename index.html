@@ -31,6 +31,7 @@
       --ink-faint:   #A89488;
       --dark-panel:  #5A4037;  /* 暖棕暗面板 */
       --paper:       #F8F5EF;  /* 卡片纸面 — 带一点灰的暖白，比纯白柔和 */
+      --blush:       #FBEDE8;  /* 米白与淡粉之间 — 屏幕外 → 手记 的渐变接缝 */
 
       /* 动效 token（emil：精确属性 + 自定义缓动） */
       --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
@@ -265,6 +266,11 @@
        ========================================================= */
     .section { padding: clamp(80px, 13vh, 150px) 0; }
     .section--alt { background: var(--cream-dark); }
+    /* 中段四个区块（探索 → 正在搞 → 屏幕外 → 手记）用纵向渐变首尾相接：
+       上一块的底色就是下一块的顶色，接缝处没有硬边 */
+    #explore    { background: linear-gradient(to bottom, var(--cream) 0%, var(--cream) 62%, var(--cream-dark) 100%); }
+    #now        { background: linear-gradient(to bottom, var(--cream-dark) 0%, var(--cream-dark) 55%, var(--cream) 100%); }
+    #off-screen { background: linear-gradient(to bottom, var(--cream) 0%, var(--cream) 40%, var(--blush) 100%); }
 
     .sec-head { margin-bottom: clamp(40px, 6vw, 76px); }
     .sec-head .sec-row {
@@ -980,14 +986,12 @@
     /* =========================================================
        §5  手记 —— 小红书式笔记流（封面卡 + 类别筛选）
        桌面：网格瀑布流，JS 按卡片高度算 row span；手机：横向滑动
-       背景沿用扉页的「左上淡粉、右下薄荷」光晕，和主区呼应
+       背景从上一块的淡粉渐变回米白，右下留薄荷光晕，和扉页呼应
        ========================================================= */
     .notes-section {
       background:
-        radial-gradient(ellipse at 10% 6%, var(--yellow-soft) 0%, transparent 46%),
         radial-gradient(ellipse at 90% 96%, rgba(189,231,229,0.36) 0%, transparent 52%),
-        var(--cream);
-      border-top: 1px solid rgba(105,75,64,0.08);
+        linear-gradient(to bottom, var(--blush) 0%, var(--cream) 42%, var(--cream) 100%);
     }
     .notes-bar {
       display: flex;
