@@ -9,8 +9,8 @@
   <meta name="description" content="一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。">
 
   <!-- === esther 锁定 token：薄荷绿 / 淡粉 / 深棕 / 奶油 === -->
-  <!-- 全站字体自托管子集：scripts/build-font-subsets.py 生成，国内可达、零外部依赖 -->
-  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <!-- 首页按需字体子集：scripts/build-font-subsets.py 生成，国内可达、零外部依赖 -->
+  <link rel="stylesheet" href="assets/fonts/page-index/fonts.css">
 
   <style>
     /* =========================================================
@@ -264,13 +264,15 @@
     /* =========================================================
        通用 section header（编号 + 标题 + 英文小字）
        ========================================================= */
-    .section { padding: clamp(80px, 13vh, 150px) 0; }
-    .section--alt { background: var(--cream-dark); }
-    /* 中段四个区块（探索 → 正在搞 → 屏幕外 → 手记）用纵向渐变首尾相接：
-       上一块的底色就是下一块的顶色，接缝处没有硬边 */
-    #explore    { background: linear-gradient(to bottom, var(--cream) 0%, var(--cream) 62%, var(--cream-dark) 100%); }
-    #now        { background: linear-gradient(to bottom, var(--cream-dark) 0%, var(--cream-dark) 55%, var(--cream) 100%); }
-    #off-screen { background: linear-gradient(to bottom, var(--cream) 0%, var(--cream) 40%, var(--blush) 100%); }
+    .section {
+      padding: clamp(80px, 13vh, 150px) 0;
+      border-bottom: 1.5px solid rgba(105, 75, 64, 0.14);
+    }
+    .section--alt {
+      background: #EDE0CC;
+      border-top: 2px solid rgba(105, 75, 64, 0.22);
+      border-bottom: 2px solid rgba(105, 75, 64, 0.22);
+    }
 
     .sec-head { margin-bottom: clamp(40px, 6vw, 76px); }
     .sec-head .sec-row {
@@ -628,19 +630,20 @@
        §3  正在搞 —— 手绘虚线卡（maker / in-progress 感）
        ========================================================= */
     .now-grid {
-      width: min(100%, 920px);
+      width: 100%;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: clamp(20px, 2.4vw, 28px);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(18px, 2vw, 24px);
     }
     .now-reel {
-      width: min(100%, 920px);
-      padding: clamp(14px, 2vw, 22px);
-      margin: 0 auto clamp(34px, 5vw, 58px);
-      border: 2px dashed rgba(189,231,229,.92);
-      border-radius: 18px;
+      width: 100%;
+      padding: clamp(16px, 2.2vw, 24px);
+      margin: 0 auto clamp(34px, 5vw, 54px);
+      border: 2px solid var(--ink);
+      border-radius: 20px;
       background: var(--paper);
+      box-shadow: 0 8px 0 rgba(105, 75, 64, 0.12);
     }
     .now-reel-media {
       position: relative;
@@ -682,53 +685,53 @@
       position: relative;
       border: 2px dashed;
       border-radius: 18px;
-      padding: clamp(28px, 3vw, 40px);
+      padding: clamp(24px, 2.4vw, 32px);
       background: var(--paper);
       transition: transform var(--dur-med) var(--ease-out);
+      display: flex;
+      flex-direction: column;
     }
     .now-card:hover { transform: translateY(-4px) rotate(-0.3deg); }
-    .now-card:nth-child(1) { border-color: rgba(189,231,229,0.85); }
-    .now-card:nth-child(1) .now-label { color: var(--blue-deep); }
-    .now-card:nth-child(2) { border-color: rgba(244,207,214,0.95); }
-    .now-card:nth-child(2) .now-label { color: #C56B7B; }
+    .now-card:nth-child(1) { border-color: rgba(105,75,64,0.45); }
+    .now-card:nth-child(1) .now-label { color: #2C5A58; background: var(--blue); border: 1.5px solid var(--ink); border-radius: 100px; }
+    .now-card:nth-child(2) { border-color: rgba(105,75,64,0.45); }
+    .now-card:nth-child(2) .now-label { color: #7A3E48; background: var(--yellow); border: 1.5px solid var(--ink); border-radius: 100px; }
+    .now-card:nth-child(3) { border-color: rgba(105,75,64,0.45); }
+    .now-card:nth-child(3) .now-label { color: var(--ink); background: #F5E6D3; border: 1.5px solid var(--ink); border-radius: 100px; }
     .now-card .now-label {
       font-family: 'Caveat', cursive;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       position: absolute;
       top: -14px;
-      left: 22px;
+      left: 20px;
       background: var(--cream);
-      padding: 0 12px;
+      padding: 1px 12px;
     }
-    .now-card .now-emoji { font-size: 2.2rem; display: block; margin-bottom: 16px; }
+    .now-card .now-emoji { font-size: 2rem; display: block; margin-bottom: 12px; }
     .now-card .now-title {
       font-family: 'Noto Serif SC', serif;
       font-weight: 900;
-      font-size: 1.25rem;
+      font-size: 1.18rem;
       margin-bottom: 8px;
       line-height: 1.3;
     }
     .now-card .now-desc {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--ink-light);
-      line-height: 1.8;
+      line-height: 1.78;
       margin-bottom: 16px;
+      flex: 1;
     }
     .now-card .now-thumb {
       width: 100%;
-      border-radius: 10px;
-      display: block;
-      margin-top: 8px;
-      border: 1px solid rgba(105,75,64,0.08);
-    }
-    .now-card .now-thumb {
-      margin-top: 8px;
+      margin-top: auto;
       aspect-ratio: 16/9;
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
       position: relative;
+      border: 1.5px solid rgba(105,75,64,0.16);
     }
     .now-card .now-thumb--robot {
       background:
@@ -769,6 +772,26 @@
       color: var(--ink-light);
       background: rgba(255,255,255,0.7);
       padding: 3px 12px;
+      border-radius: 100px;
+    }
+    .now-card .now-thumb--game {
+      background:
+        radial-gradient(ellipse at 28% 25%, rgba(255,255,255,0.72) 0%, transparent 55%),
+        linear-gradient(135deg, #F5E6D3 0%, #E7D2B8 100%);
+    }
+    .now-card .now-thumb--game .game-icon {
+      font-size: clamp(2.8rem, 5.5vw, 3.8rem);
+      filter: drop-shadow(0 6px 10px rgba(105,75,64,0.2));
+    }
+    .now-card .now-thumb--game .tag {
+      position: absolute;
+      right: 12px; bottom: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: var(--ink);
+      background: rgba(255,255,255,0.72);
+      padding: 4px 10px;
       border-radius: 100px;
     }
 
@@ -1858,16 +1881,30 @@
         </div>
 
         <div class="now-card reveal reveal-d1">
-          <span class="now-label">AI 生图&视频 + Blender ✦</span>
-          <span class="now-emoji">🐻</span>
-          <h3 class="now-title">AI 生图&视频 + Blender 做 IP</h3>
+          <span class="now-label">AI + Motion ✦</span>
+          <span class="now-emoji">🎬</span>
+          <h3 class="now-title">做 Motion 动画</h3>
           <p class="now-desc">
-            形象已经捏出来了，但表达还需要再进一步——
-            从 AI 生图到 Blender 建模，再到视频漫剧，让 IP 活起来。
+            静态图文之外，表达还可以更有节奏感——
+            用 AI 编排分镜、运镜与丝滑动效，把硬核内容和 IP 做成好看的 Motion 动画。
           </p>
           <div class="now-thumb now-thumb--muyu">
             <img src="assets/favicon.png" alt="木鱼的 IP 形象">
             <span class="tag">持续进化 ✦</span>
+          </div>
+        </div>
+
+        <div class="now-card reveal reveal-d2">
+          <span class="now-label">AI + 游戏 ✦</span>
+          <span class="now-emoji">🎮</span>
+          <h3 class="now-title">AI + 游戏探索</h3>
+          <p class="now-desc">
+            把 Agent 放进游戏世界里——不只是背固定台词的 NPC，
+            而是有记忆、能互动、会顺着你的选择自己推演剧情的新玩法。
+          </p>
+          <div class="now-thumb now-thumb--game">
+            <span class="game-icon">🕹️</span>
+            <span class="tag">PLAYGROUND · 实验中</span>
           </div>
         </div>
       </div>

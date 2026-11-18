@@ -3,6 +3,8 @@
 
 背景：全站字体自托管在 assets/fonts/，不依赖 Google Fonts（国内不可达）。
 本脚本从字体镜像拉取源文件，按"站内页面实际用到的字符"生成子集 woff2。
+合并切片后还会按精确码点再裁一次：切片边界很粗（一个切片覆盖整段
+unicode-range），只合并不裁剪的话，10 个汉字也可能带上 1.9 MB 的字形。
 
 什么时候要重跑：
   - 任何页面新增/修改了文字（尤其是新出现的汉字、日文假名等）
@@ -40,6 +42,7 @@ import re
 import sys
 import urllib.request
 
+from fontTools import subset
 from fontTools.merge import Merger
 from fontTools.ttLib import TTFont
 
@@ -76,6 +79,13 @@ WESTERN_FONTS = {
     "Fira Code": [(400, "normal"), (500, "normal")],
     "Fraunces":  [(400, "normal"), (900, "normal"),
                   (400, "italic"), (900, "italic")],
+}
+
+# 单页专用子集：首页用字远少于全站（435 vs 2109），单独裁一份能少下约 1 MB。
+# 产物在 assets/fonts/<名称>/，页面引用那个目录里的 fonts.css。
+PAGE_PROFILES = {
+    "page-index": [os.path.join(REPO_ROOT, "index.html")],
+    "page-life": [os.path.join(REPO_ROOT, "life.html")],
 }
 
 # ------------------------------------------------------------ 工具函数
@@ -146,11 +156,12 @@ def expand_unicode_range(ur):
     return out
 
 
-def collect_page_chars():
-    """扫描所有会直接参与页面渲染的文本资源。"""
+def collect_page_chars(globs=None):
+    """扫描会直接参与页面渲染的文本资源；globs 为空时扫全站。"""
     import glob
     chars = set()
-    files = sorted({path for pattern in TEXT_GLOBS for path in glob.glob(pattern)})
+    patterns = TEXT_GLOBS if globs is None else globs
+    files = sorted({path for pattern in patterns for path in glob.glob(pattern)})
     for path in files:
         with open(path, encoding="utf-8") as fh:
             chars.update(fh.read())
@@ -162,7 +173,25 @@ def collect_page_chars():
 # ------------------------------------------------------------ 中文字体
 
 
-def build_cjk_family(family, weights, needed_codepoints):
+def subset_to_codepoints(path, codepoints):
+    """把合并后的字体按精确码点再裁一次，去掉切片边界带来的多余字形。"""
+    font = TTFont(path)
+    options = subset.Options()
+    options.layout_features = ["*"]   # 保留 kerning / vert 等排版特性
+    options.name_IDs = ["*"]
+    options.name_legacy = True
+    options.name_languages = ["*"]
+    options.notdef_outline = True
+    options.recalc_bounds = True
+    options.flavor = "woff2"
+    subsetter = subset.Subsetter(options=options)
+    subsetter.populate(unicodes=codepoints)
+    subsetter.subset(font)
+    font.save(path)
+    font.close()
+
+
+def build_cjk_family(family, weights, needed_codepoints, out_dir):
     for weight in weights:
         css = fetch_with_retry(css2_url(family, [weight])).decode("utf-8")
         blocks = parse_css2(css)
@@ -186,17 +215,19 @@ def build_cjk_family(family, weights, needed_codepoints):
             slice_paths = list(pool.map(download, needed_blocks))
 
         merged = Merger().merge(slice_paths)
-        out_path = os.path.join(OUT_DIR, f"{slug(family)}-{weight}.woff2")
+        out_path = os.path.join(out_dir, f"{slug(family)}-{weight}.woff2")
         merged.flavor = "woff2"
         merged.save(out_path)
+        before_kb = os.path.getsize(out_path) // 1024
+        subset_to_codepoints(out_path, needed_codepoints)
         size_kb = os.path.getsize(out_path) // 1024
-        print(f"  -> {os.path.basename(out_path)}（{size_kb} KB）")
+        print(f"  -> {os.path.basename(out_path)}（{before_kb} → {size_kb} KB）")
 
 
 # ------------------------------------------------------------ 西文字体
 
 
-def build_western_family(family, variants):
+def build_western_family(family, variants, out_dir):
     weights = sorted({w for w, _ in variants})
     has_italic = any(s == "italic" for _, s in variants)
     css = fetch_with_retry(
@@ -214,7 +245,7 @@ def build_western_family(family, variants):
         data = fetch_with_retry(latin[0]["url"])
         suffix = "-italic" if style == "italic" else ""
         out_path = os.path.join(
-            OUT_DIR, f"{slug(family)}-{weight}{suffix}.woff2")
+            out_dir, f"{slug(family)}-{weight}{suffix}.woff2")
         with open(out_path, "wb") as fh:
             fh.write(data)
         print(f"{family} {weight} {style}: "
@@ -224,7 +255,7 @@ def build_western_family(family, variants):
 # ------------------------------------------------------------ fonts.css
 
 
-def write_css():
+def write_css(out_dir):
     lines = [
         "/* 由 scripts/build-font-subsets.py 自动生成，请勿手改。",
         "   字符子集只覆盖站内页面用到的字；新增文字后需重跑该脚本，",
@@ -252,19 +283,19 @@ def write_css():
                 "  font-display: swap;\n"
                 f"  src: url('{slug(family)}-{w}{suffix}.woff2') format('woff2');\n"
                 "}")
-    css_path = os.path.join(OUT_DIR, "fonts.css")
+    css_path = os.path.join(out_dir, "fonts.css")
     with open(css_path, "w", encoding="utf-8") as fh:
         fh.write("\n\n".join(lines) + "\n")
     print(f"写出 {os.path.relpath(css_path, REPO_ROOT)}")
 
 
-def verify_coverage(needed_codepoints):
+def verify_coverage(needed_codepoints, out_dir):
     """校验：每个中文子集都要覆盖全部页面字符；缺的逐字报告。"""
     ok = True
     cjk_cmap = set()
     for family, weights in CJK_FONTS.items():
         for w in weights:
-            path = os.path.join(OUT_DIR, f"{slug(family)}-{w}.woff2")
+            path = os.path.join(out_dir, f"{slug(family)}-{w}.woff2")
             font = TTFont(path)
             cmap = set(font.getBestCmap())
             font.close()
@@ -285,23 +316,36 @@ def verify_coverage(needed_codepoints):
 # ------------------------------------------------------------ main
 
 
-def main():
-    os.makedirs(OUT_DIR, exist_ok=True)
-    os.makedirs(CACHE_DIR, exist_ok=True)
-
-    chars = collect_page_chars()
+def build_set(globs, out_dir):
+    os.makedirs(out_dir, exist_ok=True)
+    chars = collect_page_chars(globs) if globs else collect_page_chars()
     # 附加保险字符：ASCII 可打印字符 + 常用全角标点
     chars.update(chr(c) for c in range(0x20, 0x7F))
     chars.update("，。、；：？！""''《》（）【】—…·～「」『』〈〉")
     needed = {ord(c) for c in chars}
 
     for family, weights in CJK_FONTS.items():
-        build_cjk_family(family, weights, needed)
+        build_cjk_family(family, weights, needed, out_dir)
     for family, variants in WESTERN_FONTS.items():
-        build_western_family(family, variants)
+        build_western_family(family, variants, out_dir)
 
-    write_css()
-    verify_coverage(needed)
+    write_css(out_dir)
+    verify_coverage(needed, out_dir)
+    total = sum(
+        os.path.getsize(os.path.join(out_dir, name))
+        for name in os.listdir(out_dir) if name.endswith(".woff2"))
+    print(f"  {os.path.relpath(out_dir, REPO_ROOT)}：合计 {total // 1024} KB\n")
+
+
+def main():
+    os.makedirs(CACHE_DIR, exist_ok=True)
+
+    print("== 全站 ==")
+    build_set(None, OUT_DIR)
+    for name, globs in PAGE_PROFILES.items():
+        print(f"== 单页 {name} ==")
+        build_set(globs, os.path.join(OUT_DIR, name))
+
     print("完成。产物在 assets/fonts/，记得 git 提交。")
 
 

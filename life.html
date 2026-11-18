@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>木鱼拓哉の游玩日记</title>
   <meta name="description" content="木鱼拓哉の游玩日记——合上电脑之后，在路上。">
-  <link rel="stylesheet" href="assets/fonts/fonts.css">
-  <link rel="stylesheet" href="assets/writing-shell.css">
-  <link rel="preload" as="image" href="./assets/travel-xishuangbanna-rainforest.svg">
-  <link rel="preload" as="image" href="./assets/travel-huangshan-pine.svg">
-  <link rel="preload" as="image" href="./assets/travel-jinan-spring.svg">
+  <link rel="stylesheet" href="assets/fonts/page-life/fonts.css">
   <style>
     :root {
       --paper: #f3efe4;
@@ -52,43 +48,118 @@
       position: relative;
     }
 
-    .top-nav {
-      position: fixed;
+    .life-topbar {
+      position: sticky;
       top: 0;
-      left: 0;
-      right: 0;
-      z-index: 20;
+      z-index: 40;
+      background: rgba(243, 239, 228, 0.9);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(117, 110, 99, 0.18);
+    }
+    .life-topbar-inner {
+      width: min(1180px, calc(100% - 36px));
+      height: 64px;
+      margin: 0 auto;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 22px 30px;
-      color: rgba(45,42,38,0.7);
-      pointer-events: none;
+      justify-content: space-between;
+      gap: 14px;
     }
-    .brand {
-      font-family: var(--hand);
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    .back-link {
-      pointer-events: auto;
+    .life-brand {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      border: 1px solid rgba(201,100,66,0.28);
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .life-brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1.5px solid #fff;
+      box-shadow: 0 2px 6px rgba(95, 73, 44, 0.16);
+      object-fit: cover;
+    }
+    .life-brand-tag {
+      font-family: var(--hand);
+      font-size: 13px;
+      color: var(--terra);
+      padding: 2px 8px;
       border-radius: 999px;
-      background: rgba(255,253,247,0.6);
+      background: rgba(201, 100, 66, 0.1);
+      border: 1px solid rgba(201, 100, 66, 0.22);
+    }
+    .life-seg {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(232, 221, 202, 0.72);
+      border: 1px solid rgba(117, 110, 99, 0.22);
+      box-shadow: inset 0 1px 2px rgba(95, 73, 44, 0.06);
+    }
+    .life-seg-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 15px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      white-space: nowrap;
+    }
+    .life-seg-item:hover {
+      color: var(--ink);
+    }
+    .life-seg-item em {
+      font-style: normal;
+      font-family: var(--hand);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: rgba(45, 42, 38, 0.07);
+      color: var(--muted);
+    }
+    .life-seg-item.is-active {
+      background: var(--cream);
+      color: var(--ink);
+      font-weight: 700;
+      border-color: rgba(201, 100, 66, 0.28);
+      box-shadow: 0 3px 10px rgba(95, 73, 44, 0.1);
+    }
+    .life-seg-item.is-active em {
+      background: rgba(201, 100, 66, 0.14);
+      color: var(--terra);
+    }
+    .life-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border: 1px solid rgba(201, 100, 66, 0.28);
+      border-radius: 999px;
+      background: var(--cream);
       color: var(--terra);
       text-decoration: none;
       font-size: 13px;
-      backdrop-filter: blur(12px);
-      transition: transform 180ms ease, background 180ms ease;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: background 160ms ease, border-color 160ms ease;
     }
-    .back-link:hover {
-      transform: translateY(-1px);
-      background: rgba(255,253,247,0.9);
+    .life-back-btn:hover {
+      background: #fff;
+      border-color: var(--terra);
     }
 
     .hero {
@@ -285,6 +356,7 @@
       width: min(1180px, calc(100% - 48px));
       margin: 0 auto;
       padding: 86px 0;
+      scroll-margin-top: 84px;
     }
     .section-head {
       display: flex;
@@ -389,19 +461,19 @@
       color: var(--ink);
       text-align: left;
       cursor: pointer;
-      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
     }
     .journal-tab:hover,
     .journal-tab:focus-visible {
-      transform: translateX(4px);
       border-color: rgba(201,100,66,0.28);
       background: rgba(255,253,247,0.82);
       outline: none;
     }
     .journal-tab.is-active {
-      border-color: rgba(201,100,66,0.36);
+      border-color: rgba(201,100,66,0.42);
       background: var(--cream);
-      box-shadow: 0 16px 34px rgba(92,73,46,0.1);
+      box-shadow: 0 10px 24px rgba(92,73,46,0.09);
     }
     .journal-tab small {
       display: block;
@@ -432,7 +504,7 @@
     .journal-paper {
       position: relative;
       min-width: 0;
-      min-height: 540px;
+      min-height: 576px;
       padding: 34px;
       border: 1px solid rgba(216,205,187,0.8);
       border-radius: 26px;
@@ -442,7 +514,6 @@
       background-size: 100% 34px;
       box-shadow: 0 24px 60px rgba(92,73,46,0.14);
       overflow: hidden;
-      transition: opacity 180ms ease, transform 180ms ease;
     }
     .journal-paper::before {
       content: "TRAVEL NOTE";
@@ -455,9 +526,12 @@
       line-height: 0.84;
       pointer-events: none;
     }
-    .journal-paper.is-switching {
-      opacity: 0.72;
-      transform: translateY(8px) rotate(0.2deg);
+    @keyframes journalContentFade {
+      from { opacity: 0.55; }
+      to { opacity: 1; }
+    }
+    .journal-paper.is-switching .journal-layout {
+      animation: journalContentFade 160ms ease-out;
     }
     .journal-layout {
       position: relative;
@@ -665,12 +739,11 @@
       font-family: var(--hand);
       font-size: 14px;
     }
-    .note-1 { --note-color: var(--note-yellow); --r: -3deg; left: 7%; top: 95px; }
-    .note-2 { --note-color: var(--note-green); --r: 2deg; left: 34%; top: 58px; }
-    .note-3 { --note-color: var(--note-blue); --r: -1.5deg; right: 9%; top: 118px; }
-    .note-4 { --note-color: var(--note-pink); --r: 2.6deg; left: 18%; bottom: 86px; }
-    .note-5 { --note-color: #f1e7b8; --r: -2.2deg; left: 47%; bottom: 58px; }
-    .note-6 { --note-color: #d8e4d1; --r: 3.2deg; right: 8%; bottom: 118px; }
+    .note-1 { --note-color: var(--note-yellow); --r: -2.8deg; left: 7%; top: 82px; }
+    .note-2 { --note-color: var(--note-green); --r: 2deg; left: 37%; top: 54px; }
+    .note-3 { --note-color: var(--note-blue); --r: -1.6deg; right: 7%; top: 96px; }
+    .note-4 { --note-color: var(--note-pink); --r: 2.4deg; left: 21%; bottom: 72px; }
+    .note-5 { --note-color: #f1e7b8; --r: -2deg; left: 53%; bottom: 64px; }
 
     .closing {
       width: min(980px, calc(100% - 48px));
@@ -762,7 +835,9 @@
     }
 
     @media (max-width: 520px) {
-      .back-link { display: none; }
+      .life-brand-tag { display: none; }
+      .life-back-btn span:last-child { display: none; }
+      .life-seg-item { padding: 5px 11px; font-size: 12.5px; }
       .hero,
       .section,
       .closing {
@@ -859,29 +934,31 @@
   </style>
 </head>
 <body>
-  <div class="docs-banner" id="top">
-    <div class="docs-header-slot">
-      <header class="docs-header" aria-label="游玩日记顶部导航">
-        <div class="docs-header-inner">
-          <div class="docs-brand-group">
-            <a href="index.html" class="docs-brand">
-              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-              <span>木鱼拓哉</span>
-            </a>
-          </div>
+  <header class="life-topbar" id="top" aria-label="游玩日记顶部导航">
+    <div class="life-topbar-inner">
+      <a href="index.html" class="life-brand">
+        <img src="assets/favicon.png" width="28" height="28" alt="">
+        <span>木鱼拓哉</span>
+        <span class="life-brand-tag">LIFE LOG</span>
+      </a>
 
-          <nav class="docs-top-nav" aria-label="游玩日记导航">
-            <a href="#been-there" aria-current="page">去过的地方</a>
-            <a href="#next-stops">想去的行程</a>
-          </nav>
+      <nav class="life-seg" aria-label="行程分段切换">
+        <a href="#been-there" class="life-seg-item is-active" data-life-nav="been-there">
+          <span>已打卡行程</span>
+          <em>24</em>
+        </a>
+        <a href="#next-stops" class="life-seg-item" data-life-nav="next-stops">
+          <span>待打卡行程</span>
+          <em>05</em>
+        </a>
+      </nav>
 
-          <div class="docs-header-actions">
-            <a href="index.html#off-screen" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
-          </div>
-        </div>
-      </header>
+      <a href="index.html#off-screen" class="life-back-btn">
+        <span>←</span>
+        <span>回主页</span>
+      </a>
     </div>
-  </div>
+  </header>
   <div class="page">
 
     <header class="hero">
@@ -958,11 +1035,11 @@
             <div class="journal-layout">
               <div class="journal-photo-stack" aria-hidden="true">
                 <figure class="journal-photo primary">
-                  <img id="journal-photo-main" src="./assets/travel-xishuangbanna-rainforest.svg" alt="">
+                  <img id="journal-photo-main" src="./assets/travel-xishuangbanna-rainforest.svg" width="320" height="240" decoding="async" alt="">
                   <figcaption id="journal-caption-main">rainforest walk</figcaption>
                 </figure>
                 <figure class="journal-photo secondary">
-                  <img id="journal-photo-side" src="./assets/travel-xishuangbanna-temple.svg" alt="">
+                  <img id="journal-photo-side" src="./assets/travel-xishuangbanna-temple.svg" width="320" height="240" decoding="async" alt="">
                   <figcaption id="journal-caption-side">golden temple</figcaption>
                 </figure>
               </div>
@@ -998,34 +1075,29 @@
 
         <div class="notes-wall">
           <article class="note note-1">
-            <label><input type="checkbox" aria-label="伊犁">伊犁</label>
-            <p>把绿色和风都存进相机里。</p>
-            <span class="date">summer list</span>
+            <label><input type="checkbox" aria-label="拉萨">拉萨</label>
+            <p>日光、红墙与海拔三千六百米的安静，去把呼吸放慢。</p>
+            <span class="date">plateau · 3650m</span>
           </article>
           <article class="note note-2">
-            <label><input type="checkbox" aria-label="敦煌">敦煌</label>
-            <p>看一次真正的风沙和壁画颜色。</p>
-            <span class="date">northwest</span>
+            <label><input type="checkbox" aria-label="青甘大环线">青甘大环线</label>
+            <p>盐湖、戈壁、雅丹和望不到头的西北公路，一次走透。</p>
+            <span class="date">northwest loop</span>
           </article>
           <article class="note note-3">
-            <label><input type="checkbox" aria-label="景德镇">景德镇</label>
-            <p>去看看器物是怎么从土里长出来的。</p>
-            <span class="date">weekend</span>
+            <label><input type="checkbox" aria-label="川西">川西</label>
+            <p>雪山、草甸与折多山弯道，去看离云最近的地方。</p>
+            <span class="date">snow mountain</span>
           </article>
           <article class="note note-4">
-            <label><input type="checkbox" aria-label="泉州">泉州</label>
-            <p>沿着海风和旧巷子走一下午。</p>
-            <span class="date">south line</span>
+            <label><input type="checkbox" aria-label="冲绳潜水">冲绳潜水</label>
+            <p>潜进琉球群岛的透明海里，听水下只有气泡的声音。</p>
+            <span class="date">okinawa dive</span>
           </article>
           <article class="note note-5">
-            <label><input type="checkbox" aria-label="京都">京都</label>
-            <p>把庭院、木头和雨声放在同一页。</p>
-            <span class="date">slow trip</span>
-          </article>
-          <article class="note note-6">
-            <label><input type="checkbox" aria-label="冰岛">冰岛</label>
-            <p>去看一种不像地球的安静。</p>
-            <span class="date">long shot</span>
+            <label><input type="checkbox" aria-label="贵州">贵州</label>
+            <p>山谷、瀑布、苗寨和酸汤，钻进立体的山水褶皱里。</p>
+            <span class="date">karst &amp; valley</span>
           </article>
         </div>
       </section>
@@ -1436,17 +1508,24 @@
       return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
     }
 
+    const sketchCache = new Map();
     function photosFor(entry) {
       if (entry.photos) return entry.photos;
-      return [
-        [makeSketchPhoto(entry, 0), `${entry.title} note`],
-        [makeSketchPhoto(entry, 1), `${entry.route} mark`]
-      ];
+      let cached = sketchCache.get(entry.key);
+      if (!cached) {
+        cached = [
+          [makeSketchPhoto(entry, 0), `${entry.title} note`],
+          [makeSketchPhoto(entry, 1), `${entry.route} mark`]
+        ];
+        sketchCache.set(entry.key, cached);
+      }
+      return cached;
     }
 
     function renderJournalTabs() {
       journalCount.textContent = `${journalEntryList.length} places`;
-      const buttons = journalEntryList.slice(0, 8).map((entry) => {
+      const frag = document.createDocumentFragment();
+      tabs = journalEntryList.map((entry) => {
         const tab = document.createElement("button");
         const small = document.createElement("small");
         const name = document.createElement("span");
@@ -1460,73 +1539,52 @@
         name.textContent = entry.title;
         summary.textContent = entry.summary;
         tab.append(small, name, summary);
-        tab.addEventListener("click", () => renderJournal(entry.key, false, false));
+        frag.appendChild(tab);
         return tab;
       });
-
-      tabsContainer.replaceChildren(...buttons);
-      tabs = Array.from(tabsContainer.querySelectorAll("[data-journal-target]"));
+      tabsContainer.replaceChildren(frag);
     }
 
-    function renderMoreJournalTabs() {
-      const moreButtons = journalEntryList.slice(8).map((entry) => {
-        const tab = document.createElement("button");
-        const small = document.createElement("small");
-        const name = document.createElement("span");
-        const summary = document.createElement("em");
+    tabsContainer.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-journal-target]");
+      if (!btn) return;
+      renderJournal(btn.dataset.journalTarget, false, false);
+    });
 
-        tab.className = "journal-tab";
-        tab.type = "button";
-        tab.dataset.journalTarget = entry.key;
-        tab.setAttribute("aria-pressed", "false");
-        small.textContent = `${entry.index} / ${entry.region}`;
-        name.textContent = entry.title;
-        summary.textContent = entry.summary;
-        tab.append(small, name, summary);
-        tab.addEventListener("click", () => renderJournal(entry.key, false, false));
-        return tab;
-      });
-
-      tabsContainer.append(...moreButtons);
-      tabs = Array.from(tabsContainer.querySelectorAll("[data-journal-target]"));
-    }
-
+    let currentJournalKey = null;
     function renderJournal(key, instant = false, alignTab = false) {
       const entry = journalEntries[key];
-      if (!entry) return;
+      if (!entry || key === currentJournalKey) return;
+      currentJournalKey = key;
 
-      const updateContent = () => {
-        const photos = photosFor(entry);
-        meta.textContent = `${entry.region} / ${entry.route}`;
-        title.textContent = entry.title;
-        body.textContent = entry.body;
-        mainPhoto.src = photos[0][0];
-        sidePhoto.src = photos[1][0];
-        mainCaption.textContent = photos[0][1];
-        sideCaption.textContent = photos[1][1];
-        observations.replaceChildren(...entry.observations.map((item, index) => {
-          const line = document.createElement("li");
-          const number = document.createElement("strong");
-          const text = document.createElement("span");
-          number.textContent = String(index + 1).padStart(2, "0");
-          text.textContent = item;
-          line.append(number, text);
-          return line;
-        }));
-        tags.replaceChildren(...entry.tags.map((item) => {
-          const tag = document.createElement("span");
-          tag.className = "journal-tag";
-          tag.textContent = item;
-          return tag;
-        }));
+      const photos = photosFor(entry);
+      meta.textContent = `${entry.region} / ${entry.route}`;
+      title.textContent = entry.title;
+      body.textContent = entry.body;
+      mainPhoto.src = photos[0][0];
+      sidePhoto.src = photos[1][0];
+      mainCaption.textContent = photos[0][1];
+      sideCaption.textContent = photos[1][1];
+      observations.replaceChildren(...entry.observations.map((item, index) => {
+        const line = document.createElement("li");
+        const number = document.createElement("strong");
+        const text = document.createElement("span");
+        number.textContent = String(index + 1).padStart(2, "0");
+        text.textContent = item;
+        line.append(number, text);
+        return line;
+      }));
+      tags.replaceChildren(...entry.tags.map((item) => {
+        const tag = document.createElement("span");
+        tag.className = "journal-tag";
+        tag.textContent = item;
+        return tag;
+      }));
+
+      if (!instant) {
         paper.classList.remove("is-switching");
-      };
-
-      if (instant) {
-        updateContent();
-      } else {
+        void paper.offsetWidth;
         paper.classList.add("is-switching");
-        window.setTimeout(updateContent, 120);
       }
 
       tabs.forEach((tab) => {
@@ -1545,20 +1603,19 @@
     const initialPlace = new URLSearchParams(window.location.search).get("place");
     renderJournal(journalEntries[initialPlace] ? initialPlace : journalEntryList[0].key, true, Boolean(initialPlace));
 
-    // 滚动到 journal-board 附近时加载更多 tab
-    const journalBoard = document.querySelector(".journal-board");
-    let moreLoaded = false;
-    const loadMoreObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting && !moreLoaded) {
-          renderMoreJournalTabs();
-          moreLoaded = true;
-          loadMoreObs.unobserve(journalBoard);
-        }
+    // 顶部栏「已打卡行程 / 待打卡行程」滚动同步高亮
+    const segLinks = Array.from(document.querySelectorAll("[data-life-nav]"));
+    const nextStopsSection = document.getElementById("next-stops");
+    function syncTopbarSeg() {
+      if (!nextStopsSection) return;
+      const rect = nextStopsSection.getBoundingClientRect();
+      const activeId = rect.top <= window.innerHeight * 0.38 ? "next-stops" : "been-there";
+      segLinks.forEach((link) => {
+        link.classList.toggle("is-active", link.dataset.lifeNav === activeId);
       });
-    }, { rootMargin: "200px" });
-    loadMoreObs.observe(journalBoard);
+    }
+    window.addEventListener("scroll", syncTopbarSeg, { passive: true });
+    syncTopbarSeg();
   </script>
-  <script src="assets/writing-shell.js" defer></script>
 </body>
 </html>
