@@ -179,6 +179,7 @@
           <div class="docs-nav-group">
             <div class="docs-nav-group-title">Agent 与系统架构</div>
             <ul class="docs-nav-list">
+              <li><a href="writing-fde-business-agent.html" class="docs-nav-link">FDE 焚诀：打造能干活的业务 Agent</a></li>
               <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
               <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
               <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
@@ -206,34 +207,28 @@
 
     <main class="docs-main" id="docsMain">
       <header class="post-head">
-        <div class="meta"><span>ARCHIVE · 2026</span><span>TECH DEEP-DIVE &amp; LIFE ESSAYS</span></div>
+        <div class="meta"><span>ARCHIVE · 2026</span><span>BUILDER'S NOTEBOOK · UNIFIED WRITING SHELL</span></div>
         <h1>木鱼拓哉の<em>写作本</em></h1>
-        <p class="lede">亲自跑一遍最近的新技术，记下架构与交互细节；合上电脑走在路上时，也把对城市、书籍和真实日子的观察留下来。</p>
+        <p class="lede">统一采用 Builder's Notebook 卡片头与 sticky 三栏阅读壳。亲自跑一遍最近的新技术，记下架构与交互细节；合上电脑走在路上时，也把对城市、书籍和真实日子的观察留下来。</p>
       </header>
 
       <div class="filters" role="tablist" aria-label="文章筛选">
-        <button class="filter active" data-filter="all">全部文章 (8)</button>
-        <button class="filter" data-filter="tech">最新技术拆解 (6)</button>
+        <button class="filter active" data-filter="all">全部文章 (9)</button>
+        <button class="filter" data-filter="tech">最新技术拆解 (7)</button>
         <button class="filter" data-filter="life">生活杂谈 (2)</button>
       </div>
 
       <article class="post">
-        <h2 id="sec-tech-ux" data-outline-label="一、交互设计与前端品味">一、交互设计与前端品味</h2>
-        <div class="post-list">
-          <a href="writing-ai-ui-curation.html" class="post-entry" data-category="tech">
-            <div class="p-meta"><span>2026-09</span><span>FRONTEND · AGENT TASTE</span></div>
-            <div class="p-title">5 个让 Claude Code 抄作业的封神 UI 库</div>
-            <div class="p-sub">AI 写的界面塑料感很强？写代码通常不是最难的，审美才容易卡人。5 个顶级 UI 库与开箱即用的 Agent Skill，让 Claude Code、Codex 告别大模型平均审美。</div>
-          </a>
-          <a href="writing-designing-the-wait.html" class="post-entry" data-category="tech">
-            <div class="p-meta"><span>2026-09</span><span>AI UX &amp; INTERACTION</span></div>
-            <div class="p-title">为什么绝大多数 AI 产品用起来都让人难受？</div>
-            <div class="p-sub">从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面。大模型把响应拉长到了 400ms 到 30 秒，等待不再是边缘状态，而是 80% 的交互现场。一份写给所有 AI UX 设计师、产品经理与前端工程师的实战手册。</div>
-          </a>
+        <div class="sec-head" id="sec-tech-arch">
+          <span class="sec-num">SECTION 01 · AGENT ENGINEERING &amp; ARCHITECTURE</span>
+          <h2 id="sec-tech-arch-h" data-outline-label="一、Agent 与系统底层架构">一、Agent 与系统底层架构</h2>
         </div>
-
-        <h2 id="sec-tech-arch" data-outline-label="二、Agent 与系统底层架构">二、Agent 与系统底层架构</h2>
         <div class="post-list">
+          <a href="writing-fde-business-agent.html" class="post-entry is-featured" data-category="tech">
+            <div class="p-meta"><span>2026-11 · NEW</span><span>FDE PLAYBOOK · BUSINESS AGENT</span></div>
+            <div class="p-title">FDE 焚诀：如何围绕业务打造真正能干活的 Agent</div>
+            <div class="p-sub">为什么很多 Bot 用两周就吃灰？真不在模型不够聪明，而是只把零散步骤、单会话规矩留在了聊天框里。拆解 Goal × (Skill + 自动化 + 环境可达) 四步落地闭环，附原文 5 段可直接复制的提示词。</div>
+          </a>
           <a href="writing-linear-sync-engine.html" class="post-entry" data-category="tech">
             <div class="p-meta"><span>2026-09</span><span>SYNC ENGINE &amp; LOCAL-FIRST</span></div>
             <div class="p-title">Linear 架构深读：Agent 跑了八分钟，刷新一下就没了？</div>
@@ -256,7 +251,27 @@
           </a>
         </div>
 
-        <h2 id="sec-life-essay" data-outline-label="三、生活杂谈与人文随笔">三、生活杂谈与人文随笔</h2>
+        <div class="sec-head" id="sec-tech-ux">
+          <span class="sec-num">SECTION 02 · INTERACTION DESIGN &amp; TASTE</span>
+          <h2 id="sec-tech-ux-h" data-outline-label="二、交互设计与前端品味">二、交互设计与前端品味</h2>
+        </div>
+        <div class="post-list">
+          <a href="writing-ai-ui-curation.html" class="post-entry" data-category="tech">
+            <div class="p-meta"><span>2026-09</span><span>FRONTEND · AGENT TASTE</span></div>
+            <div class="p-title">5 个让 Claude Code 抄作业的封神 UI 库</div>
+            <div class="p-sub">AI 写的界面塑料感很强？写代码通常不是最难的，审美才容易卡人。5 个顶级 UI 库与开箱即用的 Agent Skill，让 Claude Code、Codex 告别大模型平均审美。</div>
+          </a>
+          <a href="writing-designing-the-wait.html" class="post-entry" data-category="tech">
+            <div class="p-meta"><span>2026-09</span><span>AI UX &amp; INTERACTION</span></div>
+            <div class="p-title">为什么绝大多数 AI 产品用起来都让人难受？</div>
+            <div class="p-sub">从转圈、骨架屏到流式：如何做一个让人舒服的 AI 界面。大模型把响应拉长到了 400ms 到 30 秒，等待不再是边缘状态，而是 80% 的交互现场。一份写给所有 AI UX 设计师、产品经理与前端工程师的实战手册。</div>
+          </a>
+        </div>
+
+        <div class="sec-head" id="sec-life-essay">
+          <span class="sec-num">SECTION 03 · ESSAYS &amp; FIELD NOTES</span>
+          <h2 id="sec-life-essay-h" data-outline-label="三、生活杂谈与人文随笔">三、生活杂谈与人文随笔</h2>
+        </div>
         <div class="post-list">
           <a href="writing-life.html" class="post-entry" data-category="life">
             <div class="p-meta"><span>2026-09</span><span>ESSAY · 生活杂谈</span></div>
@@ -289,9 +304,9 @@
               <span class="docs-pager-label">Website · 返回主页</span>
               <span class="docs-pager-title">回到木鱼拓哉主页</span>
             </a>
-            <a href="writing-ai-ui-curation.html" class="docs-pager-card docs-pager-card--next">
-              <span class="docs-pager-label">Next · 下一篇</span>
-              <span class="docs-pager-title">5 个让 AI 抄作业的封神 UI 库</span>
+            <a href="writing-fde-business-agent.html" class="docs-pager-card docs-pager-card--next">
+              <span class="docs-pager-label">Featured · 最新长文</span>
+              <span class="docs-pager-title">FDE 焚诀：打造能干活的业务 Agent</span>
             </a>
           </nav>
         </div>
@@ -300,9 +315,9 @@
     <aside class="docs-outline" aria-label="本页大纲">
       <div class="docs-outline-title">On this page · 本页目录</div>
       <ul class="docs-outline-list">
-          <li><a href="#sec-tech-ux" class="docs-outline-link" aria-current="location">一、交互设计与前端品味</a></li>
-          <li><a href="#sec-tech-arch" class="docs-outline-link">二、Agent 与系统底层架构</a></li>
-          <li><a href="#sec-life-essay" class="docs-outline-link">三、生活杂谈与人文随笔</a></li>
+          <li><a href="#sec-tech-arch-h" class="docs-outline-link" aria-current="location">一、Agent 与系统底层架构</a></li>
+          <li><a href="#sec-tech-ux-h" class="docs-outline-link">二、交互设计与前端品味</a></li>
+          <li><a href="#sec-life-essay-h" class="docs-outline-link">三、生活杂谈与人文随笔</a></li>
       </ul>
     </aside>
   </div>
@@ -375,7 +390,7 @@
     </button>
     <span class="guide-dock-divider" aria-hidden="true"></span>
     <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
-      <span class="guide-dock-section" data-current-section-label>一、交互设计与前端品味</span>
+      <span class="guide-dock-section" data-current-section-label>一、Agent 与系统底层架构</span>
       <span class="guide-dock-caret" aria-hidden="true">^</span>
     </button>
   </div>
@@ -396,6 +411,7 @@
           <div class="docs-nav-group">
             <div class="docs-nav-group-title">Agent 与系统架构</div>
             <ul class="docs-nav-list">
+              <li><a href="writing-fde-business-agent.html" class="docs-nav-link">FDE 焚诀：打造能干活的业务 Agent</a></li>
               <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
               <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
               <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
@@ -426,9 +442,9 @@
     </div>
     <div class="guide-sheet-body">
       <ul class="docs-outline-list">
-          <li><a href="#sec-tech-ux" class="docs-outline-link" aria-current="location">一、交互设计与前端品味</a></li>
-          <li><a href="#sec-tech-arch" class="docs-outline-link">二、Agent 与系统底层架构</a></li>
-          <li><a href="#sec-life-essay" class="docs-outline-link">三、生活杂谈与人文随笔</a></li>
+          <li><a href="#sec-tech-arch-h" class="docs-outline-link" aria-current="location">一、Agent 与系统底层架构</a></li>
+          <li><a href="#sec-tech-ux-h" class="docs-outline-link">二、交互设计与前端品味</a></li>
+          <li><a href="#sec-life-essay-h" class="docs-outline-link">三、生活杂谈与人文随笔</a></li>
       </ul>
     </div>
   </dialog>
@@ -438,9 +454,9 @@
     const filters = [...document.querySelectorAll('.filter')];
     const posts = [...document.querySelectorAll('.post-entry')];
     const sections = [
-      { h2: document.getElementById('sec-tech-ux'), cat: 'tech' },
-      { h2: document.getElementById('sec-tech-arch'), cat: 'tech' },
-      { h2: document.getElementById('sec-life-essay'), cat: 'life' }
+      { head: document.getElementById('sec-tech-arch'), cat: 'tech' },
+      { head: document.getElementById('sec-tech-ux'), cat: 'tech' },
+      { head: document.getElementById('sec-life-essay'), cat: 'life' }
     ];
     const empty = document.getElementById('empty');
     function select(category) {
@@ -452,10 +468,10 @@
         if (show) count++;
       });
       sections.forEach(s => {
-        if (!s.h2) return;
+        if (!s.head) return;
         const showSec = category === 'all' || s.cat === category;
-        s.h2.hidden = !showSec;
-        if (s.h2.nextElementSibling) s.h2.nextElementSibling.hidden = !showSec;
+        s.head.hidden = !showSec;
+        if (s.head.nextElementSibling) s.head.nextElementSibling.hidden = !showSec;
       });
       empty.hidden = count > 0;
       history.replaceState(null, '', '?category=' + category);
