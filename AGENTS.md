@@ -17,6 +17,10 @@ python3 -m venv /tmp/mupath-fonts-venv  # 首次需要
 
 不要手动编辑 `assets/fonts/fonts.css`。字体脚本与完整说明见 `scripts/build-font-subsets.py` 和 `assets/fonts/README.md`。
 
+# 文章页视觉与排版规范
+
+长文详情页（`writing-*.html`）统一以 `writing-fde-business-agent.html` 为基准样板，复用 `assets/writing-article.css` 与 `assets/writing-article.js`，具体组件与迁移规范见 [`docs/writing-article-style.md`](docs/writing-article-style.md)。
+
 # 多 Agent 分工约定
 
 - **Kimi（本会话）**：与用户高强度对齐、脑暴、产品与品味把关、验收

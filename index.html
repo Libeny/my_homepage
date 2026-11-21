@@ -1208,27 +1208,27 @@
     @media (max-width: 1080px) {
       .notes-feed { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    /* 手机：区块内左右滑，页面上下滑；下一张卡露出一截提示可滑 */
+    /* 手机：手记改用小红书式双列瀑布流（无需横滑） */
     @media (max-width: 760px) {
       .notes-bar { flex-wrap: wrap; row-gap: 12px; }
       .notes-filters { flex-wrap: nowrap; gap: 6px; }
       .notes-filter { padding: 7px 12px; font-size: 0.8rem; }
-      .notes-feed,
-      .notes-feed.is-masonry {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-inline: calc(-1 * clamp(1.5rem, 4vw, 2.5rem));
-        padding: 4px clamp(1.5rem, 4vw, 2.5rem) 14px;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x mandatory;
-        scroll-padding-inline: clamp(1.5rem, 4vw, 2.5rem);
-        scrollbar-width: none;
+      .notes-feed {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 10px;
+        gap: 10px;
       }
-      .notes-feed::-webkit-scrollbar { display: none; }
-      .note-card { flex: 0 0 min(68vw, 270px); scroll-snap-align: start; }
+      .note-card { border-radius: 10px; }
       .note-card:hover { transform: none; }
+      .note-body { padding: 9px 10px 11px; }
+      .note-title { font-size: 0.86rem; line-height: 1.44; }
+      .note-tags { margin-top: 4px; font-size: 0.68rem; }
+      .note-meta { margin-top: 8px; gap: 5px; font-size: 0.68rem; }
+      .note-avatar { width: 16px; height: 16px; }
+      .note-cover--text { padding: 14px 12px; }
+      .note-cover--text .nc-kicker { font-size: 0.54rem; margin-bottom: 6px; }
+      .note-cover--text .nc-big { font-size: 0.98rem; line-height: 1.38; }
+      .notes-section .swipe-hint { display: none !important; }
     }
 
     /* blog 空列表（笔记本空白行） */
@@ -1658,6 +1658,52 @@
         color: var(--ink-faint);
         text-align: center;
       }
+      /* 卜灵横幅：手机端改为上下排版（先文后双手机），避免文字被右侧手机遮挡裁切 */
+      .exp-detail .exp-banner--buling {
+        flex-direction: column;
+        align-items: stretch;
+        aspect-ratio: auto;
+        height: auto;
+        padding: 16px 16px 0;
+        gap: 10px;
+      }
+      .exp-banner--buling .eb-text {
+        max-width: 100%;
+      }
+      .exp-banner--buling .eb-quote {
+        font-size: 0.76rem;
+        line-height: 1.45;
+      }
+      .exp-banner--buling .eb-feats {
+        margin-top: 8px;
+        font-size: 0.72rem;
+        line-height: 1.65;
+      }
+      .exp-banner--buling .eb-phones {
+        position: relative;
+        inset: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        height: 168px;
+        overflow: hidden;
+      }
+      .exp-banner--buling .eb-phones img {
+        position: relative;
+        right: auto;
+        top: auto;
+        width: 44%;
+        max-width: 138px;
+        border-radius: 11px;
+      }
+      .exp-banner--buling .eb-phones .ph-1 {
+        transform: rotate(-5deg) translate(10px, 16px);
+        z-index: 1;
+      }
+      .exp-banner--buling .eb-phones .ph-2 {
+        transform: rotate(4deg) translate(-10px, 6px);
+        z-index: 2;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1984,7 +2030,7 @@
         <a class="note-card" href="writing-fde-business-agent.html" data-category="tech">
           <div class="note-cover note-cover--text" style="--ratio: 3 / 4">
             <span class="nc-kicker">FDE PLAYBOOK · BUSINESS AGENT</span>
-            <span class="nc-big">FDE 焚诀：<br>围绕业务<mark>打造</mark><br>能干活的 Agent</span>
+            <span class="nc-big">业务 <mark>Agent</mark><br>两周就吃灰？<br>一套 FDE 焚诀盘活</span>
             <span class="note-tag">技术</span>
           </div>
           <div class="note-body">
@@ -2353,22 +2399,16 @@
       });
     })();
 
-    // === §5 手记：类别筛选 + 瀑布流（桌面按卡片高度算 row span；手机横滑不参与） ===
+    // === §5 手记：类别筛选 + 瀑布流（桌面 3–4 列 / 手机小红书双列，按卡片高度算 row span） ===
     (function() {
       const feed = document.getElementById('notesFeed');
       if (!feed) return;
       const cards = [...feed.querySelectorAll('.note-card')];
       const filters = [...document.querySelectorAll('.notes-filter')];
       const more = document.getElementById('notesMore');
-      const wide = window.matchMedia('(min-width: 761px)');
       const ROW = 4;
 
       function layout() {
-        if (!wide.matches) {
-          feed.classList.remove('is-masonry');
-          cards.forEach(c => { c.style.gridRowEnd = ''; });
-          return;
-        }
         const gap = parseFloat(getComputedStyle(feed).columnGap) || 0;
         cards.forEach(c => {
           if (!c.hidden) c.style.gridRowEnd = 'span ' + Math.ceil((c.offsetHeight + gap) / ROW);
@@ -2385,14 +2425,16 @@
         void feed.offsetWidth;
         cards.forEach(c => { if (!c.hidden) c.classList.add('is-entering'); });
         if (more) more.href = cat === 'all' ? 'writing.html' : 'writing.html?category=' + cat;
-        feed.scrollLeft = 0;
         layout();
       }
 
       filters.forEach(f => f.addEventListener('click', () => apply(f.dataset.filter)));
       cards.forEach(c => c.addEventListener('animationend', () => c.classList.remove('is-entering')));
+      feed.querySelectorAll('img').forEach(img => {
+        if (!img.complete) img.addEventListener('load', layout, { once: true });
+      });
       if ('ResizeObserver' in window) new ResizeObserver(layout).observe(feed);
-      wide.addEventListener('change', layout);
+      window.addEventListener('resize', layout, { passive: true });
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
       layout();
     })();

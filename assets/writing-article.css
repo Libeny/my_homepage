@@ -1,0 +1,708 @@
+/* ==========================================================================
+   MuYu Writing Article Design System (Builder's Notebook Standalone Edition)
+   Canonical reference extracted from writing-fde-business-agent.html
+   See docs/writing-article-style.md for component catalog & migration guide.
+   ========================================================================== */
+@font-face { font-family: "MuYu Sans"; src: url("fde-guide/fonts/48b54917-96f1-4a4c-ab81-775c75de5e7e.woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "MuYu Sans"; src: url("fde-guide/fonts/a198667f-792e-4655-8a5e-f623245caf6e.woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "MuYu Serif"; src: url("fde-guide/fonts/0e07bbff-89cf-406f-bd41-32ea0c22086b.woff2"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "MuYu Mono"; src: url("fde-guide/fonts/708a39ca-50ed-4c9a-a26b-7c5568264125.woff2"); font-weight: 300 700; font-style: normal; font-display: swap; }
+
+:root {
+  --bg: #FBF2E3;
+  --paper: #FFFDF8;
+  --ink: #694B40;
+  --ink-light: #765A48;
+  --ink-dark: #5A4037;
+  --blue-soft: #E8F6F5;
+  --blue: #BDE7E5;
+  --blue-deep: #6FB5B1;
+  --pink-soft: #FCE8EC;
+  --pink: #F4CFD6;
+  --pink-deep: #D98C9B;
+  --line: rgba(105, 75, 64, 0.18);
+  --line-strong: rgba(105, 75, 64, 0.42);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+::selection { background: var(--blue); color: var(--ink); }
+
+html { scroll-behavior: smooth; }
+body {
+  background:
+    radial-gradient(ellipse at 12% 4%, rgba(244, 207, 214, 0.45) 0%, transparent 45%),
+    radial-gradient(ellipse at 88% 18%, rgba(189, 231, 229, 0.45) 0%, transparent 45%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "MuYu Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  font-size: 16.5px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Top Nav */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(251, 242, 227, 0.92);
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1.5rem;
+}
+.top-bar-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.3rem 0.72rem 0.3rem 0.32rem;
+  border-radius: 999px;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.brand-link:hover {
+  background: rgba(105, 75, 64, 0.09);
+  color: var(--ink-light);
+}
+.brand-link img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+}
+
+/* Layout Shell */
+.page-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.8rem 1.5rem 5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 740px) 240px;
+  gap: 3rem;
+  align-items: start;
+  justify-content: center;
+}
+
+/* Hero Header */
+.post-head {
+  margin-bottom: 2.4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px dashed var(--line-strong);
+  position: relative;
+}
+.post-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--pink-soft);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  margin-bottom: 1.1rem;
+}
+.post-title {
+  font-family: "MuYu Serif", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(1.95rem, 4.2vw, 2.75rem);
+  line-height: 1.24;
+  color: var(--ink);
+  margin-bottom: 0.9rem;
+}
+.post-title mark {
+  background: linear-gradient(to top, var(--blue) 42%, transparent 42%);
+  color: inherit;
+  padding: 0 0.18em;
+}
+.post-subtitle {
+  font-size: clamp(1.02rem, 2vw, 1.18rem);
+  line-height: 1.7;
+  color: var(--ink-light);
+  margin-bottom: 1.4rem;
+}
+.author-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.86rem;
+  color: var(--ink-light);
+}
+.author-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem 0.2rem 0.25rem;
+  color: var(--ink);
+  font-weight: 700;
+}
+.author-chip img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+}
+
+/* Editorial Notice Banner (replaces default blockquote) */
+.origin-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 6px 0 rgba(105, 75, 64, 0.08);
+  margin: 1.8rem 0 2.6rem;
+  font-size: 0.94rem;
+}
+.origin-card-label {
+  display: inline-block;
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: var(--blue);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.1rem 0.65rem;
+  margin-bottom: 0.55rem;
+}
+
+/* Section headings with decorative numbers */
+.post section {
+  margin-top: 3.4rem;
+  scroll-margin-top: 4.5rem;
+}
+.sec-head {
+  position: relative;
+  padding-top: 1.2rem;
+  margin-bottom: 1.3rem;
+  border-top: 1px solid var(--line);
+}
+.sec-head::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--blue-deep);
+  border-radius: 2px;
+}
+.sec-num {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink-light);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.post h2 {
+  font-family: "MuYu Serif", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(1.38rem, 2.8vw, 1.75rem);
+  line-height: 1.32;
+  color: var(--ink);
+}
+.post h3 {
+  font-family: "MuYu Serif", Georgia, serif;
+  font-weight: 900;
+  font-size: 1.18rem;
+  margin: 2.2rem 0 0.85rem;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.h3-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--pink);
+  border: 1.5px solid var(--ink);
+  flex-shrink: 0;
+}
+.post p { margin: 1.05rem 0; }
+.post code {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.86em;
+  background: var(--blue-soft);
+  border: 1px solid rgba(105, 75, 64, 0.2);
+  border-radius: 5px;
+  padding: 0.08em 0.42em;
+  color: var(--ink-dark);
+}
+
+/* Formula Hero Banner */
+.formula-panel {
+  margin: 1.8rem 0 2.2rem;
+  background: var(--ink-dark);
+  color: var(--bg);
+  border: 2.5px solid var(--ink);
+  border-radius: 18px;
+  padding: 1.4rem 1.5rem;
+  box-shadow: 0 8px 0 rgba(105, 75, 64, 0.16);
+}
+.formula-kicker {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  color: var(--blue);
+  margin-bottom: 0.55rem;
+  font-weight: 700;
+}
+.formula-eq {
+  font-family: "MuYu Mono", "MuYu Sans", monospace;
+  font-size: clamp(0.84rem, 1.48vw, 1.01rem);
+  line-height: 1.75;
+  color: var(--paper);
+  font-weight: 700;
+}
+.formula-eq .eq-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.35rem;
+}
+.formula-eq .eq-line--2 {
+  padding-left: 1.2rem;
+}
+.formula-eq span.eq-term {
+  color: var(--blue);
+  border-bottom: 2px solid var(--pink);
+  white-space: nowrap;
+}
+.formula-eq .eq-chunk {
+  white-space: nowrap;
+}
+.pillar-grid {
+  margin-top: 1.15rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.pillar-item {
+  background: rgba(255, 253, 248, 0.08);
+  border: 1px solid rgba(189, 231, 229, 0.28);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.pillar-item strong {
+  color: var(--blue);
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.92rem;
+}
+
+/* Live-图 Motion Video Figure */
+figure.fig-live {
+  margin: 2.2rem 0;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 10px 10px 8px;
+  box-shadow: 0 8px 0 rgba(105, 75, 64, 0.10);
+  transform: rotate(-0.3deg);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+figure.fig-live.tilt-right { transform: rotate(0.3deg); }
+figure.fig-live:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 0 12px 24px rgba(105, 75, 64, 0.14);
+}
+.live-stage {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+}
+.live-stage video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.live-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(90, 64, 55, 0.86);
+  color: var(--bg);
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.22rem 0.58rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 242, 227, 0.32);
+  pointer-events: none;
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: inline-block;
+}
+figure.fig-live figcaption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.6rem 0.4rem 0.2rem;
+  font-size: 0.84rem;
+  color: var(--ink-light);
+}
+.fig-no {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--ink);
+  font-weight: 700;
+}
+.fig-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+.replay-btn {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.14rem 0.58rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.replay-btn:hover { background: var(--blue); }
+.replay-btn.is-done { background: var(--blue-soft); }
+
+/* Comparison Table Card */
+.compare-figure {
+  margin: 2rem 0;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 5px 0 rgba(105, 75, 64, 0.08);
+}
+.compare-kicker {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-light);
+  margin: 0.2rem 0.25rem 0.75rem;
+  font-weight: 700;
+}
+.table-scroll { overflow-x: auto; }
+.comparison-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.comparison-table th, .comparison-table td {
+  padding: 0.8rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+.comparison-table th:last-child, .comparison-table td:last-child { border-right: 0; }
+.comparison-table tr:last-child td { border-bottom: 0; }
+.comparison-table thead th {
+  font-family: "MuYu Serif", Georgia, serif;
+  font-weight: 900;
+  font-size: 0.92rem;
+  background: var(--blue-soft);
+  color: var(--ink);
+}
+.comparison-table thead th:first-child { background: var(--pink-soft); }
+
+/* Preserved @poteto Prompt Cards (replaces blockquote) */
+.prompt-card {
+  margin: 1.6rem 0;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 5px 0 rgba(189, 231, 229, 0.65);
+}
+.prompt-head {
+  background: var(--blue-soft);
+  border-bottom: 1.5px solid var(--ink);
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.prompt-title {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.copy-btn {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.copy-btn:hover { background: var(--blue); }
+.copy-btn.copied { background: var(--ink); color: var(--bg); }
+.prompt-body {
+  padding: 1rem 1.2rem;
+  font-size: 0.94rem;
+  line-height: 1.78;
+  color: var(--ink);
+}
+.prompt-body p { margin: 0.45rem 0; }
+.prompt-body p:first-child { margin-top: 0; }
+.prompt-body p:last-child { margin-bottom: 0; }
+
+/* Highlight Callout Box */
+.callout-note {
+  margin: 1.5rem 0;
+  background: var(--pink-soft);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  font-size: 0.94rem;
+}
+.callout-note strong { color: var(--ink-dark); }
+
+/* Styled Numbered & Bullet Lists (no browser-default ul/ol) */
+.scenes-list {
+  margin: 1.3rem 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: scene;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.scenes-list > li {
+  counter-increment: scene;
+  position: relative;
+  padding: 0.95rem 1.15rem 0.95rem 3.2rem;
+  background: var(--paper);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 12px;
+}
+.scenes-list > li::before {
+  content: counter(scene, decimal-leading-zero);
+  position: absolute;
+  left: 1rem;
+  top: 0.98rem;
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--blue);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  padding: 0.05rem 0.35rem;
+  color: var(--ink);
+}
+
+.feature-list {
+  margin: 1.2rem 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.feature-list > li {
+  position: relative;
+  padding-left: 1.65rem;
+}
+.feature-list > li::before {
+  content: "✦";
+  position: absolute;
+  left: 0.15rem;
+  top: 0.04rem;
+  color: var(--blue-deep);
+  font-weight: 700;
+}
+
+/* Dark SKILL.md Blueprint Block */
+.skill-blueprint {
+  margin: 1.6rem 0;
+  background: var(--ink-dark);
+  color: var(--bg);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 1.15rem 1.35rem;
+  font-family: "MuYu Mono", "MuYu Sans", monospace;
+  font-size: 0.86rem;
+  line-height: 1.75;
+  overflow-x: auto;
+  box-shadow: 0 6px 0 rgba(105, 75, 64, 0.14);
+}
+.skill-blueprint .sk-title { color: var(--blue); font-weight: 700; margin-bottom: 0.45rem; display: block; }
+.skill-blueprint .sk-key { color: var(--pink); font-weight: 700; }
+
+/* Final Checklist */
+.takeaways {
+  margin: 1.6rem 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: take;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.takeaways > li {
+  counter-increment: take;
+  position: relative;
+  padding: 1rem 1.2rem 1rem 3.5rem;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(105, 75, 64, 0.07);
+}
+.takeaways > li::before {
+  content: counter(take);
+  position: absolute;
+  left: 1rem;
+  top: 1.05rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--blue);
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  font-family: "MuYu Mono", monospace;
+  font-weight: 700;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sticky Right Outline */
+.docs-outline {
+  position: sticky;
+  top: 5.2rem;
+  background: rgba(255, 253, 248, 0.78);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  padding: 1rem 1.05rem;
+}
+.docs-outline-title {
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.docs-outline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.docs-outline-link {
+  display: block;
+  text-decoration: none;
+  color: var(--ink-light);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  padding: 0.22rem 0.45rem;
+  border-left: 2px solid transparent;
+  border-radius: 4px;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+.docs-outline-link:hover,
+.docs-outline-link.is-active {
+  color: var(--ink);
+  background: var(--blue-soft);
+  border-left-color: var(--blue-deep);
+  font-weight: 700;
+}
+
+/* Footer Card */
+.post-foot {
+  margin-top: 3.4rem;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 1.35rem 1.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  box-shadow: 0 5px 0 rgba(105, 75, 64, 0.08);
+}
+.post-foot a {
+  color: var(--ink);
+  font-family: "MuYu Mono", monospace;
+  font-size: 0.84rem;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--blue-deep);
+}
+
+@media (max-width: 900px) {
+  .page-shell {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.8rem 1.1rem 4rem;
+  }
+  .docs-outline { display: none; }
+  .pillar-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .top-bar { padding: 0.65rem 1rem; }
+  .brand-link { font-size: 0.84rem; padding: 0.24rem 0.56rem 0.24rem 0.24rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  figure.fig-live, figure.fig-live:hover { transform: none; transition: none; }
+}
