@@ -51,7 +51,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(251, 242, 227, 0.92);
+  background: rgba(251, 242, 227, 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
   padding: 0.75rem 1.5rem;
 }
@@ -340,8 +342,9 @@ body {
   padding: 0.75rem 0.9rem;
   font-size: 0.88rem;
   line-height: 1.55;
+  color: var(--paper);
 }
-.pillar-item strong {
+.formula-panel .pillar-item strong {
   color: var(--blue);
   display: block;
   margin-bottom: 0.15rem;
@@ -708,6 +711,9 @@ figure.fig-live figcaption {
 
 /* Shared Prose, Pre, Blockquote, Figures, Callout, Legacy Scenes & Closing */
 .post strong { color: var(--ink-dark); }
+.formula-panel strong,
+.formula-panel .pillar-item strong,
+.skill-blueprint strong { color: var(--blue); }
 .post a:not(.brand-link):not(.docs-outline-link):not(.site-link) {
   color: var(--ink);
   text-decoration: none;
