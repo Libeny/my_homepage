@@ -1,440 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FBF2E3">
-  <title>qwen-audio-agent 架构深读：如何打造一个既能秒回，也能干活的 Agent · 木鱼拓哉の写作本</title>
   <meta name="description" content="通读并实测 qwen-audio-agent 核心源码：它把「对话」和「干活」拆成了两条独立的循环。完整分析。">
-
+  <title>qwen-audio-agent 架构深读：如何打造一个既能秒回，也能干活的 Agent · 木鱼拓哉</title>
   <link rel="stylesheet" href="assets/fonts/fonts.css">
-
-  <style>
-    :root {
-      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
-      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
-      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
-      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
-      --paper:#FFFDF8; --line:#E7D7C4;
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
-      background:
-        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
-        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
-        var(--cream);
-      color: var(--ink);
-      line-height: 1.9;
-      font-size: 17px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ---------- 顶部条 ---------- */
-    .topbar {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 2.2rem 1.5rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .label {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.18em;
-      color: var(--ink-faint);
-    }
-    .back {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
-      color: var(--red);
-      text-decoration: none;
-      border-bottom: 1px solid currentColor;
-      padding-bottom: 2px;
-      transition: color 0.2s var(--ease-out);
-      white-space: nowrap;
-    }
-    .back:hover { color: var(--blue-deep); }
-
-    /* ---------- 文章头 ---------- */
-    .post-head {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 0;
-    }
-    .post-head h1 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(1.9rem, 5.2vw, 2.7rem);
-      line-height: 1.35;
-      margin: 1.1rem 0 0.7rem;
-    }
-    .post-head h1 em {
-      font-style: normal;
-      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
-      padding: 0 4px;
-    }
-    .subtitle {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: clamp(1.05rem, 2.6vw, 1.32rem);
-      line-height: 1.6;
-      color: var(--ink-light);
-      margin-bottom: 1.2rem;
-    }
-    .subtitle em {
-      font-style: normal;
-      color: var(--ink);
-      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
-      padding: 0 3px;
-    }
-    .meta {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--ink-faint);
-      display: flex;
-      gap: 1.2em;
-      flex-wrap: wrap;
-    }
-    .lede {
-      margin-top: 2rem;
-      padding: 1.4rem 1.6rem;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--blue-deep);
-      border-radius: 4px 14px 14px 4px;
-      color: var(--ink-light);
-      font-size: 0.98rem;
-      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
-    }
-    .lede strong { color: var(--ink); }
-
-    /* ---------- 正文 ---------- */
-    .post {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem 4rem;
-    }
-    .post p { margin: 1.35rem 0; }
-    .post strong { font-weight: 700; }
-
-    .post h2 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(1.45rem, 3.6vw, 1.8rem);
-      line-height: 1.4;
-      margin: 3.6rem 0 1.2rem;
-      padding-top: 2.2rem;
-      border-top: 1px dashed var(--line);
-      position: relative;
-    }
-    .post h2::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 0;
-      width: 56px; height: 3px;
-      background: var(--blue-deep);
-      border-radius: 2px;
-    }
-    .post h3 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 1.18rem;
-      margin: 2.6rem 0 0.9rem;
-    }
-    .post h3 .no {
-      font-family: 'Fira Code', monospace;
-      font-weight: 500;
-      font-size: 0.82em;
-      color: var(--blue-deep);
-      margin-right: 0.5em;
-    }
-
-    /* 普通列表 */
-    .post ul {
-      margin: 1.35rem 0;
-      padding-left: 0;
-      list-style: none;
-    }
-    .post ul li {
-      position: relative;
-      padding-left: 1.5em;
-      margin: 0.7rem 0;
-    }
-    .post ul li::before {
-      content: '✦';
-      position: absolute;
-      left: 0.2em;
-      color: var(--blue-deep);
-      font-size: 0.8em;
-      top: 0.28em;
-    }
-
-    /* 场面 / 因此 列表 —— 有呼吸感 */
-    .scenes {
-      margin: 1.6rem 0;
-      padding-left: 0;
-      list-style: none;
-      counter-reset: scene;
-      display: flex;
-      flex-direction: column;
-      gap: 1.4rem;
-    }
-    .scenes li {
-      counter-increment: scene;
-      position: relative;
-      padding: 1.2rem 1.4rem 1.2rem 3.4rem;
-      background: rgba(255,253,248,0.72);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-    }
-    .scenes li::before {
-      content: counter(scene, decimal-leading-zero);
-      position: absolute;
-      left: 1.1rem; top: 1.28rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
-      color: var(--blue-deep);
-      letter-spacing: 0.05em;
-    }
-    .scenes li strong { color: var(--ink); }
-    .scenes li p { margin: 0; }
-    .scenes .s-so { margin-top: 0.55rem; }
-    .scenes .s-so strong {
-      color: #3F7A77;
-      background: var(--blue-soft);
-      border: 1px solid var(--blue-deep);
-      border-radius: 5px;
-      padding: 0 0.45em;
-      font-size: 0.85em;
-      margin-right: 0.2em;
-    }
-
-    /* 设计启示编号列表 */
-    .takeaways {
-      margin: 1.6rem 0;
-      padding-left: 0;
-      list-style: none;
-      counter-reset: take;
-      display: flex;
-      flex-direction: column;
-      gap: 1.1rem;
-    }
-    .takeaways li {
-      counter-increment: take;
-      position: relative;
-      padding-left: 2.6rem;
-    }
-    .takeaways li::before {
-      content: counter(take);
-      position: absolute;
-      left: 0; top: 0.32em;
-      width: 1.7rem; height: 1.7rem;
-      border-radius: 50%;
-      background: var(--blue-soft);
-      border: 1px solid var(--blue-deep);
-      color: var(--ink);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.72rem;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* 配图 —— 纸张质感 + 手写图注 */
-    figure.fig {
-      margin: 2.6rem 0;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 10px 10px 8px;
-      box-shadow: 0 3px 16px rgba(105,75,64,0.08);
-      transform: rotate(-0.35deg);
-      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
-    }
-    figure.fig:nth-of-type(even) { transform: rotate(0.35deg); }
-    figure.fig:hover {
-      transform: rotate(0deg) translateY(-2px);
-      box-shadow: 0 10px 28px rgba(105,75,64,0.12);
-    }
-    figure.fig img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 3px;
-    }
-    figure.fig figcaption {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.8rem;
-      padding: 0.55rem 0.4rem 0.2rem;
-    }
-    figure.fig .hand {
-      font-family: 'Caveat', cursive;
-      font-size: 1.15rem;
-      color: var(--blue-deep);
-    }
-    figure.fig .fig-no {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      color: var(--ink-faint);
-      white-space: nowrap;
-    }
-
-    /* 结语 */
-    .ending {
-      margin: 3.6rem 0 0;
-      padding-top: 2.2rem;
-      border-top: 1px dashed var(--line);
-    }
-    .ending .punch {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 1.12rem;
-      line-height: 1.8;
-      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
-      display: inline;
-      padding: 0 2px;
-    }
-
-    /* 文末 */
-    .post-foot {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 1.5rem 5rem;
-    }
-    .foot-card {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 1.5rem 1.7rem;
-      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
-      font-size: 0.92rem;
-      color: var(--ink-light);
-    }
-    .foot-card a {
-      color: var(--red);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.85rem;
-      word-break: break-all;
-      text-decoration: none;
-      border-bottom: 1px solid var(--blue-deep);
-      transition: color 0.2s var(--ease-out);
-    }
-    .foot-card a:hover { color: var(--blue-deep); }
-    .foot-card .src { margin-top: 0.5rem; color: var(--ink-faint); font-size: 0.85rem; }
-    .post-foot .back { display: inline-block; margin-top: 2.4rem; }
-
-    @media (max-width: 640px) {
-      body { font-size: 16.5px; }
-      .scenes li { padding: 1.05rem 1.1rem 1.05rem 3rem; }
-      .scenes li::before { left: 0.95rem; }
-      figure.fig { transform: none; margin: 2rem 0; }
-      figure.fig figcaption { flex-direction: column; gap: 0.15rem; }
-      .lede { padding: 1.15rem 1.2rem; }
-    }
-  </style>
-  <link rel="stylesheet" href="assets/writing-shell.css">
+  <link rel="stylesheet" href="assets/writing-article.css">
 </head>
 <body>
-  <!-- ====================================================================
-       Layer 3 & 1: Opening Banner + Header (scrolls away, then floats fixed)
-       ==================================================================== -->
-  <div class="docs-banner" id="top">
-    <div class="docs-header-slot">
-      <header class="docs-header" aria-label="写作本顶部导航">
-        <div class="docs-header-inner">
-          <div class="docs-brand-group">
-            <a href="index.html" class="docs-brand">
-              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-              <span>木鱼拓哉</span>
-            </a>
-          </div>
-
-          <nav class="docs-top-nav" aria-label="站点主导航">
-            <a href="writing.html">全部文章</a>
-            <a href="writing.html?category=tech">技术拆解</a>
-            <a href="writing.html?category=life">生活杂谈</a>
-          </nav>
-
-          <div class="docs-header-actions">
-            <a href="index.html#writing" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
-          </div>
-        </div>
-      </header>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <a class="brand-link" href="writing.html">
+        <img src="assets/favicon.png" alt="木鱼拓哉">
+        <span>← 返回写作本</span>
+      </a>
     </div>
-  </div>
-
-  <!-- ====================================================================
-       Layer 2 & 1: Three-Column Sticky Shell (Sidebar + Article + Outline)
-       ==================================================================== -->
-  <div class="docs-shell">
-    <aside class="docs-sidebar" aria-label="全部文章导航">
-      <div class="docs-search-box">
-        <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="M20 20l-3.5-3.5"></path>
-        </svg>
-        <input type="search" class="docs-search-input" placeholder="搜索文章..." aria-label="搜索文章">
-        <kbd class="docs-search-kbd" aria-hidden="true">/</kbd>
-      </div>
-
-      <div class="docs-nav-wrap" data-more-above="false" data-more-below="false">
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--up" tabindex="-1" aria-hidden="true">↑</button>
-        <nav class="docs-nav-scroll" aria-label="写作本章节列表" data-more-above="false" data-more-below="false">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与系统架构</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-fde-business-agent.html" class="docs-nav-link">FDE 焚诀：打造能干活的业务 Agent</a></li>
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link" aria-current="page">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-        </nav>
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--down" tabindex="-1" aria-hidden="true">↓</button>
-      </div>
-    </aside>
-
-    <main class="docs-main" id="docsMain">
-<header class="post-head">
-    <h1>qwen-audio-agent 架构深读：<em>如何打造一个既能秒回，也能干活的 Agent</em></h1>
-    <p class="lede">通读并实测了 qwen-audio-agent（QwenAudio 团队开源的实时语音 Agent 运行时）的核心源码。它表面上只是"给 Agent 加了语音"，实际做的是<strong>把"对话"和"干活"拆成两条独立的循环</strong>：一套以语音为主线的 Agent 运行系统。</p>
   </header>
 
-  <article class="post">
+  <div id="top" class="page-shell">
+    <main class="post">
+<header class="post-head">
+  <span class="post-kicker">VOICE AGENT · DUAL LOOP</span>
+  <h1 class="post-title">qwen-audio-agent 架构深读：<mark>如何打造一个既能秒回，也能干活的 Agent</mark></h1>
+  <p class="post-subtitle">通读并实测了 qwen-audio-agent（QwenAudio 团队开源的实时语音 Agent 运行时）的核心源码。它表面上只是"给 Agent 加了语音"，实际做的是<strong>把"对话"和"干活"拆成两条独立的循环</strong>：一套以语音为主线的 Agent 运行系统。</p>
+  <div class="author-strip"><span class="author-chip"><img src="assets/favicon.png" alt="木鱼拓哉">木鱼拓哉</span><span>2026-08</span><span>SOURCE: QWENAUDIO / APACHE-2.0</span></div>
+</header>
 
-    <h2 id="section-01">一、从一个熟悉的坏体验说起</h2>
-
-    <p>用过 IM 里的 Agent（比如把 OpenClaw 接进飞书/钉钉/微信）的人都熟悉这个时刻：你在对话里下达一个任务，然后——长久的沉默。它是在干还是卡住了？不知道。这期间，这个对话窗口也别想干别的：再问个问题，要么排队，要么和进行中的任务搅在一起。消息发出去石沉大海，你只能盯着屏幕，等那句不知道什么时候来的回复。</p>
+<section id="section-01">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 01</span>
+    <h2>一、从一个熟悉的坏体验说起</h2>
+  </div>
+  <p>用过 IM 里的 Agent（比如把 OpenClaw 接进飞书/钉钉/微信）的人都熟悉这个时刻：你在对话里下达一个任务，然后——长久的沉默。它是在干还是卡住了？不知道。这期间，这个对话窗口也别想干别的：再问个问题，要么排队，要么和进行中的任务搅在一起。消息发出去石沉大海，你只能盯着屏幕，等那句不知道什么时候来的回复。</p>
 
     <figure class="fig">
       <img src="assets/fig-qaa-0a-silence.jpg" alt="概念插画：一个人瘫在沙发上举着手机，聊天记录里两条发出去的消息下面只有对方的正在输入省略号，墙上的钟在走，咖啡凉在一边" loading="lazy">
@@ -461,10 +60,14 @@
         <span class="fig-no">FIG.01 · 前台与后台</span>
       </figcaption>
     </figure>
+</section>
 
-    <h2 id="section-02">二、三个部分，各管一段</h2>
-
-    <p>这套系统分三个部分：前台语音 Agent、后台干活 Agent，以及串联两者的调度台。</p>
+<section id="section-02">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 02</span>
+    <h2>二、三个部分，各管一段</h2>
+  </div>
+  <p>这套系统分三个部分：前台语音 Agent、后台干活 Agent，以及串联两者的调度台。</p>
 
     <figure class="fig">
       <img src="assets/fig-qaa-2-parts.png" alt="三个部分：用户经全双工语音到前台语音 Agent，派工单到调度台，调度台固定身份续接到后台干活 Agent——leader 常驻协调会话只做决策，组员下游工作会话真正干活；事件流单向同步回调度台，结果在安全窗口播报回前台" loading="lazy">
@@ -479,10 +82,14 @@
     <p><strong>调度台：串联前后的枢纽，也是唯一知道每个任务"走到哪一步"的角色。</strong> 工单的排队、进度、发言权都登记在它这里——后台 Agent 可以换，记录只以调度台为准。它不干活，只做调度：受理、派单、订阅、认定完成、执行取消。</p>
 
     <p><strong>后台干活 Agent 分两种身份。leader 唯一常驻</strong>：每个用户在调度台手里有一个固定身份的协调会话，每轮请求都续接同一个。所有语音请求的上下文都累积在这一个会话里，"刚才那个"这种指代因此永远有唯一解。<strong>组员可以很多，但都不自治</strong>：由 leader 按需创建、并行干活，它的状态、完成认定、取消确认全部握在调度台手里。</p>
+</section>
 
-    <h2 id="section-03">三、四条协同链路</h2>
-
-    <p>接下来看三个部分之间是怎么协同的。</p>
+<section id="section-03">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 03</span>
+    <h2>三、四条协同链路</h2>
+  </div>
+  <p>接下来看三个部分之间是怎么协同的。</p>
 
     <h3><span class="no">3.1</span>前台 ↔ 调度台：发言权与播报</h3>
 
@@ -600,10 +207,14 @@
       <li><strong>已转包是取消最难的情形</strong>——执行权已经不在 leader 手上了。所以留了两条路：leader 有空就走"正式渠道"转告（协调上下文不断）；leader 正忙，调度台直接向组员会话发取消（图快）。<strong>两条路都要等组员确认停了</strong>，工单才从"取消中"落地为"已取消"；</li>
       <li><strong>调度台敢"绕过 leader"，是因为取消是安全管理动作，不是协作动作</strong>——但它会事后给 leader 补一条记录，让协调上下文知道"那件事被用户叫停了"，避免 leader 下次还在等一个永远不会来的结果。</li>
     </ul>
+</section>
 
-    <h2 id="section-04">四、一张状态机看全局</h2>
-
-    <p>把四条链路收拢，每张工单的生命周期是一台显式状态机：</p>
+<section id="section-04">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 04</span>
+    <h2>四、一张状态机看全局</h2>
+  </div>
+  <p>把四条链路收拢，每张工单的生命周期是一台显式状态机：</p>
 
     <figure class="fig">
       <img src="assets/fig-qaa-7-lifecycle.png" alt="工单生命周期状态机：排队中、协调中、已转包、整理中、已完成进入播报管线；排队中可本地作废，协调中与已转包可进入取消中再落地已取消，协调中与已转包也可能失败进入已失败" loading="lazy">
@@ -612,17 +223,25 @@
         <span class="fig-no">FIG.07 · 工单生命周期</span>
       </figcaption>
     </figure>
+</section>
 
-    <h2 id="section-05">五、设计启示</h2>
-
-    <ol class="takeaways">
+<section id="section-05">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 05</span>
+    <h2>五、设计启示</h2>
+  </div>
+  <ol class="takeaways">
       <li><strong>交互循环与工作循环必须分开。</strong> 这是全文的核心。任何"干活时对话就死"的 Agent，用过这套架构之后都会感觉像坏了。</li>
       <li><strong>语音交互设计已经可以当作一种范式。</strong> 语音通道是单工稀缺资源，"谁在说、谁在等、谁能插话"必须是一台显式状态机，而不是散落在各处的时序运气；执行可以无限并行，人的注意力不能——什么值得打断用户、什么该合并低语，是播报要回答的问题。这套"发言权状态机 + 播报调度"的组合，可以直接搬进任何语音产品。</li>
     </ol>
+</section>
 
-    <h2 id="section-06">六、还能往哪走</h2>
-
-    <p>以下不是项目现状，是顺着它现有机制的两步推演：</p>
+<section id="section-06">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 06</span>
+    <h2>六、还能往哪走</h2>
+  </div>
+  <p>以下不是项目现状，是顺着它现有机制的两步推演：</p>
 
     <ul>
       <li><strong>主 Agent 可以按难易分流，而不只做派发。</strong> 一句话能答的（问进度、问时间、查清单）直接答，要开工作区、跑几分钟的才下派——前台"问一句'干了没有'不该付出唤醒一个 LLM 的代价"，这个原则可以原样下沉一层。</li>
@@ -632,45 +251,20 @@
     <div class="ending">
       <p>如果你在做 Agent 相关产品，这份源码值得完整读一遍——<strong>它是我读过对"语音 + 异步多任务 Agent"思考得最完整的开源实现</strong>。</p>
     </div>
+</section>
 
-  </article>
-
-  <footer class="post-foot">
-    <div class="foot-card">
+<footer class="post-foot">
+<div class="foot-card">
       项目地址：<a href="https://github.com/QwenAudio/qwen-audio-agent" target="_blank" rel="noopener">https://github.com/QwenAudio/qwen-audio-agent</a> （Apache-2.0）
     </div>
-    <a href="writing.html?category=tech" class="back">← 回文章目录</a>
-  </footer>
-        <div class="docs-end-zone">
-          <div class="docs-help-card">
-            <div class="docs-help-copy">
-              <strong>看完还有疑问，或者想聊聊你的真实场景？</strong>
-              欢迎在 GitHub 提 Issue 讨论实现细节，或来小红书 / 发邮件找木鱼一起切磋。
-            </div>
-            <div class="docs-help-actions">
-              <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="docs-help-btn">GitHub 交流 ↗</a>
-              <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener" class="docs-help-btn">小红书 @木鱼拓哉</a>
-              <a href="mailto:libeny0526@gmail.com" class="docs-help-btn">发邮件切磋</a>
-            </div>
-          </div>
-
-          <nav class="docs-pager" aria-label="上下篇导航">
-            <a href="writing-raft-message-mechanism.html" class="docs-pager-card docs-pager-card--prev">
-              <span class="docs-pager-label">Previous · 上一篇</span>
-              <span class="docs-pager-title">Raft 消息机制：批量感知与发言检查</span>
-            </a>
-            <a href="writing-life.html" class="docs-pager-card docs-pager-card--next">
-              <span class="docs-pager-label">Next · 下一篇</span>
-              <span class="docs-pager-title">为什么现在的旅行越来越像体力活？</span>
-            </a>
-          </nav>
-        </div>
+<div class="post-foot-meta"><div class="post-foot-nav"><a href="writing-raft-message-mechanism.html">← 上一篇：Raft 消息机制：批量感知与发言检查</a> · <a href="writing.html">返回写作本目录</a> · <a href="writing-life.html">下一篇：为什么现在的旅行越来越像体力活？ →</a></div></div>
+</footer>
     </main>
 
     <aside class="docs-outline" aria-label="本页大纲">
       <div class="docs-outline-title">On this page · 本页目录</div>
       <ul class="docs-outline-list">
-          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、从一个熟悉的坏体验说起</a></li>
+          <li><a href="#section-01" class="docs-outline-link">一、从一个熟悉的坏体验说起</a></li>
           <li><a href="#section-02" class="docs-outline-link">二、三个部分，各管一段</a></li>
           <li><a href="#section-03" class="docs-outline-link">三、四条协同链路</a></li>
           <li><a href="#section-04" class="docs-outline-link">四、一张状态机看全局</a></li>
@@ -680,137 +274,6 @@
     </aside>
   </div>
 
-  <!-- ====================================================================
-       Layer 1: Tall Crafted Footer (>50vh, pushes sticky sidebars up cleanly)
-       ==================================================================== -->
-  <footer class="docs-footer">
-    <div class="docs-footer-inner">
-      <div class="docs-footer-top">
-        <div class="docs-footer-brand">
-          <a href="index.html" class="docs-footer-brand-head">
-            <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-            <span>木鱼拓哉 · MuYu</span>
-          </a>
-          <p>一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。</p>
-          <div class="docs-footer-socials">
-            <a href="https://github.com/Libeny" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener">小红书</a>
-            <a href="mailto:libeny0526@gmail.com">Email</a>
-          </div>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>技术深读</h4>
-          <ul>
-            <li><a href="writing-designing-the-wait.html">AI 产品等待设计实战</a></li>
-            <li><a href="writing-linear-sync-engine.html">Linear 端云协同引擎</a></li>
-            <li><a href="writing-pi-agent-runtime.html">Pi Agent Runtime 底座</a></li>
-            <li><a href="writing-raft-message-mechanism.html">Raft 多 Agent 消息机制</a></li>
-            <li><a href="writing-qwen-audio-agent.html">qwen-audio-agent 架构</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>品味与随笔</h4>
-          <ul>
-            <li><a href="writing-ai-ui-curation.html">5 个封神 UI 库与 Skill</a></li>
-            <li><a href="writing-life.html">人文旅行八面体骨架</a></li>
-            <li><a href="writing-travel-book-essay.html">旅册：虚拟书架上的实体书</a></li>
-            <li><a href="writing-tech-process.html">小刚Claw 与 crewless 复盘</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>栏目归档</h4>
-          <ul>
-            <li><a href="writing.html">全部文章目录</a></li>
-            <li><a href="writing.html?category=tech">最新技术拆解</a></li>
-            <li><a href="writing.html?category=life">生活杂谈随笔</a></li>
-            <li><a href="writing-tech-process.html">项目过程记录</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="docs-footer-bottom">
-        <span>© 2026 木鱼拓哉 · BUILDER'S NOTEBOOK &amp; WIKI</span>
-        <span class="hand">crafted with care &amp; curiosity ✦</span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ====================================================================
-       Narrow Screens: Fixed Bottom Bar (.guide-dock) & Modal Sheets (<dialog>)
-       ==================================================================== -->
-  <div class="guide-dock" role="navigation" aria-label="移动端章节与目录切换">
-    <button type="button" class="guide-dock-btn guide-dock-btn--pages" data-open-sheet="pages">
-      <span aria-hidden="true">☰</span>
-      <span>文章目录</span>
-    </button>
-    <span class="guide-dock-divider" aria-hidden="true"></span>
-    <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
-      <span class="guide-dock-section" data-current-section-label>一、从一个熟悉的坏体验说起</span>
-      <span class="guide-dock-caret" aria-hidden="true">^</span>
-    </button>
-  </div>
-
-  <dialog class="guide-sheet" id="sheetPages" aria-label="全部文章目录">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">文章目录 · Contents</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与系统架构</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-fde-business-agent.html" class="docs-nav-link">FDE 焚诀：打造能干活的业务 Agent</a></li>
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link" aria-current="page">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-    </div>
-  </dialog>
-
-  <dialog class="guide-sheet" id="sheetOutline" aria-label="本页章节大纲">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">本页目录 · On this page</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-      <ul class="docs-outline-list">
-          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、从一个熟悉的坏体验说起</a></li>
-          <li><a href="#section-02" class="docs-outline-link">二、三个部分，各管一段</a></li>
-          <li><a href="#section-03" class="docs-outline-link">三、四条协同链路</a></li>
-          <li><a href="#section-04" class="docs-outline-link">四、一张状态机看全局</a></li>
-          <li><a href="#section-05" class="docs-outline-link">五、设计启示</a></li>
-          <li><a href="#section-06" class="docs-outline-link">六、还能往哪走</a></li>
-      </ul>
-    </div>
-  </dialog>
-
-  <script src="assets/writing-shell.js" defer></script>
-
+  <script src="assets/writing-article.js" defer></script>
 </body>
 </html>

@@ -1,9 +1,10 @@
-# 个人主页长文规范 · Builder's Notebook 风格沉淀 (`writing-article`)
+# 个人主页长文与写作本规范 · 「手札印本 · Warm Notebook Print」（`writing-article`）
 
-> 基准样板：[`writing-fde-business-agent.html`](../writing-fde-business-agent.html)
+> 风格命名：**手札印本（Warm Notebook Print）** —— 暖纸墨线 × 薄荷荧光高光 × 樱粉标签 × 实体卡片压影（硬边框配 `4–6px` 沉实底影，兼顾纸质笔记本温度与独立工程出版物克制感）。
+> 基准样板：[`writing-fde-business-agent.html`](../writing-fde-business-agent.html) · 写作本列表：[`writing.html`](../writing.html)
 > 共用样式与交互：[`assets/writing-article.css`](../assets/writing-article.css) · [`assets/writing-article.js`](../assets/writing-article.js)
 
-这套样式从 `FDE 焚诀` 长文打磨沉淀而来，后续站点内其余 [`writing-*.html`](../writing.html) 均可按本规范逐篇迁移对齐。
+这套样式从 `FDE 焚诀` 长文打磨沉淀而来，并已统一应用到写作本首页与全站 [`writing-*.html`](../writing.html) 图文长文。
 
 ---
 

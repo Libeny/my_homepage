@@ -1,456 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FBF2E3">
-  <title>Linear 架构深读：Agent 跑了八分钟，刷新一下就没了？ · 木鱼拓哉の写作本</title>
   <meta name="description" content="聊聊 AI 时代的端云协同基本功。从 Linear 同步引擎借三件事：本地事务队列、全局序号增量同步、按需加载，把一次脆弱的长连接请求改写为可恢复、可对账的端云协同状态流。">
-
+  <title>Linear 架构深读：Agent 跑了八分钟，刷新一下就没了？ · 木鱼拓哉</title>
   <link rel="stylesheet" href="assets/fonts/fonts.css">
-
-  <style>
-    :root {
-      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
-      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
-      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
-      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
-      --paper:#FFFDF8; --line:#E7D7C4;
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
-      background:
-        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
-        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
-        var(--cream);
-      color: var(--ink);
-      line-height: 1.9;
-      font-size: 17px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ---------- 顶部条 ---------- */
-    .topbar {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 2.2rem 1.5rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .label {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.18em;
-      color: var(--ink-faint);
-    }
-    .back {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
-      color: var(--red);
-      text-decoration: none;
-      border-bottom: 1px solid currentColor;
-      padding-bottom: 2px;
-      transition: color 0.2s var(--ease-out);
-      white-space: nowrap;
-    }
-    .back:hover { color: var(--blue-deep); }
-
-    /* ---------- 文章头 ---------- */
-    .post-head {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 0;
-    }
-    .post-head h1 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(1.9rem, 5.2vw, 2.7rem);
-      line-height: 1.35;
-      margin: 1.1rem 0 0.7rem;
-    }
-    .post-head h1 em {
-      font-style: normal;
-      background: linear-gradient(to top, var(--blue) 40%, transparent 40%);
-      padding: 0 4px;
-    }
-    .meta {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--ink-faint);
-      display: flex;
-      gap: 1.2em;
-      flex-wrap: wrap;
-    }
-    .lede {
-      margin-top: 2rem;
-      padding: 1.4rem 1.6rem;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--blue-deep);
-      border-radius: 4px 14px 14px 4px;
-      color: var(--ink-light);
-      font-size: 0.98rem;
-      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
-    }
-    .lede strong { color: var(--ink); }
-
-    /* ---------- 正文 ---------- */
-    .post {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem 4rem;
-    }
-    .post p { margin: 1.35rem 0; }
-    .post strong { font-weight: 700; color: var(--ink); }
-
-    .post h2 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 900;
-      font-size: clamp(1.45rem, 3.6vw, 1.8rem);
-      line-height: 1.4;
-      margin: 3.6rem 0 1.2rem;
-      padding-top: 2.2rem;
-      border-top: 1px dashed var(--line);
-      position: relative;
-    }
-    .post h2::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 0;
-      width: 56px; height: 3px;
-      background: var(--blue-deep);
-      border-radius: 2px;
-    }
-    .post h3 {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 1.18rem;
-      margin: 2.6rem 0 0.9rem;
-    }
-
-    /* 普通列表 */
-    .post ul:not(.scenes):not(.takeaways) {
-      margin: 1.35rem 0;
-      padding-left: 0;
-      list-style: none;
-    }
-    .post ul:not(.scenes):not(.takeaways) > li {
-      position: relative;
-      padding-left: 1.6em;
-      margin: 0.7rem 0;
-    }
-    .post ul:not(.scenes):not(.takeaways) > li::before {
-      content: '✦';
-      position: absolute;
-      left: 0.2em;
-      color: var(--blue-deep);
-      font-size: 0.8em;
-      top: 0.28em;
-    }
-
-    /* 场景卡片 */
-    .post .scenes {
-      margin: 1.6rem 0;
-      padding-left: 0;
-      list-style: none;
-      counter-reset: scene;
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-    .post .scenes > li {
-      counter-increment: scene;
-      position: relative;
-      padding: 1.2rem 1.4rem 1.2rem 3.4rem;
-      background: rgba(255,253,248,0.72);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-    }
-    .post .scenes > li::before {
-      content: counter(scene, decimal-leading-zero);
-      position: absolute;
-      left: 1.1rem; top: 1.28rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
-      color: var(--blue-deep);
-      letter-spacing: 0.05em;
-    }
-    .post .scenes > li strong { color: var(--ink); }
-    .post .scenes > li p { margin: 0; }
-    .post .scenes .s-so { margin-top: 0.55rem; }
-    .post .scenes .s-so strong {
-      color: #3F7A77;
-      background: var(--blue-soft);
-      border: 1px solid var(--blue-deep);
-      border-radius: 5px;
-      padding: 0 0.45em;
-      font-size: 0.85em;
-      margin-right: 0.2em;
-    }
-
-    /* 检查清单 */
-    .post .takeaways {
-      margin: 1.8rem 0;
-      padding-left: 0;
-      list-style: none;
-      counter-reset: take;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    .post .takeaways > li {
-      counter-increment: take;
-      position: relative;
-      padding-left: 2.85rem;
-      line-height: 1.8;
-      min-height: 1.8rem;
-    }
-    .post .takeaways > li::before {
-      content: counter(take);
-      position: absolute;
-      left: 0; top: 0.15rem;
-      width: 1.75rem; height: 1.75rem;
-      border-radius: 50%;
-      background: var(--blue-soft);
-      border: 1.5px solid var(--blue-deep);
-      color: #2F635E;
-      font-family: 'Fira Code', monospace;
-      font-weight: 700;
-      font-size: 0.76rem;
-      display: flex; align-items: center; justify-content: center;
-      line-height: 1;
-      box-shadow: 0 1px 4px rgba(105,75,64,0.06);
-    }
-
-    .subtitle {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: clamp(1.05rem, 2.6vw, 1.32rem);
-      line-height: 1.6;
-      color: var(--ink-light);
-      margin-bottom: 1.2rem;
-    }
-
-    /* 配图卡片 */
-    figure.fig {
-      margin: 2.6rem 0;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 10px 10px 8px;
-      box-shadow: 0 3px 16px rgba(105,75,64,0.08);
-      transform: rotate(-0.35deg);
-      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
-    }
-    figure.fig:nth-of-type(even) { transform: rotate(0.35deg); }
-    figure.fig:hover {
-      transform: rotate(0deg) translateY(-2px);
-      box-shadow: 0 10px 28px rgba(105,75,64,0.12);
-    }
-    figure.fig img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 3px;
-    }
-    figure.fig figcaption {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.8rem;
-      padding: 0.55rem 0.4rem 0.2rem;
-    }
-    figure.fig .hand {
-      font-family: 'Caveat', cursive;
-      font-size: 1.15rem;
-      color: var(--blue-deep);
-    }
-    figure.fig .fig-no {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      color: var(--ink-faint);
-      white-space: nowrap;
-    }
-
-    /* 代码与 ASCII 框 */
-    .post pre {
-      margin: 1.6rem 0;
-      padding: 1.1rem 1.3rem;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--blue-deep);
-      border-radius: 4px 12px 12px 4px;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.82rem;
-      line-height: 1.75;
-      color: var(--ink);
-      overflow-x: auto;
-      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
-    }
-
-    /* 结语 */
-    .ending {
-      margin: 3.6rem 0 0;
-      padding-top: 2.2rem;
-      border-top: 1px dashed var(--line);
-    }
-    .ending .punch {
-      font-family: 'Noto Serif SC', serif;
-      font-weight: 700;
-      font-size: 1.12rem;
-      line-height: 1.8;
-      background: linear-gradient(to top, var(--yellow) 38%, transparent 38%);
-      display: inline;
-      padding: 0 2px;
-    }
-
-    /* 文末 */
-    .post-foot {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 1.5rem 5rem;
-    }
-    .foot-card {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 1.5rem 1.7rem;
-      box-shadow: 0 2px 12px rgba(105,75,64,0.05);
-      font-size: 0.92rem;
-      color: var(--ink-light);
-    }
-    .foot-card a {
-      color: var(--red);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.85rem;
-      word-break: break-all;
-      text-decoration: none;
-      border-bottom: 1px solid var(--blue-deep);
-      transition: color 0.2s var(--ease-out);
-    }
-    .foot-card a:hover { color: var(--blue-deep); }
-    .foot-card .src { margin-top: 0.5rem; color: var(--ink-faint); font-size: 0.85rem; }
-    .post-foot .back { display: inline-block; margin-top: 2.4rem; }
-
-    @media (max-width: 640px) {
-      body { font-size: 16.5px; }
-      figure.fig { transform: none; margin: 2rem 0; }
-      figure.fig figcaption { flex-direction: column; gap: 0.15rem; }
-      .lede { padding: 1.15rem 1.2rem; }
-      .scenes li { padding-left: 2.6rem; }
-      .scenes li::before { left: 0.8rem; }
-    }
-  </style>
-  <link rel="stylesheet" href="assets/writing-shell.css">
+  <link rel="stylesheet" href="assets/writing-article.css">
 </head>
 <body>
-  <!-- ====================================================================
-       Layer 3 & 1: Opening Banner + Header (scrolls away, then floats fixed)
-       ==================================================================== -->
-  <div class="docs-banner" id="top">
-    <div class="docs-header-slot">
-      <header class="docs-header" aria-label="写作本顶部导航">
-        <div class="docs-header-inner">
-          <div class="docs-brand-group">
-            <a href="index.html" class="docs-brand">
-              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-              <span>木鱼拓哉</span>
-            </a>
-          </div>
-
-          <nav class="docs-top-nav" aria-label="站点主导航">
-            <a href="writing.html">全部文章</a>
-            <a href="writing.html?category=tech">技术拆解</a>
-            <a href="writing.html?category=life">生活杂谈</a>
-          </nav>
-
-          <div class="docs-header-actions">
-            <a href="index.html#writing" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
-          </div>
-        </div>
-      </header>
-    </div>
-  </div>
-
-  <!-- ====================================================================
-       Layer 2 & 1: Three-Column Sticky Shell (Sidebar + Article + Outline)
-       ==================================================================== -->
-  <div class="docs-shell">
-    <aside class="docs-sidebar" aria-label="全部文章导航">
-      <div class="docs-search-box">
-        <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="M20 20l-3.5-3.5"></path>
-        </svg>
-        <input type="search" class="docs-search-input" placeholder="搜索文章..." aria-label="搜索文章">
-        <kbd class="docs-search-kbd" aria-hidden="true">/</kbd>
-      </div>
-
-      <div class="docs-nav-wrap" data-more-above="false" data-more-below="false">
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--up" tabindex="-1" aria-hidden="true">↑</button>
-        <nav class="docs-nav-scroll" aria-label="写作本章节列表" data-more-above="false" data-more-below="false">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与系统架构</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link" aria-current="page">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-        </nav>
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--down" tabindex="-1" aria-hidden="true">↓</button>
-      </div>
-    </aside>
-
-    <main class="docs-main" id="docsMain">
-<header class="post-head">
-    <h1>Linear 架构深读：<em>Agent 跑了八分钟，刷新一下就没了？</em></h1>
-    <div class="subtitle">聊聊 AI 时代的端云协同基本功</div>
-    <p class="lede">
-      当我们在 AI 时代大谈 Agent、长程推理与多智能体工作流时，无数真实产品却在最基础的环节轰然倒地：Agent 跑了五分钟用户手滑刷新全丢、多设备登录状态无法对账、网络颠簸造成重复调度。通读 Linear 逆向文档，拆解它如何在端侧用本地事务队列兜住所有断点，在云端用单调递增序号统领全局对账。这是一份写给所有端侧与系统架构工程师的必修底座指南。
-    </p>
-    <div class="meta">
-      <span>2026-09</span>
-      <span>SYNC ENGINE &amp; LOCAL-FIRST</span>
-      <span>SOURCE: WZHUDEV / REVERSE-LSE</span>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <a class="brand-link" href="writing.html">
+        <img src="assets/favicon.png" alt="木鱼拓哉">
+        <span>← 返回写作本</span>
+      </a>
     </div>
   </header>
 
-  <article class="post">
+  <div id="top" class="page-shell">
+    <main class="post">
+<header class="post-head">
+  <span class="post-kicker">SYNC ENGINE · LOCAL-FIRST</span>
+  <h1 class="post-title">Linear 架构深读：<mark>Agent 跑了八分钟，刷新一下就没了？</mark></h1>
+  <p class="post-subtitle">聊聊 AI 时代的端云协同基本功</p>
+  <div class="author-strip"><span class="author-chip"><img src="assets/favicon.png" alt="木鱼拓哉">木鱼拓哉</span><span>2026-09</span><span>SOURCE: WZHUDEV / REVERSE-LSE</span></div>
+</header>
 
-    <h2 id="section-01">一、传统端侧架构的断点死穴</h2>
-
-    <p>做端侧（Web、Desktop、Mobile）开发，我们每天都在跟以下事故搏斗：</p>
+<div class="origin-card">
+  <span class="origin-card-label">导读 · READING BRIEF</span>
+  <p>当我们在 AI 时代大谈 Agent、长程推理与多智能体工作流时，无数真实产品却在最基础的环节轰然倒地：Agent 跑了五分钟用户手滑刷新全丢、多设备登录状态无法对账、网络颠簸造成重复调度。通读 Linear 逆向文档，拆解它如何在端侧用本地事务队列兜住所有断点，在云端用单调递增序号统领全局对账。这是一份写给所有端侧与系统架构工程师的必修底座指南。</p>
+</div>
+<section id="section-01">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 01</span>
+    <h2>一、传统端侧架构的断点死穴</h2>
+  </div>
+  <p>做端侧（Web、Desktop、Mobile）开发，我们每天都在跟以下事故搏斗：</p>
 
     <p>电脑上刚改完，手机拿出来看还是旧的；地铁里断网改了几条数据，到了有网的地方一刷新全丢了；两个人同一秒改一个字段，后保存的直接覆盖先保存的，谁都没收到任何冲突提示；或者网络抖了一下，请求还在空中飞，用户急躁地又点了三次保存，数据库里多出三条重复记录。</p>
 
@@ -465,10 +52,14 @@
     <p>这些问题的根源是传统架构的默认假设：<strong>状态的唯一真源只在服务端，端侧只是个无状态的薄渲染层，任何操作都必须等一次完整的网络往返。</strong></p>
 
     <p>只要网络一发生抖动，这个假设就会在端侧制造出无数个致命断点。Linear 的答案不是去祈祷网络变好，而是彻底重构了端云协同的契约：<strong>Local-First（本地优先）</strong>。浏览器本地（IndexedDB）保留完整的可读写状态副本，用户操作 0 毫秒在本地生效，网络被降级为后台的数据同步管道。代价是本地副本会分叉，需要一套严密的端云协同引擎来对账——LSE（Linear Sync Engine）就是这套引擎。</p>
+</section>
 
-    <h2 id="section-02">二、端云协同花名册：四个角色各管一段</h2>
-
-    <p>面对多客户端高频修改，LSE 没有引入学术界沉重复杂的去中心化 CRDT，而是建立了一个中心化服务端仲裁下的**端云协同分工体系**。它拆解为清晰的四个角色：</p>
+<section id="section-02">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 02</span>
+    <h2>二、端云协同花名册：四个角色各管一段</h2>
+  </div>
+  <p>面对多客户端高频修改，LSE 没有引入学术界沉重复杂的去中心化 CRDT，而是建立了一个中心化服务端仲裁下的**端云协同分工体系**。它拆解为清晰的四个角色：</p>
 
     <ul>
       <li><strong>本地事务队列（Transaction Queue）</strong>：管上行。端侧用户的所有操作打包为可逆事务，持久化并批量向云端提交。</li>
@@ -476,10 +67,14 @@
       <li><strong>意图重放机制（Rebase）</strong>：管交错。端侧本地修改未上报前如果收到云端推送，自动重放意图，化解端侧视图冲突。</li>
       <li><strong>按需加载网络（Sync Scope &amp; Load Strategy）</strong>：管流量。精细控制元数据加载策略，几十万个对象不卡死端侧内存。</li>
     </ul>
+</section>
 
-    <h2 id="section-03">三、端侧事务队列：如何兜住 6 种操作断点？</h2>
-
-    <p>在端侧，改个状态、拖拽一个任务，如果每次都要等几百毫秒的网络返回，一天下来光等待就要耗费几十分钟。Linear 的原则是：<strong>界面交互响应绝对不能等网络。</strong></p>
+<section id="section-03">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 03</span>
+    <h2>三、端侧事务队列：如何兜住 6 种操作断点？</h2>
+  </div>
+  <p>在端侧，改个状态、拖拽一个任务，如果每次都要等几百毫秒的网络返回，一天下来光等待就要耗费几十分钟。Linear 的原则是：<strong>界面交互响应绝对不能等网络。</strong></p>
 
     <p>当用户把 Issue 负责人改成 Bob 时，端侧内存模型立刻修改，界面同步显示 Bob；同时，一条 Transaction 写入本地 IndexedDB 的 <code>_transactions</code> 队列，随后批量发往云端。</p>
 
@@ -538,10 +133,14 @@
     </figure>
 
     <p>这个设计的另一大红利：因为 Transaction 按可逆（Reversible）设计，天生保存了 <code>changeSnapshot</code> 和旧值，Linear 的全局 Undo / Redo 功能完全是这套队列机制顺带奉送的。</p>
+</section>
 
-    <h2 id="section-04">四、全局单调序号：多客户端怎么增量对账？</h2>
-
-    <p>换了一台电脑、或者手机几个星期没打开，客户端怎么知道自己遗漏了什么变更？</p>
+<section id="section-04">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 04</span>
+    <h2>四、全局单调序号：多客户端怎么增量对账？</h2>
+  </div>
+  <p>换了一台电脑、或者手机几个星期没打开，客户端怎么知道自己遗漏了什么变更？</p>
 
     <p>很多系统的做法是“重新全量拉取一次”，这在数据量大时会造成可怕的白屏和带宽压力。Linear 的端云协同核心就在于：<strong>服务端为每一个变更分配一个全局单调递增的整数：<code>syncId</code>。客户端只需要记住一个数字：<code>lastSyncId</code>。</strong></p>
 
@@ -575,20 +174,28 @@ Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
       <li><strong>Delta 广播包含发起者自己</strong>：Transaction 代表客户端的**主观意图**（“我想把任务标为完成”），而 Delta 代表服务端的**客观事实**（“任务被标为完成，并触发了通知和历史动态”）。服务端执行事务时会产生额外的业务副作用，因此 Delta 会广播给全量在线客户端，发起端最终也以云端返回的 Delta 为准更新本地状态。</li>
       <li><strong>全局序号是一条全系统共用的数轴</strong>：同一个数据库里其他团队的修改也在消耗这个序号。客户端根据 Sync Scope 过滤属于自己的事件，一旦发现收到的序号跳过了数字，立刻知道中间有包丢失，迅速触发补课请求。</li>
     </ul>
+</section>
 
-    <h2 id="section-05">五、并发冲突谁说了算？云端中心仲裁</h2>
-
-    <p>两个人同时改同一个 Issue 的标题，冲突怎么解？</p>
+<section id="section-05">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 05</span>
+    <h2>五、并发冲突谁说了算？云端中心仲裁</h2>
+  </div>
+  <p>两个人同时改同一个 Issue 的标题，冲突怎么解？</p>
 
     <p>Linear 的选择极其务实：<strong>以请求到达服务端的物理时间为准，采用 Last Writer Wins（后写入者胜出）。</strong></p>
 
     <p>必须强调：这里的“后”指的是**抵达服务端的绝对时间**，而不是端侧的点击时间。客户端 A 在 10:00:00 点击修改，客户端 B 在 10:00:01 点击修改，但如果因为网络原因 B 的事务先到达服务端，B 会分配到 syncId=100，A 到达后分配到 syncId=101。最终状态由 A 覆盖 B。</p>
 
     <p>云端是唯一的裁判，客户端的 Rebase 只是在最终仲裁结果返回之前，让用户的本地界面不至于乱掉。这种折中对于任务协作工具而言极具智慧：字段级并发修改在现实中发生概率极低，用极简的中心仲裁避开了 CRDT 几十倍的元数据膨胀。</p>
+</section>
 
-    <h2 id="section-06">六、几十万个对象，如何不卡死端侧内存？</h2>
-
-    <p>大型团队的工作区往往拥有几十万个实体对象，如果全量装进端侧浏览器，IndexedDB 和内存瞬间撑爆。LSE 在两个维度上收拢数据流向：</p>
+<section id="section-06">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 06</span>
+    <h2>六、几十万个对象，如何不卡死端侧内存？</h2>
+  </div>
+  <p>大型团队的工作区往往拥有几十万个实体对象，如果全量装进端侧浏览器，IndexedDB 和内存瞬间撑爆。LSE 在两个维度上收拢数据流向：</p>
 
     <ul>
       <li><strong>Sync Scope（权限与范围隔离）</strong>：按工作区、团队、用户权限圈定同步范围，不在授权范围内的数据变更绝不下发。</li>
@@ -604,10 +211,14 @@ Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
     </figure>
 
     <p>这就把 Sync Engine 与 Lazy Loading 划清了界限：<strong>同步引擎只管“哪些数据必须实时对齐一致”，而懒加载网络负责“哪些数据当下值得装进内存”。</strong></p>
+</section>
 
-    <h2 id="section-07">七、AI 时代的一记警钟：同样的断点，同一副药</h2>
-
-    <p>顺带一句延伸：这套机制虽然脱胎于日常协作软件，但<strong>长时间运行的 AI Agent 应用，恰好最欠缺的就是这套端云协同的基本功</strong>。一个复杂的 Agent 任务跑了五分钟、调度了八次外部工具，整个执行现场（状态树、工具入参及结果、推理中间态）往往只活在前端一条脆弱的长连接里。用户手滑刷新了页面，或者切到手机上去看，连接一断，现场彻底灰飞烟灭，只能重新烧着 token 从头跑起。</p>
+<section id="section-07">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 07</span>
+    <h2>七、AI 时代的一记警钟：同样的断点，同一副药</h2>
+  </div>
+  <p>顺带一句延伸：这套机制虽然脱胎于日常协作软件，但<strong>长时间运行的 AI Agent 应用，恰好最欠缺的就是这套端云协同的基本功</strong>。一个复杂的 Agent 任务跑了五分钟、调度了八次外部工具，整个执行现场（状态树、工具入参及结果、推理中间态）往往只活在前端一条脆弱的长连接里。用户手滑刷新了页面，或者切到手机上去看，连接一断，现场彻底灰飞烟灭，只能重新烧着 token 从头跑起。</p>
 
     <figure class="fig">
       <img src="assets/fig-lse-3-agent-events.jpg" alt="概念插画：一个小机器人守着一条传送带，传送带上是带序号的纸条，纸条流向笔记本电脑和手机，多端保持严格相同的运行历史" loading="lazy">
@@ -618,10 +229,14 @@ Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
     </figure>
 
     <p>同样的断点病，需要的是同一副端云协同的药：别把 Agent Run 当成普通单次请求，把它改写为带全局递增序号的持久化事件流。网络断线、页面刷新、换设备登录，全凭序号增量对账，从断点处继续推进。</p>
+</section>
 
-    <h2 id="section-08">八、写给端侧开发工程师的工程自检清单</h2>
-
-    <p>端云协同不是让客户端变成简单的“接口搬运工”，而是要求端侧工程师用数据库客户端的严谨度来组织前端代码。在设计协作类应用时，请对照以下 6 条基准自检：</p>
+<section id="section-08">
+  <div class="sec-head">
+    <span class="sec-num">SECTION 08</span>
+    <h2>八、写给端侧开发工程师的工程自检清单</h2>
+  </div>
+  <p>端云协同不是让客户端变成简单的“接口搬运工”，而是要求端侧工程师用数据库客户端的严谨度来组织前端代码。在设计协作类应用时，请对照以下 6 条基准自检：</p>
 
     <ul class="takeaways">
       <li><strong>交互响应是否与网络彻底解耦？</strong>用户的操作是否能在 0ms 内在内存和本地存储中生效？</li>
@@ -635,46 +250,21 @@ Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
     <div class="ending">
       <p><span class="punch">优秀的端云协同架构，不是为了在完美网络下跑得更快，而是为了在现实世界充满断点、颠簸与并发的网络泥潭里，依然能保持绝对的优雅与从容。</span></p>
     </div>
+</section>
 
-  </article>
-
-  <footer class="post-foot">
-    <div class="foot-card">
+<footer class="post-foot">
+<div class="foot-card">
       逆向文档开源出处：<a href="https://github.com/wzhudev/reverse-linear-sync-engine" target="_blank" rel="noopener">github.com/wzhudev/reverse-linear-sync-engine</a>。
       <div class="src">Linear 联合创始人兼 CTO Tuomas Artman 称赞其为「现存最完整准确的 LSE 文档」；FIG.01 / FIG.03 / FIG.04 来源于该逆向工程图解；本文提炼为端侧与前端架构视角下的端云协同设计范式。</div>
     </div>
-    <a href="writing.html?category=tech" class="back">← 回文章目录</a>
-  </footer>
-        <div class="docs-end-zone">
-          <div class="docs-help-card">
-            <div class="docs-help-copy">
-              <strong>看完还有疑问，或者想聊聊你的真实场景？</strong>
-              欢迎在 GitHub 提 Issue 讨论实现细节，或来小红书 / 发邮件找木鱼一起切磋。
-            </div>
-            <div class="docs-help-actions">
-              <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="docs-help-btn">GitHub 交流 ↗</a>
-              <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener" class="docs-help-btn">小红书 @木鱼拓哉</a>
-              <a href="mailto:libeny0526@gmail.com" class="docs-help-btn">发邮件切磋</a>
-            </div>
-          </div>
-
-          <nav class="docs-pager" aria-label="上下篇导航">
-            <a href="writing-designing-the-wait.html" class="docs-pager-card docs-pager-card--prev">
-              <span class="docs-pager-label">Previous · 上一篇</span>
-              <span class="docs-pager-title">AI 产品等待设计：从转圈到流式</span>
-            </a>
-            <a href="writing-pi-agent-runtime.html" class="docs-pager-card docs-pager-card--next">
-              <span class="docs-pager-label">Next · 下一篇</span>
-              <span class="docs-pager-title">Pi Agent Runtime 架构深读</span>
-            </a>
-          </nav>
-        </div>
+<div class="post-foot-meta"><div class="post-foot-nav"><a href="writing-designing-the-wait.html">← 上一篇：AI 产品等待设计：从转圈到流式</a> · <a href="writing.html">返回写作本目录</a> · <a href="writing-pi-agent-runtime.html">下一篇：Pi Agent Runtime 架构深读 →</a></div></div>
+</footer>
     </main>
 
     <aside class="docs-outline" aria-label="本页大纲">
       <div class="docs-outline-title">On this page · 本页目录</div>
       <ul class="docs-outline-list">
-          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、传统端侧架构的断点死穴</a></li>
+          <li><a href="#section-01" class="docs-outline-link">一、传统端侧架构的断点死穴</a></li>
           <li><a href="#section-02" class="docs-outline-link">二、端云协同花名册：四个角色各管一段</a></li>
           <li><a href="#section-03" class="docs-outline-link">三、端侧事务队列：如何兜住 6 种操作断点？</a></li>
           <li><a href="#section-04" class="docs-outline-link">四、全局单调序号：多客户端怎么增量对账？</a></li>
@@ -686,138 +276,6 @@ Client:  lastSyncId = 100，向云端请求 101~105 的变更补课</pre>
     </aside>
   </div>
 
-  <!-- ====================================================================
-       Layer 1: Tall Crafted Footer (>50vh, pushes sticky sidebars up cleanly)
-       ==================================================================== -->
-  <footer class="docs-footer">
-    <div class="docs-footer-inner">
-      <div class="docs-footer-top">
-        <div class="docs-footer-brand">
-          <a href="index.html" class="docs-footer-brand-head">
-            <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-            <span>木鱼拓哉 · MuYu</span>
-          </a>
-          <p>一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。</p>
-          <div class="docs-footer-socials">
-            <a href="https://github.com/Libeny" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener">小红书</a>
-            <a href="mailto:libeny0526@gmail.com">Email</a>
-          </div>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>技术深读</h4>
-          <ul>
-            <li><a href="writing-designing-the-wait.html">AI 产品等待设计实战</a></li>
-            <li><a href="writing-linear-sync-engine.html">Linear 端云协同引擎</a></li>
-            <li><a href="writing-pi-agent-runtime.html">Pi Agent Runtime 底座</a></li>
-            <li><a href="writing-raft-message-mechanism.html">Raft 多 Agent 消息机制</a></li>
-            <li><a href="writing-qwen-audio-agent.html">qwen-audio-agent 架构</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>品味与随笔</h4>
-          <ul>
-            <li><a href="writing-ai-ui-curation.html">5 个封神 UI 库与 Skill</a></li>
-            <li><a href="writing-life.html">人文旅行八面体骨架</a></li>
-            <li><a href="writing-travel-book-essay.html">旅册：虚拟书架上的实体书</a></li>
-            <li><a href="writing-tech-process.html">小刚Claw 与 crewless 复盘</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>栏目归档</h4>
-          <ul>
-            <li><a href="writing.html">全部文章目录</a></li>
-            <li><a href="writing.html?category=tech">最新技术拆解</a></li>
-            <li><a href="writing.html?category=life">生活杂谈随笔</a></li>
-            <li><a href="writing-tech-process.html">项目过程记录</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="docs-footer-bottom">
-        <span>© 2026 木鱼拓哉 · BUILDER'S NOTEBOOK &amp; WIKI</span>
-        <span class="hand">crafted with care &amp; curiosity ✦</span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ====================================================================
-       Narrow Screens: Fixed Bottom Bar (.guide-dock) & Modal Sheets (<dialog>)
-       ==================================================================== -->
-  <div class="guide-dock" role="navigation" aria-label="移动端章节与目录切换">
-    <button type="button" class="guide-dock-btn guide-dock-btn--pages" data-open-sheet="pages">
-      <span aria-hidden="true">☰</span>
-      <span>文章目录</span>
-    </button>
-    <span class="guide-dock-divider" aria-hidden="true"></span>
-    <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
-      <span class="guide-dock-section" data-current-section-label>一、传统端侧架构的断点死穴</span>
-      <span class="guide-dock-caret" aria-hidden="true">^</span>
-    </button>
-  </div>
-
-  <dialog class="guide-sheet" id="sheetPages" aria-label="全部文章目录">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">文章目录 · Contents</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与系统架构</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link" aria-current="page">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-    </div>
-  </dialog>
-
-  <dialog class="guide-sheet" id="sheetOutline" aria-label="本页章节大纲">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">本页目录 · On this page</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-      <ul class="docs-outline-list">
-          <li><a href="#section-01" class="docs-outline-link" aria-current="location">一、传统端侧架构的断点死穴</a></li>
-          <li><a href="#section-02" class="docs-outline-link">二、端云协同花名册：四个角色各管一段</a></li>
-          <li><a href="#section-03" class="docs-outline-link">三、端侧事务队列：如何兜住 6 种操作断点？</a></li>
-          <li><a href="#section-04" class="docs-outline-link">四、全局单调序号：多客户端怎么增量对账？</a></li>
-          <li><a href="#section-05" class="docs-outline-link">五、并发冲突谁说了算？云端中心仲裁</a></li>
-          <li><a href="#section-06" class="docs-outline-link">六、几十万个对象，如何不卡死端侧内存？</a></li>
-          <li><a href="#section-07" class="docs-outline-link">七、AI 时代的一记警钟：同样的断点，同一副药</a></li>
-          <li><a href="#section-08" class="docs-outline-link">八、写给端侧开发工程师的工程自检清单</a></li>
-      </ul>
-    </div>
-  </dialog>
-
-  <script src="assets/writing-shell.js" defer></script>
-
+  <script src="assets/writing-article.js" defer></script>
 </body>
 </html>
