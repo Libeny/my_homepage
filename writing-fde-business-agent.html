@@ -1,695 +1,1126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#FBF2E3">
-  <title>FDE 焚诀：如何围绕业务打造真正能干活的 Agent · 木鱼拓哉の写作本</title>
-  <meta name="description" content="为什么很多团队捏出来的 Agent 用两周就吃灰？真不在模型不够聪明，而是把零散步骤、单会话规矩留在了聊天框里。一份给开发者、FDE 与业务主理人的 Agent 落地手册。">
-
-  <link rel="stylesheet" href="assets/fonts/fonts.css">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FDE 焚诀：如何围绕业务打造真正能干活的 Agent · 木鱼拓哉</title>
   <style>
+    @font-face { font-family: "MuYu Sans"; src: url("assets/fde-guide/fonts/48b54917-96f1-4a4c-ab81-775c75de5e7e.woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: "MuYu Sans"; src: url("assets/fde-guide/fonts/a198667f-792e-4655-8a5e-f623245caf6e.woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: "MuYu Serif"; src: url("assets/fde-guide/fonts/0e07bbff-89cf-406f-bd41-32ea0c22086b.woff2"); font-weight: 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: "MuYu Mono"; src: url("assets/fde-guide/fonts/708a39ca-50ed-4c9a-a26b-7c5568264125.woff2"); font-weight: 300 700; font-style: normal; font-display: swap; }
+
     :root {
-      --blue:#BDE7E5; --blue-deep:#9DD5D3; --blue-soft:#E8F6F5;
-      --yellow:#F4CFD6; --yellow-soft:#FCE8EC;
-      --red:#694B40; --cream:#FBF2E3; --cream-dark:#F5E6D3;
-      --ink:#694B40; --ink-light:#8B6F5C; --ink-faint:#A89488;
-      --paper:#FFFDF8; --line:#E7D7C4;
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --bg: #FBF2E3;
+      --paper: #FFFDF8;
+      --ink: #694B40;
+      --ink-light: #765A48;
+      --ink-dark: #5A4037;
+      --blue-soft: #E8F6F5;
+      --blue: #BDE7E5;
+      --blue-deep: #6FB5B1;
+      --pink-soft: #FCE8EC;
+      --pink: #F4CFD6;
+      --pink-deep: #D98C9B;
+      --line: rgba(105, 75, 64, 0.18);
+      --line-strong: rgba(105, 75, 64, 0.42);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    ::selection { background: var(--blue); color: var(--ink); }
+
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
       background:
-        radial-gradient(ellipse at 22% 8%, var(--yellow-soft) 0%, transparent 52%),
-        radial-gradient(ellipse at 84% 92%, rgba(189,231,229,0.3) 0%, transparent 52%),
-        var(--cream);
+        radial-gradient(ellipse at 12% 4%, rgba(244, 207, 214, 0.45) 0%, transparent 45%),
+        radial-gradient(ellipse at 88% 18%, rgba(189, 231, 229, 0.45) 0%, transparent 45%),
+        var(--bg);
       color: var(--ink);
-      line-height: 1.85;
+      font-family: "MuYu Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
       font-size: 16.5px;
+      line-height: 1.85;
       -webkit-font-smoothing: antialiased;
     }
+
+    /* Top Nav */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(251, 242, 227, 0.92);
+      border-bottom: 1px solid var(--line);
+      padding: 0.75rem 1.5rem;
+    }
+    .top-bar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .brand-link img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+    }
+    .top-meta {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--ink-light);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .top-badge {
+      background: var(--blue-soft);
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      padding: 0.15rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Layout Shell */
+    .page-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.8rem 1.5rem 5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 740px) 240px;
+      gap: 3rem;
+      align-items: start;
+      justify-content: center;
+    }
+
+    /* Hero Header */
+    .post-head {
+      margin-bottom: 2.4rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px dashed var(--line-strong);
+      position: relative;
+    }
+    .post-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--pink-soft);
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 0.25rem 0.85rem;
+      margin-bottom: 1.1rem;
+    }
+    .post-title {
+      font-family: "MuYu Serif", Georgia, serif;
+      font-weight: 900;
+      font-size: clamp(1.95rem, 4.2vw, 2.75rem);
+      line-height: 1.24;
+      color: var(--ink);
+      margin-bottom: 0.9rem;
+    }
+    .post-title mark {
+      background: linear-gradient(to top, var(--blue) 42%, transparent 42%);
+      color: inherit;
+      padding: 0 0.18em;
+    }
+    .post-subtitle {
+      font-size: clamp(1.02rem, 2vw, 1.18rem);
+      line-height: 1.7;
+      color: var(--ink-light);
+      margin-bottom: 1.4rem;
+    }
+    .author-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.9rem;
+      font-size: 0.86rem;
+      color: var(--ink-light);
+    }
+    .author-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--paper);
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem 0.2rem 0.25rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .author-chip img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+    }
+
+    /* Editorial Notice Banner (replaces default blockquote) */
+    .origin-card {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: 16px;
+      padding: 1.15rem 1.35rem;
+      box-shadow: 0 6px 0 rgba(105, 75, 64, 0.08);
+      margin: 1.8rem 0 2.6rem;
+      font-size: 0.94rem;
+    }
+    .origin-card-label {
+      display: inline-block;
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      background: var(--blue);
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 0.1rem 0.65rem;
+      margin-bottom: 0.55rem;
+    }
+
+    /* Section headings with decorative numbers */
+    .post section {
+      margin-top: 3.4rem;
+      scroll-margin-top: 4.5rem;
+    }
+    .sec-head {
+      position: relative;
+      padding-top: 1.2rem;
+      margin-bottom: 1.3rem;
+      border-top: 1px solid var(--line);
+    }
+    .sec-head::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+    }
+    .sec-num {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--ink-light);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .post h2 {
+      font-family: "MuYu Serif", Georgia, serif;
+      font-weight: 900;
+      font-size: clamp(1.38rem, 2.8vw, 1.75rem);
+      line-height: 1.32;
+      color: var(--ink);
+    }
+    .post h3 {
+      font-family: "MuYu Serif", Georgia, serif;
+      font-weight: 900;
+      font-size: 1.18rem;
+      margin: 2.2rem 0 0.85rem;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .h3-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--pink);
+      border: 1.5px solid var(--ink);
+      flex-shrink: 0;
+    }
+    .post p { margin: 1.05rem 0; }
+    .post code {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.86em;
+      background: var(--blue-soft);
+      border: 1px solid rgba(105, 75, 64, 0.2);
+      border-radius: 5px;
+      padding: 0.08em 0.42em;
+      color: var(--ink-dark);
+    }
+
+    /* Formula Hero Banner */
+    .formula-panel {
+      margin: 1.8rem 0 2.2rem;
+      background: var(--ink-dark);
+      color: var(--bg);
+      border: 2.5px solid var(--ink);
+      border-radius: 18px;
+      padding: 1.4rem 1.5rem;
+      box-shadow: 0 8px 0 rgba(105, 75, 64, 0.16);
+    }
+    .formula-kicker {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      color: var(--blue);
+      margin-bottom: 0.55rem;
+      font-weight: 700;
+    }
+    .formula-eq {
+      font-family: "MuYu Mono", "MuYu Sans", monospace;
+      font-size: clamp(0.84rem, 1.48vw, 1.01rem);
+      line-height: 1.75;
+      color: var(--paper);
+      font-weight: 700;
+    }
+    .formula-eq .eq-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.25rem 0.35rem;
+    }
+    .formula-eq .eq-line--2 {
+      padding-left: 1.2rem;
+    }
+    .formula-eq span.eq-term {
+      color: var(--blue);
+      border-bottom: 2px solid var(--pink);
+      white-space: nowrap;
+    }
+    .formula-eq .eq-chunk {
+      white-space: nowrap;
+    }
+    .pillar-grid {
+      margin-top: 1.15rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .pillar-item {
+      background: rgba(255, 253, 248, 0.08);
+      border: 1px solid rgba(189, 231, 229, 0.28);
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .pillar-item strong {
+      color: var(--blue);
+      display: block;
+      margin-bottom: 0.15rem;
+      font-size: 0.92rem;
+    }
+
+    /* Live-图 Motion Video Figure */
+    figure.fig-live {
+      margin: 2.2rem 0;
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 8px 0 rgba(105, 75, 64, 0.10);
+      transform: rotate(-0.3deg);
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    }
+    figure.fig-live.tilt-right { transform: rotate(0.3deg); }
+    figure.fig-live:hover {
+      transform: rotate(0deg) translateY(-2px);
+      box-shadow: 0 12px 24px rgba(105, 75, 64, 0.14);
+    }
+    .live-stage {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      aspect-ratio: 16 / 9;
+      cursor: pointer;
+    }
+    .live-stage video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .live-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(90, 64, 55, 0.86);
+      color: var(--bg);
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.22rem 0.58rem;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 242, 227, 0.32);
+      pointer-events: none;
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: inline-block;
+    }
+    figure.fig-live figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.6rem 0.4rem 0.2rem;
+      font-size: 0.84rem;
+      color: var(--ink-light);
+    }
+    .fig-no {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .fig-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-shrink: 0;
+    }
+    .replay-btn {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 0.14rem 0.58rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .replay-btn:hover { background: var(--blue); }
+    .replay-btn.is-done { background: var(--blue-soft); }
+
+    /* Comparison Table Card */
+    .compare-figure {
+      margin: 2rem 0;
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 5px 0 rgba(105, 75, 64, 0.08);
+    }
+    .compare-kicker {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-light);
+      margin: 0.2rem 0.25rem 0.75rem;
+      font-weight: 700;
+    }
+    .table-scroll { overflow-x: auto; }
+    .comparison-table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 0.8rem 0.85rem;
+      text-align: left;
+      vertical-align: top;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+    .comparison-table th:last-child, .comparison-table td:last-child { border-right: 0; }
+    .comparison-table tr:last-child td { border-bottom: 0; }
+    .comparison-table thead th {
+      font-family: "MuYu Serif", Georgia, serif;
+      font-weight: 900;
+      font-size: 0.92rem;
+      background: var(--blue-soft);
+      color: var(--ink);
+    }
+    .comparison-table thead th:first-child { background: var(--pink-soft); }
+
+    /* Preserved @poteto Prompt Cards (replaces blockquote) */
+    .prompt-card {
+      margin: 1.6rem 0;
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 5px 0 rgba(189, 231, 229, 0.65);
+    }
+    .prompt-head {
+      background: var(--blue-soft);
+      border-bottom: 1.5px solid var(--ink);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .prompt-title {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+    }
+    .copy-btn {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 0.18rem 0.7rem;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .copy-btn:hover { background: var(--blue); }
+    .copy-btn.copied { background: var(--ink); color: var(--bg); }
+    .prompt-body {
+      padding: 1rem 1.2rem;
+      font-size: 0.94rem;
+      line-height: 1.78;
+      color: var(--ink);
+    }
+    .prompt-body p { margin: 0.45rem 0; }
+    .prompt-body p:first-child { margin-top: 0; }
+    .prompt-body p:last-child { margin-bottom: 0; }
+
+    /* Highlight Callout Box */
+    .callout-note {
+      margin: 1.5rem 0;
+      background: var(--pink-soft);
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      font-size: 0.94rem;
+    }
+    .callout-note strong { color: var(--ink-dark); }
+
+    /* Styled Numbered & Bullet Lists (no browser-default ul/ol) */
+    .scenes-list {
+      margin: 1.3rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: scene;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .scenes-list > li {
+      counter-increment: scene;
+      position: relative;
+      padding: 0.95rem 1.15rem 0.95rem 3.2rem;
+      background: var(--paper);
+      border: 1.5px solid var(--line-strong);
+      border-radius: 12px;
+    }
+    .scenes-list > li::before {
+      content: counter(scene, decimal-leading-zero);
+      position: absolute;
+      left: 1rem;
+      top: 0.98rem;
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--blue);
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      padding: 0.05rem 0.35rem;
+      color: var(--ink);
+    }
+
+    .feature-list {
+      margin: 1.2rem 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .feature-list > li {
+      position: relative;
+      padding-left: 1.65rem;
+    }
+    .feature-list > li::before {
+      content: "✦";
+      position: absolute;
+      left: 0.15rem;
+      top: 0.04rem;
+      color: var(--blue-deep);
+      font-weight: 700;
+    }
+
+    /* Dark SKILL.md Blueprint Block */
+    .skill-blueprint {
+      margin: 1.6rem 0;
+      background: var(--ink-dark);
+      color: var(--bg);
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      padding: 1.15rem 1.35rem;
+      font-family: "MuYu Mono", "MuYu Sans", monospace;
+      font-size: 0.86rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      box-shadow: 0 6px 0 rgba(105, 75, 64, 0.14);
+    }
+    .skill-blueprint .sk-title { color: var(--blue); font-weight: 700; margin-bottom: 0.45rem; display: block; }
+    .skill-blueprint .sk-key { color: var(--pink); font-weight: 700; }
+
+    /* Final Checklist */
+    .takeaways {
+      margin: 1.6rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: take;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .takeaways > li {
+      counter-increment: take;
+      position: relative;
+      padding: 1rem 1.2rem 1rem 3.5rem;
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 0 4px 0 rgba(105, 75, 64, 0.07);
+    }
+    .takeaways > li::before {
+      content: counter(take);
+      position: absolute;
+      left: 1rem;
+      top: 1.05rem;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      font-family: "MuYu Mono", monospace;
+      font-weight: 700;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Sticky Right Outline */
+    .docs-outline {
+      position: sticky;
+      top: 5.2rem;
+      background: rgba(255, 253, 248, 0.78);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      padding: 1rem 1.05rem;
+    }
+    .docs-outline-title {
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px dashed var(--line-strong);
+    }
+    .docs-outline-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .docs-outline-link {
+      display: block;
+      text-decoration: none;
+      color: var(--ink-light);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      padding: 0.22rem 0.45rem;
+      border-left: 2px solid transparent;
+      border-radius: 4px;
+      transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+    .docs-outline-link:hover,
+    .docs-outline-link.is-active {
+      color: var(--ink);
+      background: var(--blue-soft);
+      border-left-color: var(--blue-deep);
+      font-weight: 700;
+    }
+
+    /* Footer Card */
+    .post-foot {
+      margin-top: 3.4rem;
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 16px;
+      padding: 1.35rem 1.5rem;
+      font-size: 0.9rem;
+      color: var(--ink-light);
+      box-shadow: 0 5px 0 rgba(105, 75, 64, 0.08);
+    }
+    .post-foot a {
+      color: var(--ink);
+      font-family: "MuYu Mono", monospace;
+      font-size: 0.84rem;
+      text-decoration: none;
+      border-bottom: 1.5px solid var(--blue-deep);
+    }
+
+    @media (max-width: 900px) {
+      .page-shell {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1.8rem 1.1rem 4rem;
+      }
+      .docs-outline { display: none; }
+      .pillar-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .top-meta > span:first-child { display: none; }
+      .brand-link span { font-size: 0.86rem; }
+      .top-badge { font-size: 0.68rem; padding: 0.12rem 0.52rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      figure.fig-live, figure.fig-live:hover { transform: none; transition: none; }
+    }
   </style>
-  <link rel="stylesheet" href="assets/writing-shell.css">
 </head>
 <body>
-  <div class="docs-banner" id="top">
-    <div class="docs-header-slot">
-      <header class="docs-header" aria-label="写作本顶部导航">
-        <div class="docs-header-inner">
-          <div class="docs-brand-group">
-            <a href="index.html" class="docs-brand">
-              <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-              <span>木鱼拓哉</span>
-            </a>
-            <span class="docs-brand-sep" aria-hidden="true">/</span>
-            <a href="writing.html" class="docs-brand-sub">WRITING · FDE PLAYBOOK</a>
-          </div>
-
-          <nav class="docs-top-nav" aria-label="站点主导航">
-            <a href="writing.html">全部文章</a>
-            <a href="writing.html?category=tech" aria-current="page">技术拆解</a>
-            <a href="writing.html?category=life">生活杂谈</a>
-          </nav>
-
-          <div class="docs-header-actions">
-            <a href="index.html#writing" class="docs-cta-btn"><span class="arrow">←</span><span>回主页</span></a>
-          </div>
-        </div>
-      </header>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <a class="brand-link" href="writing.html">
+        <img src="assets/favicon.png" alt="木鱼拓哉">
+        <span>← 木鱼拓哉 · 写作本</span>
+      </a>
+      <div class="top-meta">
+        <span>FDE 焚诀</span>
+        <span class="top-badge">FDE PLAYBOOK</span>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div class="docs-shell">
-    <aside class="docs-sidebar" aria-label="全部文章导航">
-      <div class="docs-search-box">
-        <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="M20 20l-3.5-3.5"></path>
-        </svg>
-        <input type="search" class="docs-search-input" placeholder="搜索文章..." aria-label="搜索文章">
-        <kbd class="docs-search-kbd" aria-hidden="true">/</kbd>
-      </div>
-
-      <div class="docs-nav-wrap" data-more-above="false" data-more-below="false">
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--up" tabindex="-1" aria-hidden="true">↑</button>
-        <nav class="docs-nav-scroll" aria-label="写作本章节列表" data-more-above="false" data-more-below="false">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与业务落地</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-fde-business-agent.html" class="docs-nav-link" aria-current="page">FDE 焚诀：打造能干活的业务 Agent</a></li>
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-        </nav>
-        <button type="button" class="docs-nav-arrow docs-nav-arrow--down" tabindex="-1" aria-hidden="true">↓</button>
-      </div>
-    </aside>
-
-    <main class="docs-main" id="docsMain">
+  <div id="top" class="page-shell">
+    <main class="post">
       <header class="post-head">
-        <div class="meta"><span>FDE PLAYBOOK · BUSINESS AGENT</span><span>2026-11 · 改编自 @poteto</span></div>
-        <h1>FDE 焚诀：如何围绕业务<mark>打造真正能干活的 Agent</mark></h1>
-        <p class="lede">为什么很多团队捏出来的 Agent 用两周就吃灰？真不在模型不够聪明，而是我们总习惯把旧流程里的零散步骤、单次会话里的规矩留给一个“失明又被动”的聊天框。</p>
+        <span class="post-kicker">FDE PLAYBOOK · BUSINESS AGENT</span>
+        <h1 class="post-title"><mark>FDE 焚诀</mark>：如何围绕业务打造真正能干活的 Agent</h1>
+        <p class="post-subtitle">很多团队搭出的 Bot 用两周就吃灰。多数时候，人只派了旧流程里的零散步骤，老手习惯留在了聊天记录里，系统数据和回写入口也没接通。这套做法围绕 Goal、Skill、环境可触达和自动化四件事展开，让业务 Agent 真正接手日常工作。</p>
         <div class="author-strip">
-          <span class="author-chip"><img src="assets/favicon.png" alt="木鱼拓哉">木鱼拓哉 · 改编整理</span>
-          <span>改编自 Lauren Tan（@poteto）<em>《Automate Anything with Claude Code》</em></span>
+          <span class="author-chip"><img src="assets/favicon.png" alt="木鱼拓哉">木鱼拓哉</span>
+          <span>参考 Lauren Tan（@poteto）《Automate Anything with Grok Bot》</span>
+          <span>阅读约 8 分钟</span>
         </div>
       </header>
 
-      <article class="post">
-        <div class="origin-card">
-          <div class="origin-card-label">写在最前 · 为什么把这篇文章放进 FDE 实战体系</div>
-          <p style="margin:0;">去年一年，我在一线帮不同业务搭 Agent。见过太多刚上线很新鲜的“业务助手”，不到两周就又回到人手搬表格、人手催进度。最近读到 Lauren Tan（@poteto）这篇长文，和我踩过的坑完全对得上号：<strong>Agent 真能把活接过去，要过四道关——先把终局目标（Goal）拍实，再把老手脑子里的经验蒸馏成 Skill，接着打通真实系统的环境可达，最后挂上自动触发和周度自迭代。</strong>原文 5 段压箱底的提示词我都保留了。</p>
+      <section id="sec-formula">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 01 · THE CORE FORMULA</span>
+          <h2>一、底层公式：为什么多数 Bot 用两周就吃灰？</h2>
         </div>
+        <p>很多团队花一下午捏出一个 Bot，前两天很新鲜，两周后又回到人手搬表格、催进度。Bot 吃灰，通常是因为它缺了这四个基础条件中的几块：</p>
 
-        <section>
-          <div class="sec-head" id="sec-why">
-            <span class="sec-num">SECTION 00 · THE FAILURE MODE</span>
-            <h2 data-outline-label="先讲清楚：为什么 Agent 总在两周后吃灰">先讲清楚：为什么那么多团队的 Agent，总在两周后吃灰</h2>
+        <div class="formula-panel">
+          <div class="formula-kicker">AGENT ARCHITECTURE EQUATION</div>
+          <div class="formula-eq">
+            <div class="eq-line">能落地的业务 Agent ＝ <span class="eq-term">明确的 Goal（终局目标）</span></div>
+            <div class="eq-line eq-line--2">× [ <span class="eq-chunk"><span class="eq-term">Skill</span>（蒸馏经验）</span> + <span class="eq-chunk"><span class="eq-term">自动化</span>（触发执行）</span> + <span class="eq-chunk"><span class="eq-term">环境可触达</span>（拿信息与落操作）</span> ]</div>
           </div>
-
-          <p>回头复盘吃灰的 Bot，问题从来不是“模型笨”。更多时候，是我们教它的方法本身就很别扭。</p>
-          <p>第一，习惯把<strong>“今天手工点哪几下”当成需求</strong>派给它——“每天帮我抄一遍汇总表格”“发一条日报到群里”，完全没告诉它这些动作到底服务哪项业务结果。</p>
-          <p>第二，所有规矩都堆在当前聊天框。换天新开一个窗口，昨天踩坑对齐的十几条例外判断全丢，明天还得从头教一遍。</p>
-          <p>第三，也是最致命的一条：<strong>它既看不见现场，也写不回现场。</strong>数据要靠人截完图、导完 Excel 贴进去；干完活也只在聊天框里报喜，真要落到数据库、工单状态或渠道群里，还是得人再跑一趟。</p>
-
-          <div class="formula-panel">
-            <div class="formula-kicker">FDE 业务落地底层公式</div>
-            <div class="formula-eq">
-              <span class="eq-line">能干活的业务 Agent ＝ <span class="hi">明确的 Goal（终局目标）</span></span>
-              <span class="eq-line eq-line--items">× [ <span class="hi">Skill</span>（蒸馏经验）＋ <span class="hi">自动化</span>（触发执行）＋ <span class="hi">环境可达</span>（拿信息与落操作）]</span>
-            </div>
-            <div class="formula-grid">
-              <div class="formula-pill">
-                <strong>01 · Goal 定方向</strong>
-                让 Agent 清楚自己对哪项业务结果负责，不只执行零散步骤。
-              </div>
-              <div class="formula-pill">
-                <strong>02 · Skill 存经验</strong>
-                把老手习惯写成独立规范文件，换个会话就能直接加载复用。
-              </div>
-              <div class="formula-pill">
-                <strong>03 · 环境可达建设</strong>
-                能读到真实业务系统里的关键信息，也能把产出与操作准确落回对应位置。
-              </div>
-              <div class="formula-pill">
-                <strong>04 · 自动化与自我迭代</strong>
-                靠事件与定时器自己启动；跑完一周，盯着真实反馈自己改 Skill。
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div class="sec-head" id="sec-goal">
-            <span class="sec-num">SECTION 01 · GOAL OVER PROCESS</span>
-            <h2 data-outline-label="一、1.1 先分清「Goal」和「Process」">一、1.1 先分清「Goal」和「Process」：把终局结果交给 Agent</h2>
-          </div>
-
-          <p>@poteto 开篇打了两个贴切的比方：<strong>烤出一个苹果派是 Goal</strong>，去超市买苹果、削皮、揉面是流程；<strong>换好备胎让车继续开是 Goal</strong>，支千斤顶、拧螺丝是流程。</p>
-          <p>把过程里的某一步交给 Agent，它只会像旧式脚本一样照着做——前一步稍微变个字段就卡死，也不知道找替代路径。只有把<strong>终局目标</strong>交出去，把既有流程只当参考线，它才会反过来挑出“这一步其实不用人点、那张表可以直接删”。</p>
-
-          <div class="compare-figure">
-            <div class="compare-kicker">FIELD COMPARISON · 只派旧动作 vs 交出终局 Goal</div>
-            <div class="table-scroll">
-              <table class="comparison-table">
-                <thead>
-                  <tr>
-                    <th style="width:22%;">典型业务场景</th>
-                    <th style="width:39%;">只派流程步骤（最容易吃灰）</th>
-                    <th style="width:39%;">交出终局 Goal（Agent 开始自己干活）</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>日常经营监控</th>
-                    <td>“每天帮我把各系统报表搬进汇总表格。”</td>
-                    <td><strong>“早 9 点前让团队看清昨天哪项指标异常、该谁跟进。”</strong><br>Agent 会自己去挑异常单号和原因，不用人先搬整张大表。</td>
-                  </tr>
-                  <tr>
-                    <th>销售线索跟进</th>
-                    <td>“自动给每个新询盘回一封模板欢迎邮件。”</td>
-                    <td><strong>“提高有效商机转化率，不漏跟高意向客户。”</strong><br>它会先去 CRM 查这人是否已成交、该归哪个销售，再去推跟进。</td>
-                  </tr>
-                  <tr>
-                    <th>研发项目推进</th>
-                    <td>“每周五照例帮我写一份项目周报。”</td>
-                    <td><strong>“让项目卡点在恶化前被相关负责人看见并认领。”</strong><br>常规进度静默落库，真卡了直接到对应任务下 @ 负责人。</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <figure class="live-fig">
-            <video class="live-video" muted playsinline preload="metadata" data-autoplay-once>
-              <source src="assets/media/fde-agent/fig1-goal-vs-process.mp4" type="video/mp4">
-            </video>
-            <figcaption>
-              <span class="fig-cap-text">FIG.01 · 别把旧流程里的某一步切片外包给 Agent，要让它对最终业务结果负责</span>
-              <span class="fig-meta-right">
-                <button type="button" class="replay-btn" data-replay>↺ 重播</button>
-                <span class="fig-no">LIVE · 09.5S</span>
-              </span>
-            </figcaption>
-          </figure>
-
-          <h3 class="nb-h3" id="sec-goal-ask"><span class="h3-dot"></span>1.2 写不清终局 Goal 怎么办？直接让 Agent 像记者一样采访你</h3>
-          <p>落地最卡的往往不是写提示词，而是人自己心里只有个模糊念头：“帮我管管店里的售后”“帮我盯着点运营异常”。@poteto 给了一个实操起手式：<strong>先给 Agent 起个代号（下面沿用原文的 Potato），让它反过来采访你。</strong></p>
-
-          <div class="prompt-card">
-            <div class="prompt-head">
-              <span class="prompt-title">原文保留提示词 01 · 已有清晰 Goal 的起手式</span>
-              <button type="button" class="copy-btn" data-copy="p1">复制提示词</button>
-            </div>
-            <div class="prompt-body" id="p1">
-              <p>“嗨 Potato，这是我想让你负责的 Goal：&lt;写下你的目标&gt;。根据这个目标，给你自己挑一个名字和头像吧。”</p>
-            </div>
-          </div>
-
-          <div class="prompt-card">
-            <div class="prompt-head">
-              <span class="prompt-title">原文保留提示词 02 · 自己还没想清楚，让 Agent 反采访你</span>
-              <button type="button" class="copy-btn" data-copy="p2">复制提示词</button>
-            </div>
-            <div class="prompt-body" id="p2">
-              <p>“嗨 Potato，我想让你负责一个目标，但我不太确定怎么描述最合适。你能先向我提些问题、像采访我一样聊聊，直到我们一起确定一个让我满意的 Goal 吗？”</p>
-            </div>
-          </div>
-
-          <div class="callout-note">
-            <strong>业务检验一问：</strong>写完一条 Goal，用一句话校验——<strong>“做完之后，业务多了什么收入、省了多少人手，还是挡住了什么风险？”</strong>如果只能答出“省得我自己点五下表格”，就还是在写旧动作，需要再往上追问一层。
-          </div>
-        </section>
-
-        <section>
-          <div class="sec-head" id="sec-skill">
-            <span class="sec-num">SECTION 02 · EXPERIENCE DISTILLATION</span>
-            <h2 data-outline-label="二、经验蒸馏：语音倒脑子 + 沉淀 Skill">二、内容与经验蒸馏：别打字教 AI，把隐性判断攒成 Skill</h2>
-          </div>
-
-          <p>定了 Goal，最忌讳马上打开脚本或让 Agent 开始写工作流。自己动手五分钟就能搞定的活，打字教 AI 半小时还经常教漏。为什么？</p>
-          <p>因为老手真正在做判断时，脑子里走的是几百个微小的条件反射——<strong>打字写 SOP 时，会不自觉把“顺手瞄一眼”“这俩客户不能撞期”这些直觉跳过，恰恰这些被跳过的东西才决定活能不能干对。</strong></p>
-
-          <h3 class="nb-h3" id="sec-skill-voice"><span class="h3-dot"></span>2.1 “语音倒脑子 + 强制先复述、不准直接动手”</h3>
-          <p>@poteto 的办法特别朴素：<strong>别打字，打开语音输入，像带第一天入职的新同事那样，想到哪说到哪，连续讲五到十分钟。</strong>讲的时候重点把这六件事倒干净：</p>
-
-          <ul class="nb-bullets">
-            <li>平时顺着哪几个步骤做？眼睛会下意识去盯哪几列关键字段？</li>
-            <li>手头开了哪些软件、邮箱和业务系统？分别用来查什么？</li>
-            <li>哪些外部反馈最真实（用户吐槽、退款原因、客服评价），你从哪找？</li>
-            <li>最怕踩进哪些坑，出现什么苗头时得先停下来核对？</li>
-            <li>事情做完了，到底算“彻底交付”（落库、发确认、留凭证）的标准是什么？</li>
-          </ul>
-
-          <p>说完之后，让 Agent 把这段口语整理干净，但<strong>立刻按住它，只准它用最直白的大白话复述一遍，不准马上写代码。</strong></p>
-
-          <div class="prompt-card">
-            <div class="prompt-head">
-              <span class="prompt-title">原文保留提示词 03 · 语音倒脑子后，强制先复述不准直接动手</span>
-              <button type="button" class="copy-btn" data-copy="p3">复制提示词</button>
-            </div>
-            <div class="prompt-body" id="p3">
-              <p>“Potato，为了达成这个 Goal，我平时通常是这样做的：&lt;直接语音口述你的真实流程&gt;。我想让你仔细想想如何完全从我手里接管这件事。在正式开始干活之前，<strong>请先用简单直白的话，把你理解的我的目标和流程复述一遍</strong>，方便我给你反馈和确认。现在先别开始执行，我们先把流程对齐、规划好。”</p>
-            </div>
-          </div>
-
-          <div class="prompt-card">
-            <div class="prompt-head">
-              <span class="prompt-title">原文保留提示词 04 · 往返对齐两三轮后，主动砍掉冗余流程</span>
-              <button type="button" class="copy-btn" data-copy="p4">复制提示词</button>
-            </div>
-            <div class="prompt-body" id="p4">
-              <p>“对照我最开始的那个 Goal，重新审视一下我们刚定好的流程；如果你发现有更好、更高效的做法，随时告诉我。”</p>
-            </div>
-          </div>
-
-          <h3 class="nb-h3" id="sec-skill-ask"><span class="h3-dot"></span>2.2 每次只问 1 个问题逼出隐性红线，再写成独立 Skill 文件</h3>
-          <p>原文里有一段特别接地气的细节：给汽修/美容店排预约时，老手心里门清——哪项服务耗时长、哪两个客户排在一块会吵起来、邮件和日历冲突时该信日历还是信客户备注，以及“邮件发出去不算完，写入排班系统且收到客户确认函才算完”。</p>
-          <p>这些规矩靠自己回忆极难写全，必须逼着 Agent <strong>“每次只问一个问题”</strong>把你嘴里的条件反射挤出来，然后拿几个真实或极端的反例在对话里考它一次，最后让它把最终定版写成一份独立可复用的 <code>SKILL.md</code>。</p>
-
-          <div class="prompt-card">
-            <div class="prompt-head">
-              <span class="prompt-title">原文保留提示词 05 · 单题反问查漏 + 拿真实踩坑反例考它</span>
-              <button type="button" class="copy-btn" data-copy="p5">复制提示词</button>
-            </div>
-            <div class="prompt-body" id="p5">
-              <p>“Potato，帮我查漏补缺，看看这个流程里我还有哪些东西没告诉你。针对<strong>我怎么做决策、去哪里拿信息、怎么检查工作成果，以及什么时候必须找我求助</strong>这几个方面向我提问。<strong>每次只问一个问题</strong>，问完之后再举几个例子带我走一遍，好让我在正式自动化之前先给你反馈。”</p>
-            </div>
-          </div>
-
-          <figure class="live-fig">
-            <video class="live-video" muted playsinline preload="metadata" data-autoplay-once>
-              <source src="assets/media/fde-agent/fig2-skill-distill.mp4" type="video/mp4">
-            </video>
-            <figcaption>
-              <span class="fig-cap-text">FIG.02 · 从“口述习惯”到“单题反问对齐”，最后落成跨会话可复用的 SKILL.md</span>
-              <span class="fig-meta-right">
-                <button type="button" class="replay-btn" data-replay>↺ 重播</button>
-                <span class="fig-no">LIVE · 09.5S</span>
-              </span>
-            </figcaption>
-          </figure>
-
-          <div class="step-grid">
-            <div class="step-card">
-              <span class="step-badge">SKILL HEADER · 01</span>
-              <h4>明确 Goal 与边界</h4>
-              <p>写死这项技能只对哪项业务结果负责、哪些需求不属于它，免得越帮越乱。</p>
-            </div>
-            <div class="step-card">
-              <span class="step-badge">SKILL HEADER · 02</span>
-              <h4>数据源优先级与冲突规则</h4>
-              <p>标明从哪取数、多系统记录打架时信谁（如：系统排班库优先于口头备忘）。</p>
-            </div>
-            <div class="step-card">
-              <span class="step-badge">SKILL HEADER · 03</span>
-              <h4>隐性判断与红线</h4>
-              <p>哪些例外可以直接按规则兜底，哪些动作（发版、付款、对外群发）必须停下来喊人批准。</p>
-            </div>
-            <div class="step-card">
-              <span class="step-badge">SKILL HEADER · 04</span>
-              <h4>验收标准（DoD）</h4>
-              <p>明确做到哪一步才算彻底交付：既要更新业务表，也要回传确认凭证。</p>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div class="sec-head" id="sec-reach">
-            <span class="sec-num">SECTION 03 · ENVIRONMENT REACHABILITY</span>
-            <h2 data-outline-label="三、环境可达建设：拿真实信息、落准确操作">三、环境可达建设：让它直接拿到真实信息、把操作落回对应位置</h2>
-          </div>
-
-          <p>有了清晰目标，也有了 <code>SKILL.md</code>，很多业务 Agent 落地还是会卡在最现实的一堵墙前：<strong>它碰不到真实的生产环境。</strong></p>
-
-          <h3 class="nb-h3" id="sec-reach-in"><span class="h3-dot"></span>3.1 输入侧：连接器直连 + 自建轻采数工具 + 唯一 ID 串表</h3>
-          <p>如果每天还要靠业务同学截三张图、导一份 CSV 喂给它，那它永远只能当个聊天参谋。真正的环境可达第一步，是把信息输入通道打通：</p>
-          <ul class="nb-bullets">
-            <li><strong>能直连的直接接：</strong>邮箱、IM 平台、数据库、日志、CRM、工单与客户评价后台，只要业务现场在这些工具里流转，就通过受控的连接器（Connector / MCP / API）接给它，让它自己进现场拿一手信息。</li>
-            <li><strong>现实里没记下来的数据，让它自己建轻工具采回来：</strong>@poteto 原文里讲过一个绝佳案例——老板觉得客户等太久，但店里没人记录时间卡在哪一步。他们让 Agent 现场写了一个手机电脑都能点的小页面，店员只干一件事：打四个时间戳（进店、对接顾问、拿到钥匙、修完交付）。两周跑下来，瓶颈究竟卡在接车还是领钥匙一目了然。</li>
-            <li><strong>跨系统用“唯一 ID”把散落信息拼成闭环：</strong>客户邮箱、手机号、订单号（比如 <code>ORD-2048</code>）、工单编号——各系统共用同一把唯一 ID，Agent 就能把外部差评和当天的内部记录自动拼回一起归因。</li>
-          </ul>
-
-          <h3 class="nb-h3" id="sec-reach-out"><span class="h3-dot"></span>3.2 输出与操作侧：干完活别只在聊天框汇报，按轻重缓急准确落位</h3>
-          <p>很多人搭 Agent 时只盯着“怎么接数据源”，却忘了另一半同样致命——<strong>输出与操作的可达（Action Reachability）</strong>。Agent 在角落跑得再卖力，如果最后只能把结果口头甩进聊天框，人还是得手忙脚乱去系统里改状态；反之，要是每扫一条数据就在群里发一条通知，一个刷屏的 Bot 几天内就会被全员静音。</p>
-          <p>在真实工程落地时，输出和触达必须分级写死到规范里：</p>
-          <ul class="nb-bullets">
-            <li><strong>常规任务完成 → 直接写回业务对应位置：</strong>结果总结、产出链接、状态变更，直接写入对应的任务看板、CRM 字段、数据库记录或工单系统接口；静默落库，不在频道刷“我已扫描第 3 行数据”的废话。</li>
-            <li><strong>周期性工作汇报 → 按固定节奏推一张结构化简报卡：</strong>把一天或一周跑完的几十件小事收拢成一张干净可读的卡片，在约定好的早晚时段推送到指定群或 IM 频道，一眼看到重点和异动。</li>
-            <li><strong>异常、冲突或不可逆高危动作 → 停在断点，打包选项精确 @ 对的人：</strong>一旦遇到两套系统数据打架、或涉及付款/发版/删数据/对外群发这类不可逆节点，立刻停下，把上下文和清晰的 A/B 拍板选项整理好，在对应的沟通流或任务下准确 @ 负责人确认。</li>
-          </ul>
-
-          <figure class="live-fig">
-            <video class="live-video" muted playsinline preload="metadata" data-autoplay-once>
-              <source src="assets/media/fde-agent/fig3-reach-flywheel.mp4" type="video/mp4">
-            </video>
-            <figcaption>
-              <span class="fig-cap-text">FIG.03 · 打通输入读取与输出落位，再配合定时/事件触发器与周度自我迭代闭环</span>
-              <span class="fig-meta-right">
-                <button type="button" class="replay-btn" data-replay>↺ 重播</button>
-                <span class="fig-no">LIVE · 11.0S</span>
-              </span>
-            </figcaption>
-          </figure>
-        </section>
-
-        <section>
-          <div class="sec-head" id="sec-auto">
-            <span class="sec-num">SECTION 04 · AUTOMATION &amp; SELF-ITERATION</span>
-            <h2 data-outline-label="四、自动化与自我迭代：触发器启动 + 每周迭代 Skill">四、自动化与自我迭代：挂上触发器自动跑，每周盯着反馈改 Skill</h2>
-          </div>
-
-          <h3 class="nb-h3"><span class="h3-dot"></span>4.1 挂上定时或事件触发器，把“人”从触发环里移走</h3>
-          <p>哪怕规矩攒好了，如果每次还得靠人点开输入框发一句话喊它开工，<strong>人就依然是整条链路的最大瓶颈</strong>。用好两类触发器就够了：</p>
-          <div class="step-grid">
-            <div class="step-card">
-              <span class="step-badge">EVENT TRIGGER · 事件醒</span>
-              <h4>有事自己醒</h4>
-              <p>来了新客户邮件、应用商店多了一星差评、新开一条高优工单、代码合入主分支时自动唤醒处理。</p>
-            </div>
-            <div class="step-card">
-              <span class="step-badge">SCHEDULE · 定时巡</span>
-              <h4>到点自己巡</h4>
-              <p>每天 07:30 拉全库发早报、每小时巡查一次异常超时单号、每周五下午做周度归档复盘，稳稳在后台运转。</p>
-            </div>
-          </div>
-
-          <h3 class="nb-h3" id="sec-auto-loop"><span class="h3-dot"></span>4.2 让系统越跑越好：把“真实反馈”直接喂给它自我迭代</h3>
-          <p>@poteto 在原文后半段提出了一个特别重要的问题：<strong>“如果是我自己亲自在做这份活，而且我想越做越好，我会去看什么？”</strong></p>
-          <p>人靠复盘进步，Agent 系统也是。不要自己手忙脚乱改十遍 prompt，直接把这两类真实反馈源接回给 Agent：<strong>外部客诉与结果指标</strong>（退单率、差评原因、SLA 超时率）＋ <strong>内部驳回与人工修改记录</strong>（人类每次改了它的哪句话、推翻了它的哪个决定）。</p>
-          <p>设好每周五自动跑一次回溯：让 Agent 统计过去七天“哪类判断被改最多、哪段等待时间莫名拉长”，由它自己起草一版 <code>SKILL.md</code> 修订建议，人只需要点个确认，整条业务流程就完成了一次真实升级。</p>
-        </section>
-
-        <section>
-          <div class="sec-head" id="sec-questions">
-            <span class="sec-num">SECTION 05 · COPY &amp; SEND TO YOUR AGENT</span>
-            <h2 data-outline-label="五、直接复制这 5 个问题，先发给你的 Agent">五、准备新搭或救活业务 Agent 前，直接把这 5 个问题发给它</h2>
-          </div>
-
-          <p>无论你今天准备从零搭一个新业务 Agent，还是手里已经有几个在线上跑但老觉得“不太得劲”的 Bot——别急着写代码或加新工具，先开启一段对话，把下面这 5 个问题按第一人称发给它，先对齐再动手：</p>
-
-          <div class="checklist-card">
-            <div class="checklist-head">
-              <h3>用第一人称直接发给你的 Agent · 先对齐再动手</h3>
-              <button type="button" class="copy-btn" data-copy="all-prompts">一键复制全部 5 问</button>
-            </div>
-
-            <div class="check-item">
-              <span class="check-num">1</span>
-              <div>
-                <h4>目标对不对</h4>
-                <p>“我们当前的需求和目标清不清晰？结合你已经在跑或将要接手的这件事，你理解的终局 Goal 是什么？哪些只是可以砍掉的中间动作？请先用一句话复述你要交付的结果。”</p>
-              </div>
-            </div>
-
-            <div class="check-item">
-              <span class="check-num">2</span>
-              <div>
-                <h4>经验与红线齐不齐</h4>
-                <p>“你还需要知道哪些我平时的隐性判断、多系统冲突听哪个权威源、以及哪些高危红线必须停下来问我？请每次只问我一个问题，对齐后帮我沉淀成一份 <code>SKILL.md</code>。”</p>
-              </div>
-            </div>
-
-            <div class="check-item">
-              <span class="check-num">3</span>
-              <div>
-                <h4>环境可达够不够</h4>
-                <p>“你现在能直接拿到完成这件事所需的全部关键信息（IM 系统平台、数据库、日志、工单等）吗？缺不缺唯一 ID 串联或轻采集工具？做完之后你能把产出和操作准确写回对应位置吗？”</p>
-              </div>
-            </div>
-
-            <div class="check-item">
-              <span class="check-num">4</span>
-              <div>
-                <h4>触达分级准不准</h4>
-                <p>“常规任务完成后怎么静默落库不刷屏？周期汇总往哪发卡片？真遇到异常、数据源打架或高危拍板节点时，你清楚停在哪一步、打包什么 A/B 选项喊我确认吗？”</p>
-              </div>
-            </div>
-
-            <div class="check-item">
-              <span class="check-num">5</span>
-              <div>
-                <h4>自动触发与自我迭代有没有闭环</h4>
-                <p>“这件事可以挂在哪些事件或定时触发器上自动跑，不用每次等我手动催？跑完一周后，你打算盯哪份真实业务反馈或我的驳回记录，来主动提出下一轮的 <code>SKILL.md</code> 修订建议？”</p>
-              </div>
-            </div>
-          </div>
-
-          <pre id="all-prompts" style="display:none;">准备打造/救活一个业务 Agent 前，请你先对照这 5 个问题向我确认（先别急着动手改逻辑，对齐后每次只问我 1 个具体问题）：
-
-1. 【目标对不对】我们当前的需求和目标清不清晰？结合你已经在跑或将要接手的这件事，你理解的终局 Goal 是什么？哪些只是可以砍掉的中间动作？请先用一句话复述你要交付的结果。
-2. 【经验与红线齐不齐】你还需要知道哪些我平时的隐性判断、多系统冲突听哪个权威源、以及哪些高危红线必须停下来问我？对齐后请帮我沉淀成一份独立可复用的 SKILL.md。
-3. 【环境可达够不够】你现在能直接拿到完成这件事所需的全部关键信息（IM 系统平台、数据库、日志、工单等）吗？缺不缺唯一 ID 串联或轻采集工具？做完之后你能把产出和操作准确写回对应位置吗？
-4. 【触达分级准不准】常规任务完成后怎么静默落库不刷屏？周期汇总往哪发卡片？真遇到异常、数据源打架或高危拍板节点时，你清楚停在哪一步、打包什么 A/B 选项喊我确认吗？
-5. 【自动触发与自我迭代】这件事可以挂在哪些事件或定时触发器上自动跑，不用每次等我手动催？跑完一周后，你打算盯哪份真实业务反馈或我的驳回记录，来主动提出下一轮的 SKILL.md 修订建议？</pre>
-        </section>
-      </article>
-
-      <div class="docs-end-zone">
-        <div class="docs-help-card">
-          <div class="docs-help-copy">
-            <strong>看完还有疑问，或者想聊聊你的业务 Agent 落地现场？</strong>
-            参考原文：Lauren Tan（@poteto）《Automate Anything with Claude Code》。欢迎在 GitHub 或小红书找木鱼切磋。
-          </div>
-          <div class="docs-help-actions">
-            <a href="https://poteto.io/writing/automate-anything-with-claude-code" target="_blank" rel="noopener" class="docs-help-btn">读英文原文 ↗</a>
-            <a href="https://github.com/Libeny" target="_blank" rel="noopener" class="docs-help-btn">GitHub 交流 ↗</a>
-            <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener" class="docs-help-btn">小红书 @木鱼拓哉</a>
+          <div class="pillar-grid">
+            <div class="pillar-item"><strong>Goal 定方向</strong>让 Agent 知道自己对哪项业务结果负责。</div>
+            <div class="pillar-item"><strong>Skill 存经验</strong>把老手脑子里的隐性判断写成规范文件，跨会话可直接复用。</div>
+            <div class="pillar-item"><strong>环境可触达建设</strong>让 Agent 读到真实业务系统的关键信息，并把输出与操作写回对应位置。</div>
+            <div class="pillar-item"><strong>自动化去瓶颈</strong>靠事件与定时器自己启动，人不用每次手动喊开始。</div>
           </div>
         </div>
 
-        <nav class="docs-pager" aria-label="上下篇导航">
-          <a href="writing.html" class="docs-pager-card docs-pager-card--prev">
-            <span class="docs-pager-label">Archive · 返回目录</span>
-            <span class="docs-pager-title">回到木鱼拓哉の写作本</span>
-          </a>
-          <a href="writing-linear-sync-engine.html" class="docs-pager-card docs-pager-card--next">
-            <span class="docs-pager-label">Next · 下一篇</span>
-            <span class="docs-pager-title">Linear 架构深读：端云协同基本功</span>
-          </a>
-        </nav>
-      </div>
+        <p>下面按实际搭建顺序，从最容易第一步就跑偏的 <strong>Goal</strong> 开始拆。</p>
+      </section>
+
+      <section id="sec-goal">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 02 · GOAL OVER PROCESS</span>
+          <h2>二、第一步：先定 <code>Goal</code>，别把「旧流程」当目标</h2>
+        </div>
+        <p><code>@poteto</code> 在原文开头做了一个清楚的区分：<strong>目标（Goal）是你最后要的结果，流程（Process）是去往结果的路线。</strong></p>
+        <p>按这个标准看常见需求：</p>
+        <ul class="feature-list">
+          <li><strong>烤一个苹果派是目标</strong>；买苹果、削皮切块、揉面皮、放进烤箱，那是流程。</li>
+          <li><strong>换上备胎让车继续开是目标</strong>；拿工具箱、支千斤顶、拧螺丝、装新胎，那是流程。</li>
+        </ul>
+        <p>放到业务里，大家最常直接把“旧流程里的某一步”原封不动交给了 Agent。</p>
+
+        <figure class="fig-live" data-live-fig>
+          <div class="live-stage" title="入屏自动播放一遍后定格终帧，点击可重播或暂停">
+            <video src="assets/media/fde-agent/fig1-goal-vs-process.mp4" muted playsinline preload="auto" data-play-once="1"></video>
+          </div>
+          <figcaption>
+            <span>只派零散操作会显得笨拙，交出终局 Goal 它才会自主做业务判断</span>
+            <span class="fig-meta"><button type="button" class="replay-btn">↺ 重播</button><span class="fig-no">LIVE · FIG 01 / 03</span></span>
+          </figcaption>
+        </figure>
+
+        <div class="compare-figure">
+          <div class="compare-kicker">PROCESS VS. GOAL · 业务目标校准对照</div>
+          <div class="table-scroll">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th style="width:28%;">常见误区（把流程当目标）</th>
+                  <th style="width:36%;">校准后的真实 Goal（终局目标）</th>
+                  <th style="width:36%;">校准后 Agent 行为的变化</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>“每天把各系统报表搬进汇总表格”</td>
+                  <td><strong>早 9 点前让团队看清哪项指标异常、该谁跟进</strong></td>
+                  <td>自动挑出异常单号与原因推到群里，不必让人先去翻整张表格</td>
+                </tr>
+                <tr>
+                  <td>“给每个新询盘自动回模板欢迎邮件”</td>
+                  <td><strong>提高有效商机转化率，不漏跟高意向客户</strong></td>
+                  <td>先查 CRM 看客户是否已成交、该分给哪个销售，再决定推给谁跟进</td>
+                </tr>
+                <tr>
+                  <td>“每周五照例写一份项目流水账周报”</td>
+                  <td><strong>让项目卡点在恶化前被相关负责人看见并认领</strong></td>
+                  <td>常规进度静默落库，一旦卡住立刻在原讨论串 <code>@</code> 对应负责人</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p>如果你心里只想着一个模糊的方向（比如“管理我的店”“帮我盯运营”），不知道怎么一句话写清 <code>Goal</code>，直接用 <code>@poteto</code> 原文里的第一步提问，先给它起个代号（比如 Potato），让它反过来采访你：</p>
+
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-title">原文保留提问 01 &amp; 02 · 目标对齐与反向采访</span>
+            <button type="button" class="copy-btn" data-copy-target="prompt-1">复制模板</button>
+          </div>
+          <div class="prompt-body" id="prompt-1">
+            <p><strong>如果你已经有清晰目标：</strong><br>“嗨 Potato，这是我想让你负责的 Goal：<code>&lt;目标&gt;</code>。根据这个目标，给你自己挑一个名字和头像吧。”</p>
+            <p><strong>如果一时描述不清，让它像记者一样采访你：</strong><br>“嗨 Potato，我想让你负责一个目标，但我不太确定怎么描述最合适。你能先向我提些问题、像采访我一样聊聊，直到我们一起确定一个让我满意的 Goal 吗？”</p>
+          </div>
+        </div>
+
+        <div class="callout-note">
+          <strong>检验方法：</strong>写完一条 <code>Goal</code>，问一句：“做完后，业务多了什么收入、省了多少人手，或提前挡住了什么风险？”如果只能答出“省得我自己点五下表格”，就还是旧动作。
+        </div>
+      </section>
+
+      <section id="sec-skill">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 03 · EXPERIENCE DISTILLATION</span>
+          <h2>三、第二步：经验蒸馏，把直觉写进 <code>SKILL.md</code></h2>
+        </div>
+        <p>很多人卡在从零教 AI：“我自己做只要 5 分钟，写提示词却要写半小时，最后它还是会在奇怪的地方出错。”</p>
+        <p>因为老手干活靠很多下意识判断，打字写提示词时很容易漏掉。要让 Agent 稳定接手，按下面四步对齐最省事。</p>
+
+        <figure class="fig-live tilt-right" data-live-fig>
+          <div class="live-stage" title="入屏自动播放一遍后定格终帧，点击可重播或暂停">
+            <video src="assets/media/fde-agent/fig2-skill-distill.mp4" muted playsinline preload="auto" data-play-once="1"></video>
+          </div>
+          <figcaption>
+            <span>口述脑暴 → 复述对齐 → 逐题反问 → 反例校准，最终固化成一份团队可复用的 SKILL.md</span>
+            <span class="fig-meta"><button type="button" class="replay-btn">↺ 重播</button><span class="fig-no">LIVE · FIG 02 / 03</span></span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="h3-dot"></span>3.1 打开语音，5 到 10 分钟一口气倒出来</h3>
+        <p><code>@poteto</code> 最推荐的方法不是打字，而是直接开语音输入：把它当成第一天入职的新同事，零散、跳脱、口语化都没关系，一口气说 5–10 分钟，重点讲透 6 件事：</p>
+        <ol class="scenes-list">
+          <li><strong>平时顺着哪几步做</strong>：从拿到需求到收尾的大致顺序。</li>
+          <li><strong>你眼神会特别盯紧哪些坑</strong>：哪些数字不对、哪些客户脾气急、哪一步最容易漏。</li>
+          <li><strong>手头开了哪些软件和系统</strong>：邮箱、IM 系统平台、数据库、日志、工单后台、表格或代码库。</li>
+          <li><strong>怎么确认这活“彻底做完了”</strong>：是发出邮件算完，还是必须写入系统且拿到回执？</li>
+          <li><strong>一手信息从哪查</strong>：群聊记录、客户邮件、工单系统还是数据库。</li>
+          <li><strong>外部真实反馈在哪看</strong>：客户评价、差评工单，还是销售同事在群里的吐槽。</li>
+        </ol>
+
+        <h3><span class="h3-dot"></span>3.2 先让它用大白话复述，不准先动手</h3>
+        <p>语音倒完脑子后，先别让 Agent 连工具干活。先发这段提示词，对齐彼此理解：</p>
+
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-title">原文保留提问 03 · 流程复述确认（不准先动手）</span>
+            <button type="button" class="copy-btn" data-copy-target="prompt-3">复制模板</button>
+          </div>
+          <div class="prompt-body" id="prompt-3">
+            <p>“Potato，为了达成这个 Goal，我平时通常是这样做的：<code>&lt;你的口述流程&gt;</code>。<br>我想让你思考一下如何完全从我手里接管这件事。在动手之前，<strong>先用简单直白的话复述一遍你理解的我的目标和流程，方便我给你反馈和确认。现在先别开始执行</strong>，我们先把流程对齐规划好。”</p>
+          </div>
+        </div>
+
+        <p>像改实习生周报一样校准两三轮后，再发下面这句，看 AI 有没有更省事的做法：</p>
+
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-title">原文保留提问 04 · 反向优化冗余流程</span>
+            <button type="button" class="copy-btn" data-copy-target="prompt-4">复制模板</button>
+          </div>
+          <div class="prompt-body" id="prompt-4">
+            <p>“对照我最开始的那个 Goal，重新审视一下我们刚定的流程；如果你发现有更好、更高效的做法，随时告诉我。”</p>
+          </div>
+        </div>
+
+        <h3><span class="h3-dot"></span>3.3 反问式采访：逼出你的“隐性判断”与“求助红线”</h3>
+        <p><code>@poteto</code> 在原文里举了个细节：排预约时，你知道哪项服务特别费时间、哪两个客户不能排在一起、邮件和日历冲突时该听谁的，以及“邮件发出不算完，预约写库且对方收到确认函才算完”。</p>
+        <p>这些习惯人靠自己回忆想不全，让 Agent 每次只问一个问题来反问你，再拿过去出过岔子的反例考它：</p>
+
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-title">原文保留提问 05 · 单题反问查漏 + 边界举证</span>
+            <button type="button" class="copy-btn" data-copy-target="prompt-5">复制模板</button>
+          </div>
+          <div class="prompt-body" id="prompt-5">
+            <p>“Potato，帮我查漏补缺，看看这个流程里我还有哪些事没告诉你。针对<strong>我怎么做决策、去哪里拿信息、怎么检查工作成果、以及什么时候必须找我求助</strong>这几方面向我提问。<strong>每次只问一个问题</strong>，问完再举几个例子带我走一遍，好让我在正式自动化之前给你反馈。”</p>
+          </div>
+        </div>
+
+        <h3><span class="h3-dot"></span>3.4 把规矩写进 <code>SKILL.md</code>，别留在聊天记录里</h3>
+        <p>前面三步做完后，<code>@poteto</code> 就直接接工具上线了。但在团队环境里，把对齐好的边界留在一个聊天窗口里不够：明天换新会话、换台电脑，或者换人接手，又得重新讲一遍。</p>
+        <p>直接让 Agent 把这套规则写成结构化的 <code>SKILL.md</code>，固定写清 4 件事：</p>
+
+        <div class="skill-blueprint">
+          <span class="sk-title"># &lt;业务 Skill 名称&gt; / SKILL.md</span>
+          <div><span class="sk-key">1. Goal（终局责任）：</span>本技能对哪一项业务结果负责，不管什么。</div>
+          <div><span class="sk-key">2. 触发与权威数据源：</span>何时启动；去哪取数；多系统金额或时间冲突时听谁的。</div>
+          <div><span class="sk-key">3. 隐性规则与高危红线：</span>老手例外判断，以及发版、付款、对外群发等必须停下来让人确认的节点。</div>
+          <div><span class="sk-key">4. 验收标准（Definition of Done）：</span>做到哪一步才算完成（如落库、发确认并回传凭证）。</div>
+        </div>
+
+        <p>写进 <code>SKILL.md</code> 后，团队和不同机器都能直接加载复用，规则也会跟着业务一起修订。</p>
+      </section>
+
+      <section id="sec-reach">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 04 · ENVIRONMENT REACHABILITY</span>
+          <h2>四、第三步：<code>环境可触达建设</code>，读得见信息也操作到位置</h2>
+        </div>
+        <p>有了 Goal 和经验规范，Agent 在公司里依然常常干不了重活。卡点通常在环境触达不够：输入侧读不到业务系统的关键信息，输出侧也没法把结果和动作写回原本的位置。</p>
+
+        <figure class="fig-live" data-live-fig>
+          <div class="live-stage" title="入屏自动播放一遍后定格终帧，点击可重播或暂停">
+            <video src="assets/media/fde-agent/fig3-reach-flywheel.mp4" muted playsinline preload="auto" data-play-once="1"></video>
+          </div>
+          <figcaption>
+            <span>输入侧触达关键系统与唯一 ID，输出侧直接操作并落回对应位置，再每周修订 Skill</span>
+            <span class="fig-meta"><button type="button" class="replay-btn">↺ 重播</button><span class="fig-no">LIVE · FIG 03 / 03</span></span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="h3-dot"></span>4.1 输入可触达：直连关键业务信息、补齐盲区、用唯一 ID 串表</h3>
+        <ul class="feature-list">
+          <li><strong>接上工具连接器（Connectors / MCP）</strong>：把邮箱、IM 系统平台、CRM、数据库、日志、工单系统、应用评价与代码库直连给 Agent，让它自己读一手关键信息，不用人截图或导表格喂给它。</li>
+          <li><strong>缺少的数据，让 Agent 现场写小工具采出来</strong>：<code>@poteto</code> 原文讲过一个汽修店案例。老板总觉得客户等太久，但店里没人记录哪一步耗时长。他们让 Agent 现场搭了一个手机、电脑都能点的小页面，只记 4 个时间戳（进店时间、对接服务顾问时间、拿到钥匙时间、开修与完工时间）。两周后，瓶颈卡在接车还是领钥匙就一目了然。</li>
+          <li><strong>跨系统必须有唯一 ID 串表</strong>：客户邮箱、订单号（如 <code>ORD-2048</code>）、工单编号或 Task ID。只要多个系统共用同一把 ID，Agent 就能把外部差评和当天后台记录自动拼到一起归因。</li>
+        </ul>
+
+        <h3><span class="h3-dot"></span>4.2 输出与操作可触达：写回并操作到对应位置，再做分级触达</h3>
+        <p>光在聊天框里回一句“做好了”不够。结果和动作得直接写回业务原本发生的地方，再按轻重分级通知人：</p>
+        <ol class="scenes-list">
+          <li><strong>常规任务完成 → 直接写回并操作到对应系统位置</strong>：把产出链接、状态更新、字段变更写回任务看板、CRM 或工单接口，不在群里刷“我已读取第 3 行数据”这类过程消息。</li>
+          <li><strong>周期性汇总 → 定时推送到对应频道的简报卡</strong>：把一天或一周跑完的几十件小事，在固定早晚时间收拢成一张干净可读的摘要卡发到指定频道。</li>
+          <li><strong>异常、冲突与高危红线 → 在原讨论串打包选项直接 <code>@</code> 对的人</strong>：遇到数据源冲突、信息缺失，或涉及发版、付款、对外群发等不可逆动作时停下来，把事实和 A/B 选项打包，在原讨论位置 <code>@</code> 负责人确认。</li>
+        </ol>
+      </section>
+
+      <section id="sec-auto">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 05 · AUTOMATION &amp; SELF-ITERATION</span>
+          <h2>五、第四步：<code>自动化</code>与自我迭代，把人从瓶颈位置摘出来</h2>
+        </div>
+        <p>很多人的 Bot 始终只停在“工具”，因为每次运行还等着人手动发一句消息。只要人还是触发开关，人就是系统里最大的瓶颈。</p>
+
+        <h3><span class="h3-dot"></span>5.1 用事件和定时器，替掉人工口令</h3>
+        <ul class="feature-list">
+          <li><strong>事件触发（Event-driven）</strong>：来了一封新客户邮件、应用商店多了一条一星差评、群里新开一张工单，或者代码合入主分支时自动唤醒。</li>
+          <li><strong>定时巡检（Routines / Cron）</strong>：每天早 07:30 采集简报、每小时巡检异常单号、每周五下午做周度复盘归档。</li>
+        </ul>
+
+        <h3><span class="h3-dot"></span>5.2 接上外部反馈，每周让它自己改一次 <code>SKILL.md</code></h3>
+        <p>原文后半段，<code>@poteto</code> 提出一个自检问题：<strong>“假如是我自己亲自做这份工作，而且想越做越好，我会去看什么指标？”</strong></p>
+        <p>把这个真实反馈源（客户退单率、差评内容、人类打回修改记录）直接接给 Agent。每周定时让它回溯一次：哪类判断被人类改得最多？哪段等待时长突然拉长？复盘完，让它主动起草一条对 <code>SKILL.md</code> 规则的修订提案，你确认后合入就行。</p>
+      </section>
+
+      <section id="sec-checklist">
+        <div class="sec-head">
+          <span class="sec-num">SECTION 06 · COPY &amp; ASK YOUR AGENT</span>
+          <h2>六、新搭或救活业务 Agent 前，直接把这 5 个问题发给它</h2>
+        </div>
+        <p>准备新搭业务 Agent，或者想救活已经在跑但效果不好的 Bot 时，可以把这 5 个第一人称问题直接复制发给你的 Agent，先和它把边界对齐：</p>
+
+        <div class="prompt-card">
+          <div class="prompt-head">
+            <span class="prompt-title">开干前五连问 · 复制粘贴发给你的 Agent</span>
+            <button type="button" class="copy-btn" data-copy-target="prompt-5q">复制全部 5 问</button>
+          </div>
+          <div class="prompt-body" id="prompt-5q">
+            <p><strong>1. 目标对不对：</strong>“我们当前的需求和终局目标清不清晰？结合你现在已经在负责（或我想交给你）的这件事，你理解我们真正要达成的业务 Goal 是什么？当前做法里有哪些只是可以砍掉或替换的中间操作步骤？请先用一句话复述你理解的最终结果。”</p>
+            <p><strong>2. 经验与红线齐不齐：</strong>“为了稳定完成这个目标，你还需要知道哪些我平时下意识做的判断标准、数据冲突时听哪个权威系统、以及哪些高危边界必须先停下问我？请每次只问我一个问题，对齐后帮我整理沉淀成一份可复用的 <code>SKILL.md</code>。”</p>
+            <p><strong>3. 环境可触达够不够：</strong>“你现在能拿到完成这件事所需的全部真实环境关键信息（IM 系统平台、数据库、日志、工单等）吗？跨系统之间缺不缺统一 ID 串表、要不要现场写个小工具采集盲区？做完后你能直接输出并操作到对应的系统位置吗？”</p>
+            <p><strong>4. 触达分级准不准：</strong>“常规任务完成后怎么静默写回对应位置而不刷屏？周期性汇总发到哪里？遇到异常或高危拍板节点时，你清楚应该停在哪一步、打包什么选项来喊我确认吗？”</p>
+            <p><strong>5. 自动化与自迭代通没通：</strong>“这件事接下来可以挂在哪些事件触发器或定时 Routine 上自动跑起来，不用每次等我手动喊你？跑完一周后，你准备盯哪份真实反馈或驳回记录来主动提议修订 <code>SKILL.md</code>？”</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="post-foot">
+        <p><strong>木鱼拓哉 · FDE 焚诀笔记</strong> ｜ 参考：Lauren Tan（<code>@poteto</code>）<a href="https://x.com/poteto" target="_blank" rel="noopener">《Automate Anything with Grok Bot》</a>。</p>
+      </footer>
     </main>
 
-    <aside class="docs-outline" aria-label="本页大纲">
+    <aside class="docs-outline" aria-label="本页目录">
       <div class="docs-outline-title">On this page · 本页目录</div>
       <ul class="docs-outline-list">
-        <li><a href="#sec-why" class="docs-outline-link" aria-current="location">先讲清楚：为什么 Agent 总吃灰</a></li>
-        <li><a href="#sec-goal" class="docs-outline-link">一、1.1 先分清「Goal」和「Process」</a></li>
-        <li><a href="#sec-skill" class="docs-outline-link">二、经验蒸馏：语音倒脑子 + Skill</a></li>
-        <li><a href="#sec-reach" class="docs-outline-link">三、环境可达：拿信息与落操作</a></li>
-        <li><a href="#sec-auto" class="docs-outline-link">四、自动化触发 + 周度自迭代</a></li>
-        <li><a href="#sec-questions" class="docs-outline-link">五、发给 Agent 的 5 个对齐问题</a></li>
+        <li><a href="#sec-formula" class="docs-outline-link">一、底层公式：为何多数 Bot 只能陪聊</a></li>
+        <li><a href="#sec-goal" class="docs-outline-link">二、第一步：先定 Goal，别把旧流程当目标</a></li>
+        <li><a href="#sec-skill" class="docs-outline-link">三、第二步：四步经验蒸馏成 Skill</a></li>
+        <li><a href="#sec-reach" class="docs-outline-link">四、第三步：环境可触达建设</a></li>
+        <li><a href="#sec-auto" class="docs-outline-link">五、第四步：自动化与每周自我迭代</a></li>
+        <li><a href="#sec-checklist" class="docs-outline-link">六、直接发给 Agent 的 5 个问题</a></li>
       </ul>
     </aside>
   </div>
 
-  <footer class="docs-footer">
-    <div class="docs-footer-inner">
-      <div class="docs-footer-top">
-        <div class="docs-footer-brand">
-          <a href="index.html" class="docs-footer-brand-head">
-            <img src="assets/favicon.png" alt="" class="docs-brand-avatar">
-            <span>木鱼拓哉 · MuYu</span>
-          </a>
-          <p>一个用科技解决生活问题的探索者。相信科技平权——让科技真的去解决普通人的生活问题，带来幸福。</p>
-          <div class="docs-footer-socials">
-            <a href="https://github.com/Libeny" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://xhslink.cn/o/7NkGrqC6zol" target="_blank" rel="noopener">小红书</a>
-            <a href="mailto:libeny0526@gmail.com">Email</a>
-          </div>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>技术深读</h4>
-          <ul>
-            <li><a href="writing-fde-business-agent.html">FDE 焚诀：业务 Agent 实战</a></li>
-            <li><a href="writing-designing-the-wait.html">AI 产品等待设计实战</a></li>
-            <li><a href="writing-linear-sync-engine.html">Linear 端云协同引擎</a></li>
-            <li><a href="writing-pi-agent-runtime.html">Pi Agent Runtime 底座</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>品味与随笔</h4>
-          <ul>
-            <li><a href="writing-ai-ui-curation.html">5 个封神 UI 库与 Skill</a></li>
-            <li><a href="writing-life.html">人文旅行八面体骨架</a></li>
-            <li><a href="writing-travel-book-essay.html">旅册：虚拟书架上的实体书</a></li>
-          </ul>
-        </div>
-
-        <div class="docs-footer-col">
-          <h4>栏目归档</h4>
-          <ul>
-            <li><a href="writing.html">全部文章目录</a></li>
-            <li><a href="writing.html?category=tech">最新技术拆解</a></li>
-            <li><a href="writing.html?category=life">生活杂谈随笔</a></li>
-            <li><a href="writing-tech-process.html">项目过程记录</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="docs-footer-bottom">
-        <span>© 2026 木鱼拓哉 · BUILDER'S NOTEBOOK &amp; WIKI</span>
-        <span class="hand">crafted with care &amp; curiosity ✦</span>
-      </div>
-    </div>
-  </footer>
-
-  <div class="guide-dock" role="navigation" aria-label="移动端章节与目录切换">
-    <button type="button" class="guide-dock-btn guide-dock-btn--pages" data-open-sheet="pages">
-      <span aria-hidden="true">☰</span>
-      <span>文章目录</span>
-    </button>
-    <span class="guide-dock-divider" aria-hidden="true"></span>
-    <button type="button" class="guide-dock-btn guide-dock-btn--outline" data-open-sheet="outline">
-      <span class="guide-dock-section" data-current-section-label>先讲清楚：为什么 Agent 总吃灰</span>
-      <span class="guide-dock-caret" aria-hidden="true">^</span>
-    </button>
-  </div>
-
-  <dialog class="guide-sheet" id="sheetPages" aria-label="全部文章目录">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">文章目录 · Contents</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">Agent 与业务落地</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-fde-business-agent.html" class="docs-nav-link" aria-current="page">FDE 焚诀：打造能干活的业务 Agent</a></li>
-              <li><a href="writing-linear-sync-engine.html" class="docs-nav-link">Linear 架构深读：端云协同基本功</a></li>
-              <li><a href="writing-pi-agent-runtime.html" class="docs-nav-link">Pi Agent Runtime 架构深读</a></li>
-              <li><a href="writing-raft-message-mechanism.html" class="docs-nav-link">Raft 消息机制：批量感知与发言检查</a></li>
-              <li><a href="writing-qwen-audio-agent.html" class="docs-nav-link">qwen-audio-agent：对话与干活双循环</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">交互设计与品味</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-ai-ui-curation.html" class="docs-nav-link">5 个让 AI 抄作业的封神 UI 库</a></li>
-              <li><a href="writing-designing-the-wait.html" class="docs-nav-link">AI 产品等待设计：从转圈到流式</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">生活杂谈与人文随笔</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-life.html" class="docs-nav-link">为什么现在的旅行越来越像体力活？</a></li>
-              <li><a href="writing-travel-book-essay.html" class="docs-nav-link">旅册：在虚拟书架上做一本实体书</a></li>
-            </ul>
-          </div>
-          <div class="docs-nav-group">
-            <div class="docs-nav-group-title">过程记录与专题归档</div>
-            <ul class="docs-nav-list">
-              <li><a href="writing-tech-process.html" class="docs-nav-link">过程记录：小刚Claw 与 crewless</a></li>
-              <li><a href="writing-tech-analysis.html" class="docs-nav-link">近期技术学习笔记归档</a></li>
-            </ul>
-          </div>
-    </div>
-  </dialog>
-
-  <dialog class="guide-sheet" id="sheetOutline" aria-label="本页章节大纲">
-    <div class="guide-sheet-head">
-      <span class="guide-sheet-title">本页目录 · On this page</span>
-      <button type="button" class="guide-sheet-close" data-close-sheet aria-label="关闭">×</button>
-    </div>
-    <div class="guide-sheet-body">
-      <ul class="docs-outline-list">
-        <li><a href="#sec-why" class="docs-outline-link" aria-current="location">先讲清楚：为什么 Agent 总吃灰</a></li>
-        <li><a href="#sec-goal" class="docs-outline-link">一、1.1 先分清「Goal」和「Process」</a></li>
-        <li><a href="#sec-skill" class="docs-outline-link">二、经验蒸馏：语音倒脑子 + Skill</a></li>
-        <li><a href="#sec-reach" class="docs-outline-link">三、环境可达：拿信息与落操作</a></li>
-        <li><a href="#sec-auto" class="docs-outline-link">四、自动化触发 + 周度自迭代</a></li>
-        <li><a href="#sec-questions" class="docs-outline-link">五、发给 Agent 的 5 个对齐问题</a></li>
-      </ul>
-    </div>
-  </dialog>
-
-  <script src="assets/writing-shell.js" defer></script>
   <script>
-    // 1. Copy Prompt Buttons
-    document.querySelectorAll('.copy-btn').forEach(btn => {
+    // Copy prompt template buttons
+    document.querySelectorAll('[data-copy-target]').forEach((btn) => {
       btn.addEventListener('click', async () => {
-        const target = document.getElementById(btn.dataset.copy);
+        const target = document.getElementById(btn.getAttribute('data-copy-target'));
         if (!target) return;
-        const text = (target.innerText || target.textContent || '').trim();
+        const text = target.innerText.trim();
         try {
           await navigator.clipboard.writeText(text);
-          const orig = btn.textContent;
+          const old = btn.textContent;
           btn.textContent = '已复制 ✓';
           btn.classList.add('copied');
-          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
-        } catch (e) {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          btn.textContent = '已复制 ✓';
+          setTimeout(() => {
+            btn.textContent = old;
+            btn.classList.remove('copied');
+          }, 1600);
+        } catch {
+          btn.textContent = '请手动选中复制';
         }
       });
     });
 
-    // 2. Live Figures: play once on scroll-into-view and freeze cleanly on final frame
-    const figures = document.querySelectorAll('.live-fig');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const fig = entry.target;
-        const vid = fig.querySelector('video');
-        if (!vid || vid.dataset.playedOnce) return;
-        vid.dataset.playedOnce = '1';
-        vid.play().catch(() => {});
-        io.unobserve(fig);
-      });
-    }, { threshold: 0.45 });
+    // Play each Live figure ONCE when scrolled into view, then freeze on final frame; click or replay button restarts once
+    const liveFigs = Array.from(document.querySelectorAll('[data-live-fig]'));
+    liveFigs.forEach((fig) => {
+      const stage = fig.querySelector('.live-stage');
+      const video = fig.querySelector('video');
+      const replayBtn = fig.querySelector('.replay-btn');
+      if (!stage || !video) return;
 
-    figures.forEach(fig => {
-      const vid = fig.querySelector('video');
-      const btn = fig.querySelector('[data-replay]');
-      if (!vid) return;
-      vid.addEventListener('ended', () => {
-        if (btn) btn.classList.add('is-done');
+      const replayFromStart = () => {
+        video.dataset.playedOnce = '1';
+        if (replayBtn) {
+          replayBtn.textContent = '播放中…';
+          replayBtn.classList.remove('is-done');
+        }
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      };
+
+      video.addEventListener('ended', () => {
+        if (replayBtn) {
+          replayBtn.textContent = '↺ 重播';
+          replayBtn.classList.add('is-done');
+        }
       });
-      if (btn) {
-        btn.addEventListener('click', () => {
-          btn.classList.remove('is-done');
-          vid.currentTime = 0;
-          vid.play().catch(() => {});
+
+      stage.addEventListener('click', () => {
+        if (video.ended || !video.dataset.playedOnce) {
+          replayFromStart();
+        } else if (video.paused) {
+          video.play().catch(() => {});
+          if (replayBtn) replayBtn.textContent = '播放中…';
+        } else {
+          video.pause();
+          if (replayBtn) replayBtn.textContent = '▶ 继续';
+        }
+      });
+
+      if (replayBtn) {
+        replayBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          replayFromStart();
         });
       }
-      io.observe(fig);
     });
+
+    if ('IntersectionObserver' in window && liveFigs.length) {
+      const vio = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const fig = entry.target;
+          const video = fig.querySelector('video');
+          const replayBtn = fig.querySelector('.replay-btn');
+          if (video && !video.dataset.playedOnce) {
+            video.dataset.playedOnce = '1';
+            if (replayBtn) replayBtn.textContent = '播放中…';
+            video.play().catch(() => {});
+          }
+          vio.unobserve(fig);
+        }
+      }, { threshold: 0.4 });
+      liveFigs.forEach((fig) => vio.observe(fig));
+    }
+
+    // Highlight active section in sticky outline
+    const links = Array.from(document.querySelectorAll('.docs-outline-link'));
+    const sections = links
+      .map((a) => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    if ('IntersectionObserver' in window && sections.length) {
+      const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            links.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === '#' + entry.target.id));
+          }
+        }
+      }, { rootMargin: '-20% 0px -65% 0px' });
+      sections.forEach((sec) => io.observe(sec));
+    }
   </script>
 </body>
 </html>
