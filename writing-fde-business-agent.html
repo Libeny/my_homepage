@@ -82,38 +82,6 @@
       border-radius: 50%;
       border: 1.5px solid var(--ink);
     }
-    .top-nav {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .top-nav-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.32rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid rgba(105, 75, 64, 0.22);
-      background: rgba(255, 253, 248, 0.72);
-      color: var(--ink);
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-    }
-    .top-nav-link:hover {
-      background: rgba(105, 75, 64, 0.09);
-      border-color: rgba(105, 75, 64, 0.42);
-      color: var(--ink-light);
-    }
-    .top-nav-link--home {
-      background: var(--blue-soft);
-      border-color: rgba(105, 75, 64, 0.35);
-    }
-    .top-nav-link--home:hover {
-      background: rgba(105, 75, 64, 0.09);
-    }
 
     /* Layout Shell */
     .page-shell {
@@ -734,7 +702,6 @@
     @media (max-width: 640px) {
       .top-bar { padding: 0.65rem 1rem; }
       .brand-link { font-size: 0.84rem; padding: 0.24rem 0.56rem 0.24rem 0.24rem; }
-      .top-nav-link { font-size: 0.78rem; padding: 0.26rem 0.65rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -750,10 +717,6 @@
         <img src="assets/favicon.png" alt="木鱼拓哉">
         <span>← 返回写作本</span>
       </a>
-      <nav class="top-nav" aria-label="站点返回导航">
-        <a class="top-nav-link" href="writing.html?category=tech">写作目录</a>
-        <a class="top-nav-link top-nav-link--home" href="index.html#writing">回个人首页</a>
-      </nav>
     </div>
   </header>
 
