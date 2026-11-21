@@ -63,35 +63,56 @@
     .brand-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.65rem;
+      gap: 0.55rem;
       text-decoration: none;
       color: var(--ink);
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+      padding: 0.3rem 0.72rem 0.3rem 0.32rem;
+      border-radius: 999px;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+    .brand-link:hover {
+      background: rgba(105, 75, 64, 0.09);
+      color: var(--ink-light);
     }
     .brand-link img {
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      border: 2px solid var(--ink);
+      border: 1.5px solid var(--ink);
     }
-    .top-meta {
-      font-family: "MuYu Mono", monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      color: var(--ink-light);
+    .top-nav {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.45rem;
     }
-    .top-badge {
-      background: var(--blue-soft);
-      border: 1.5px solid var(--ink);
-      color: var(--ink);
-      padding: 0.15rem 0.65rem;
+    .top-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.32rem 0.8rem;
       border-radius: 999px;
-      font-weight: 700;
+      border: 1px solid rgba(105, 75, 64, 0.22);
+      background: rgba(255, 253, 248, 0.72);
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
       white-space: nowrap;
+      transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+    .top-nav-link:hover {
+      background: rgba(105, 75, 64, 0.09);
+      border-color: rgba(105, 75, 64, 0.42);
+      color: var(--ink-light);
+    }
+    .top-nav-link--home {
+      background: var(--blue-soft);
+      border-color: rgba(105, 75, 64, 0.35);
+    }
+    .top-nav-link--home:hover {
+      background: rgba(105, 75, 64, 0.09);
     }
 
     /* Layout Shell */
@@ -711,9 +732,9 @@
       .pillar-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
-      .top-meta > span:first-child { display: none; }
-      .brand-link span { font-size: 0.86rem; }
-      .top-badge { font-size: 0.68rem; padding: 0.12rem 0.52rem; }
+      .top-bar { padding: 0.65rem 1rem; }
+      .brand-link { font-size: 0.84rem; padding: 0.24rem 0.56rem 0.24rem 0.24rem; }
+      .top-nav-link { font-size: 0.78rem; padding: 0.26rem 0.65rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -727,12 +748,12 @@
     <div class="top-bar-inner">
       <a class="brand-link" href="writing.html">
         <img src="assets/favicon.png" alt="木鱼拓哉">
-        <span>← 木鱼拓哉 · 写作本</span>
+        <span>← 返回写作本</span>
       </a>
-      <div class="top-meta">
-        <span>FDE 焚诀</span>
-        <span class="top-badge">FDE PLAYBOOK</span>
-      </div>
+      <nav class="top-nav" aria-label="站点返回导航">
+        <a class="top-nav-link" href="writing.html?category=tech">写作目录</a>
+        <a class="top-nav-link top-nav-link--home" href="index.html#writing">回个人首页</a>
+      </nav>
     </div>
   </header>
 
